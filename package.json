@@ -9,16 +9,33 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/cache": "11.10.5",
     "@emotion/react": "^11.11.1",
+    "@emotion/server": "11.10.0",
     "@emotion/styled": "^11.11.0",
     "@fontsource/roboto": "^5.0.8",
+    "@heroicons/react": "2.0.16",
+    "@mui/lab": "5.0.0-alpha.120",
     "@mui/material": "^5.14.18",
-    "next": "14.0.1",
+    "@mui/system": "5.11.9",
+    "@mui/x-date-pickers": "5.0.19",
+    "apexcharts": "3.37.0",
+    "date-fns": "2.29.3",
+    "formik": "2.2.9",
+    "nprogress": "0.2.0",
+    "prop-types": "15.8.1",
+    "next": "^14.0.3",
     "react": "^18",
-    "react-dom": "^18"
+    "react-apexcharts": "1.4.0",
+    "react-dom": "^18",
+    "simplebar-react": "^3.2.1",
+    "yup": "1.0.0"
+
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/nprogress": "0.2.0",
+    "@types/numeral": "2.0.2",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
