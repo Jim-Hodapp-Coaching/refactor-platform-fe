@@ -1,4 +1,5 @@
-# Refactor Coaching Platform (Frontend)
+# Refactor Coaching Platform
+### Frontend (currently web browser-only)
 
 ## Intro
 
