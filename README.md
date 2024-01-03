@@ -1,9 +1,9 @@
-# Refactor Coaching Platform
+# Refactor Coaching & Mentoring Platform
 ### Frontend (currently web browser-only)
 
 ## Intro
 
-A Rust-based frontend that provides a web API for various client applications (e.g. a web frontend) that facilitate the coaching of software engineers.
+A Rust-based frontend that provides a web API for various client applications (e.g. a web frontend) that facilitate the coaching and mentoring of software engineers.
 
 The platform itself is useful for professional independent coaches, informal mentors and engineering leaders who work with individual software engineers and/or teams by providing a single application that facilitates and enhances your coaching practice.
 
