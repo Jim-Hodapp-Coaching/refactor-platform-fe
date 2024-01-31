@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import NextAuth from "next-auth"
+import NextAuth from "@/app/api/auth/[...nextauth]"
 import CredentialsProvider from "next-auth/providers/credentials"
 
 import { cn } from "@/lib/utils"
@@ -11,45 +11,24 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export default NextAuth({
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        const authResponse = await fetch("/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(credentials),
-        })
-
-        if (!authResponse.ok) {
-          return null
-        }
-
-        const user = await authResponse.json()
-
-        return user
-      },
-    }),
-  ],
-})
-
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
 
-  async function onSubmit(event: React.SyntheticEvent) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsLoading(true)
 
-    await authorize()
+    //await authorize()
+    console.log("submit and authorize");
+    
+    return NextAuth
+      .registerProvider(CredentialsProvider)
+      .then((user: any, cb) => {
+        console.log(user)
+        return user
+      })
 
     setTimeout(() => {
       setIsLoading(false)
