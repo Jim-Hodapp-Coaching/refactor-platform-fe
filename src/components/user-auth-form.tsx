@@ -2,8 +2,7 @@
 
 import * as React from "react"
 
-import NextAuth from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
+import { useRouter } from "next/navigation";
 
 import { cn } from "@/lib/utils"
 import { Icons } from "@/components/ui/icons"
@@ -11,54 +10,69 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export default NextAuth({
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        const authResponse = await fetch("/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(credentials),
-        })
-
-        if (!authResponse.ok) {
-          return null
-        }
-
-        const user = await authResponse.json()
-
-        return user
-      },
-    }),
-  ],
-})
-
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+  const router = useRouter()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [email, setEmail] = React.useState<string>('')
+  const [password, setPassword] = React.useState<string>('')
 
-  async function onSubmit(event: React.SyntheticEvent) {
+  async function login(event: React.SyntheticEvent) {
     event.preventDefault()
     setIsLoading(true)
 
-    await authorize()
+    console.log("email: ", email)
+    console.log("password: ", password)
+
+    console.log("Submitting login form with a POST request")
+
+    const credentials = new URLSearchParams();
+    credentials.append('email', email);
+    credentials.append('password', password);
+
+    console.log("credentials from form URL encoded: ", credentials)
+
+    await fetch("http://localhost:4000/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      mode: "no-cors",
+      body: credentials
+    })
+    .then(async response => {
+      const isJson = response.headers.get('content-type')?.includes('application/json');
+      const data = isJson ? await response.json() : null;
+
+      if (!response.ok) {
+        const error = (data && data.message) || response.status;
+        console.error("HTTP response !ok, error: ", error)
+        return Promise.reject(error)
+      }
+
+      console.log("fetch response.status: ", response.status)
+      console.log("fetch response.statusText: ", response.statusText)
+
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 3000)
+
+      router.push("/dashboard")
+    })
+    .catch (error => {
+      console.error("Fetch Error: failed to POST to /login on the backend.", error)
+    })
 
     setTimeout(() => {
       setIsLoading(false)
     }, 3000)
+
   }
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={login}>
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
@@ -66,13 +80,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             </Label>
             <Input
               id="email"
-              placeholder="name@example.com"
               type="email"
+              name="email"
+              placeholder="name@example.com"
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
               required
               disabled={isLoading}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="grid gap-1">
@@ -82,10 +98,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             <Input
               id="password"
               type="password"
+              name="password"
               autoCapitalize="none"
               autoCorrect="off"
               required
               disabled={isLoading}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <Button disabled={isLoading}>
