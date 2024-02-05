@@ -38,17 +38,19 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      mode: "no-cors",
+      cache: "default",
       body: credentials
     })
-    .then(async response => {
+    .then(response => {
       const isJson = response.headers.get('content-type')?.includes('application/json');
-      const data = isJson ? await response.json() : null;
+      const data = isJson ? response.json() : null;
 
       if (!response.ok) {
-        const error = (data && data.message) || response.status;
-        console.error("HTTP response !ok, error: ", error)
-        return Promise.reject(error)
+        console.error("HTTP response !ok, status: ", response.status)
+        if (response.status == 401) {
+          console.error("Login failed: UNAUTHORIZED");
+        }
+        return Promise.reject(response)
       }
 
       console.log("fetch response.status: ", response.status)
