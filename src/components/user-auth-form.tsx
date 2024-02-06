@@ -66,6 +66,16 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     }
   }
 
+  const updateEmail = (value: string) => {
+    setEmail(value)
+    setError('');
+  };
+
+  const updatePassword = (value: string) => {
+    setPassword(value)
+    setError('');
+  };
+
   return (
     <div className={cn("grid gap-6", className)} {...props}>
       <form onSubmit={login}>
@@ -84,7 +94,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoCorrect="off"
               required
               disabled={isLoading}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => updateEmail(e.target.value)}
             />
           </div>
           <div className="grid gap-1">
@@ -99,7 +109,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoCorrect="off"
               required
               disabled={isLoading}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => updatePassword(e.target.value)}
             />
           </div>
           <Button disabled={isLoading}>
