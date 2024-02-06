@@ -17,6 +17,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [email, setEmail] = React.useState<string>('')
   const [password, setPassword] = React.useState<string>('')
+  const [error, setError] = React.useState<string>('')
 
   async function login(event: React.SyntheticEvent) {
     event.preventDefault()
@@ -33,43 +34,36 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
     console.log("credentials from form URL encoded: ", credentials)
 
-    await fetch("http://localhost:4000/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      cache: "default",
-      body: credentials
-    })
-    .then(response => {
-      const isJson = response.headers.get('content-type')?.includes('application/json');
-      const data = isJson ? response.json() : null;
+    try {
+      const response = await fetch("http://localhost:4000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        cache: "default",
+        body: credentials
+      })
 
       if (!response.ok) {
-        console.error("HTTP response !ok, status: ", response.status)
         if (response.status == 401) {
-          console.error("Login failed: UNAUTHORIZED");
+          setError('Login failed: unauthorized');
+        } else {
+          setError(`Login failed (invalid response from authentication server: ${response.statusText})`);
         }
-        return Promise.reject(response)
+        return;
       }
+      const isJson = response.headers.get('content-type')?.includes('application/json');
+      const data = isJson ? await response.json() : null;
+      console.log(`Response JSON: ${data}`);
 
-      console.log("fetch response.status: ", response.status)
-      console.log("fetch response.statusText: ", response.statusText)
-
+      router.push("/dashboard")
+    } catch (error) {
+      setError(`Failed to POST to /login on the backend: ${error})`);
+    } finally {
       setTimeout(() => {
         setIsLoading(false)
       }, 3000)
-
-      router.push("/dashboard")
-    })
-    .catch (error => {
-      console.error("Fetch Error: failed to POST to /login on the backend.", error)
-    })
-
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
-
+    }
   }
 
   return (
@@ -114,6 +108,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             )}
             Sign In with Email
           </Button>
+          <p className="text-center text-sm font-semibold text-red-500 text-muted-foreground">
+            {error}
+          </p>
         </div>
       </form>
       <div className="relative">
