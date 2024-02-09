@@ -56,7 +56,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       const data = isJson ? await response.json() : null;
       console.log(`Response JSON: ${data}`);
 
-      router.push("/dashboard")
+      router.push("/coaching-sessions")
     } catch (error) {
       setError(`Failed to POST to /login on the backend: ${error})`);
     } finally {
