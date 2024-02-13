@@ -1,6 +1,5 @@
 import { Metadata } from "next"
 import Image from "next/image"
-import Link from "next/link"
 
 import { CounterClockwiseClockIcon } from "@radix-ui/react-icons"
 
@@ -33,6 +32,7 @@ import { models, types } from "../../data/models"
 import { presets } from "../../data/presets"
 
 import { cn } from "@/lib/utils"
+import { Main } from "next/document"
 
 export const metadata: Metadata = {
   title: "Coaching Session",

@@ -1,38 +1,38 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
 import { useRouter } from "next/navigation";
 
-import { cn } from "@/lib/utils"
-import { Icons } from "@/components/ui/icons"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils";
+import { Icons } from "@/components/ui/icons";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [email, setEmail] = React.useState<string>('')
-  const [password, setPassword] = React.useState<string>('')
-  const [error, setError] = React.useState<string>('')
+  const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [email, setEmail] = React.useState<string>("");
+  const [password, setPassword] = React.useState<string>("");
+  const [error, setError] = React.useState<string>("");
 
   async function login(event: React.SyntheticEvent) {
-    event.preventDefault()
-    setIsLoading(true)
+    event.preventDefault();
+    setIsLoading(true);
 
-    console.log("email: ", email)
-    console.log("password: ", password)
+    console.log("email: ", email);
+    console.log("password: ", password);
 
-    console.log("Submitting login form with a POST request")
+    console.log("Submitting login form with a POST request");
 
     const credentials = new URLSearchParams();
-    credentials.append('email', email);
-    credentials.append('password', password);
+    credentials.append("email", email);
+    credentials.append("password", password);
 
-    console.log("credentials from form URL encoded: ", credentials)
+    console.log("credentials from form URL encoded: ", credentials);
 
     try {
       const response = await fetch("http://localhost:4000/login", {
@@ -41,39 +41,43 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         cache: "default",
-        body: credentials
-      })
+        body: credentials,
+      });
 
       if (!response.ok) {
         if (response.status == 401) {
-          setError('Login failed: unauthorized');
+          setError("Login failed: unauthorized");
         } else {
-          setError(`Login failed (invalid response from authentication server: ${response.statusText})`);
+          setError(
+            `Login failed (invalid response from authentication server: ${response.statusText})`
+          );
         }
         return;
       }
-      const isJson = response.headers.get('content-type')?.includes('application/json');
+      const isJson = response.headers
+        .get("content-type")
+        ?.includes("application/json");
       const data = isJson ? await response.json() : null;
       console.log(`Response JSON: ${data}`);
 
-      router.push("/coaching-sessions")
+      router.push("/coaching-sessions");
     } catch (error) {
       setError(`Failed to POST to /login on the backend: ${error})`);
     } finally {
       setTimeout(() => {
-        setIsLoading(false)
-      }, 3000)
+        setIsLoading(false);
+      }, 3000);
     }
   }
 
   const updateEmail = (value: string) => {
-    setEmail(value)
-    setError('');
+    setEmail(value);
+    setError("");
   };
 
   const updatePassword = (value: string) => {
-    setPassword(value)
-    setError('');
+    setPassword(value);
+    setError("");
   };
 
   return (
@@ -142,5 +146,5 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         GitHub
       </Button>
     </div>
-  )
+  );
 }
