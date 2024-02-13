@@ -31,9 +31,6 @@ import { TopPSelector } from "@/components/ui/top-p-selector"
 import { models, types } from "../../data/models"
 import { presets } from "../../data/presets"
 
-import { cn } from "@/lib/utils"
-import { Main } from "next/document"
-
 export const metadata: Metadata = {
   title: "Coaching Session",
   description: "Coaching session main page, where the good stuff happens.",
