@@ -1,3 +1,5 @@
+import { ThemeProvider } from "@/components/ui/providers"
+
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 
@@ -16,7 +18,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className}>
       <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
         {children}
+        </ThemeProvider>
       </body>
     </html>
   )

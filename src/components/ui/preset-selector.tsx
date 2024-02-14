@@ -37,19 +37,24 @@ export function PresetSelector({ presets, ...props }: PresetSelectorProps) {
         <Button
           variant="outline"
           role="combobox"
-          aria-label="Load a preset..."
+          aria-label="Select a coaching session"
           aria-expanded={open}
           className="flex-1 justify-between md:max-w-[200px] lg:max-w-[300px]"
         >
-          {selectedPreset ? selectedPreset.name : "Load a preset..."}
+          {selectedPreset ? selectedPreset.name : "Select a coaching session"}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
         <Command>
-          <CommandInput placeholder="Search presets..." />
-          <CommandEmpty>No presets found.</CommandEmpty>
-          <CommandGroup heading="Examples">
+          <CommandInput placeholder="Search for coaching sessions" />
+          <CommandEmpty>No sessions found.</CommandEmpty>
+          <CommandGroup heading="Current session">
+            <CommandItem>
+              February 14, 2024
+            </CommandItem>
+          </CommandGroup>
+          <CommandGroup heading="Future sessions">
             {presets.map((preset) => (
               <CommandItem
                 key={preset.id}
@@ -70,9 +75,14 @@ export function PresetSelector({ presets, ...props }: PresetSelectorProps) {
               </CommandItem>
             ))}
           </CommandGroup>
+          <CommandGroup heading="Past sessions">
+            <CommandItem>
+              January 5, 2024
+            </CommandItem>
+          </CommandGroup>
           <CommandGroup className="pt-0">
             <CommandItem onSelect={() => router.push("/examples")}>
-              More examples
+              More past sessions
             </CommandItem>
           </CommandGroup>
         </Command>

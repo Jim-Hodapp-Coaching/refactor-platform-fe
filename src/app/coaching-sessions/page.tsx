@@ -57,10 +57,9 @@ export default function CoachingSessionsPage() {
       </div>
       <div className="hidden h-full flex-col md:flex">
         <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
-          <h2 className="text-lg font-semibold">Session</h2>
+          <h4 className="w-16 md:w-32 lg:w-48 font-semibold">Feb 14, 2024</h4>
           <div className="ml-auto flex w-full space-x-2 sm:justify-end">
             <PresetSelector presets={presets} />
-            <PresetSave />
             <div className="hidden space-x-2 md:flex">
               <CodeViewer />
               <PresetShare />
@@ -259,7 +258,7 @@ export default function CoachingSessionsPage() {
                 <TabsContent value="complete" className="mt-0 border-0 p-0">
                   <div className="flex h-full flex-col space-y-4">
                     <Textarea
-                      placeholder="Write a tagline for an ice cream shop"
+                      placeholder="Coaching session notes"
                       className="min-h-[400px] flex-1 p-4 md:min-h-[700px] lg:min-h-[700px]"
                     />
                     <div className="flex items-center space-x-2">
