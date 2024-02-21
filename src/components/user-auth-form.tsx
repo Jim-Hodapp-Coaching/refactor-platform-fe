@@ -4,6 +4,8 @@ import * as React from "react"
 
 import { useRouter } from "next/navigation";
 
+import {AxiosError, AxiosResponse} from 'axios';
+
 import { cn } from "@/lib/utils"
 import { Icons } from "@/components/ui/icons"
 import { Button } from "@/components/ui/button"
@@ -14,6 +16,8 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const router = useRouter()
+  const axios = require('axios');
+
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [email, setEmail] = React.useState<string>('')
   const [password, setPassword] = React.useState<string>('')
@@ -28,42 +32,39 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
     console.log("Submitting login form with a POST request")
 
-    const credentials = new URLSearchParams();
-    credentials.append('email', email);
-    credentials.append('password', password);
-
-    console.log("credentials from form URL encoded: ", credentials)
-
-    try {
-      const response = await fetch("http://localhost:4000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        cache: "default",
-        body: credentials
-      })
-
-      if (!response.ok) {
-        if (response.status == 401) {
-          setError('Login failed: unauthorized');
-        } else {
-          setError(`Login failed (invalid response from authentication server: ${response.statusText})`);
-        }
-        return;
-      }
-      const isJson = response.headers.get('content-type')?.includes('application/json');
-      const data = isJson ? await response.json() : null;
-      console.log(`Response JSON: ${data}`);
+    const data = await axios.post('http://localhost:4000/login', {
+      email: email,
+      password: password,
+    }, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
+    })
+    .then(function (response: AxiosResponse) {
+      // handle success
+      console.log(response);
 
       router.push("/coaching-sessions")
-    } catch (error) {
-      setError(`Failed to POST to /login on the backend: ${error})`);
-    } finally {
+    })
+    .catch(function (error: AxiosError) {
+      // handle error
+      console.log(error.response?.status);
+      if (error.response?.status == 401) {
+        setError('Login failed: unauthorized');
+      }
+      else{
+        console.log(error);
+        setError(`Login failed: ${error.message.toLocaleLowerCase}`);
+      }
+    })
+    .finally(function () {
+      // always executed
       setTimeout(() => {
         setIsLoading(false)
       }, 3000)
-    }
+    });
   }
 
   const updateEmail = (value: string) => {
