@@ -23,10 +23,12 @@ import {
 import { Preset } from "../../data/presets"
 
 interface PresetSelectorProps extends PopoverProps {
-  presets: Preset[]
+  current: Preset[]
+  future: Preset[]
+  past: Preset[]
 }
 
-export function PresetSelector({ presets, ...props }: PresetSelectorProps) {
+export function PresetSelector({ current, future, past, ...props }: PresetSelectorProps) {
   const [open, setOpen] = React.useState(false)
   const [selectedPreset, setSelectedPreset] = React.useState<Preset>()
   const router = useRouter()
@@ -41,7 +43,7 @@ export function PresetSelector({ presets, ...props }: PresetSelectorProps) {
           aria-expanded={open}
           className="flex-1 justify-between md:max-w-[200px] lg:max-w-[300px]"
         >
-          {selectedPreset ? selectedPreset.name : "Select a coaching session"}
+          {selectedPreset ? selectedPreset.date_time : "Select a coaching session"}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -50,24 +52,40 @@ export function PresetSelector({ presets, ...props }: PresetSelectorProps) {
           <CommandInput placeholder="Search for coaching sessions" />
           <CommandEmpty>No sessions found.</CommandEmpty>
           <CommandGroup heading="Current session">
-            <CommandItem>
-              February 14, 2024
-            </CommandItem>
-          </CommandGroup>
-          <CommandGroup heading="Future sessions">
-            {presets.map((preset) => (
+            {current.map((current) => (
               <CommandItem
-                key={preset.id}
+                key={current.id}
                 onSelect={() => {
-                  setSelectedPreset(preset)
+                  setSelectedPreset(current)
                   setOpen(false)
                 }}
               >
-                {preset.name}
+                {current.date_time}
                 <CheckIcon
                   className={cn(
                     "ml-auto h-4 w-4",
-                    selectedPreset?.id === preset.id
+                    selectedPreset?.id === current.id
+                      ? "opacity-100"
+                      : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+            ))}
+          </CommandGroup>
+          <CommandGroup heading="Future sessions">
+            {future.map((future) => (
+              <CommandItem
+                key={future.id}
+                onSelect={() => {
+                  setSelectedPreset(future)
+                  setOpen(false)
+                }}
+              >
+                {future.date_time}
+                <CheckIcon
+                  className={cn(
+                    "ml-auto h-4 w-4",
+                    selectedPreset?.id === future.id
                       ? "opacity-100"
                       : "opacity-0"
                   )}
@@ -76,9 +94,25 @@ export function PresetSelector({ presets, ...props }: PresetSelectorProps) {
             ))}
           </CommandGroup>
           <CommandGroup heading="Past sessions">
-            <CommandItem>
-              January 5, 2024
-            </CommandItem>
+            {past.map((past) => (
+              <CommandItem
+                key={past.id}
+                onSelect={() => {
+                  setSelectedPreset(past)
+                  setOpen(false)
+                }}
+              >
+                {past.date_time}
+                <CheckIcon
+                  className={cn(
+                    "ml-auto h-4 w-4",
+                    selectedPreset?.id === past.id
+                      ? "opacity-100"
+                      : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+            ))}
           </CommandGroup>
           <CommandGroup className="pt-0">
             <CommandItem onSelect={() => router.push("/examples")}>
