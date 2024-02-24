@@ -48,7 +48,7 @@ export default function CoachingSessionsPage() {
                   <TabsTrigger value="notes">Notes</TabsTrigger>
                   <TabsTrigger value="program">Program</TabsTrigger>
                   <TabsTrigger value="console">Console</TabsTrigger>
-                  <TabsTrigger value="coachs_notes">Coach's Notes</TabsTrigger>
+                  <TabsTrigger value="coachs_notes">Coach&#39;s Notes</TabsTrigger>
                 </TabsList>
                 <TabsContent value="notes">
                   <div className="flex h-full flex-col space-y-4">
