@@ -2,20 +2,28 @@
 
 import { Metadata } from "next";
 
-import * as React from "react"
+import * as React from "react";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
-import { ChevronsUpDown, Plus, X } from "lucide-react"
- 
-import { Button } from "@/components/ui/button"
+import { ChevronUp, ChevronDown, Plus, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import { CodeViewer } from "@/components/ui/code-viewer";
 import { MaxLengthSelector } from "@/components/ui/maxlength-selector";
@@ -25,7 +33,7 @@ import { PresetSelector } from "@/components/ui/preset-selector";
 import { PresetShare } from "@/components/ui/preset-share";
 import { TemperatureSelector } from "@/components/ui/temperature-selector";
 import { TopPSelector } from "@/components/ui/top-p-selector";
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import { models, types } from "../../data/models";
 import { current, future, past } from "../../data/presets";
 
@@ -55,32 +63,56 @@ export default function CoachingSessionsPage() {
 
       <Separator />
 
-      <div className="flex flex-col pt-4  px-4">
+      <div className="flex flex-col pt-4 px-6">
         <Collapsible
           open={isOpen}
           onOpenChange={setIsOpen}
           className="w-full space-y-2"
         >
-          <div className="flex items-center justify-between px-4">
+          <div className="container flex flex-col items-start justify-between px-4">
             <Button
               variant="outline"
               className={cn(
-                "relative h-8 w-full justify-start rounded-[0.5rem] bg-muted text-sm font-normal text-muted-foreground shadow-none sm:pr-12"
+                "relative h-8 w-full justify-start rounded-[0.5rem] bg-muted text-sm font-semibold text-muted-foreground shadow-inner"
               )}
               onClick={() => setIsOpen(!isOpen)}
             >
-              <span className="hidden lg:inline-flex">Overarching goal: to achieve...</span>
-              <span className="inline-flex lg:hidden">Search...</span>
+              <span className="hidden lg:inline-flex">
+                Overarching goal: to achieve...
+              </span>
+              <span className="inline-flex lg:hidden">Goal...</span>
+              <div className="ml-auto flex w-full space-x-2 justify-end">
+                <div className="flex items-center space-x-2">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Checkbox id="oa_achieved" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="font-normal">Achieved?</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <span>
+                  {!isOpen && <ChevronDown className="h-4 w-4" />}
+                  {isOpen && <ChevronUp className="h-4 w-4" />}
+                </span>
+              </div>
               {/* <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
                 <span className="text-xs">⌘</span>G
               </kbd> */}
             </Button>
             <CollapsibleTrigger asChild className="justify-items-end">
-              {/* <span className="justify-items-end">
-                <ChevronsUpDown className="h-4 w-4" />
-              </span> */}
+              {/* <div className="ml-auto flex w-full space-x-2 sm:justify-end">
+                <div className="hidden space-x-2 md:flex">
+                  <span className="justify-items-end">
+                    <ChevronsUpDown className="h-4 w-4" />
+                  </span>
+                  <span>Pi</span>
+                </div>
+              </div> */}
             </CollapsibleTrigger>
-            
           </div>
           <CollapsibleContent className="space-y-2 px-4">
             <div className="flex-col space-y-4 pb-2 sm:flex">
@@ -106,7 +138,6 @@ export default function CoachingSessionsPage() {
         </Collapsible>
       </div>
 
-
       <div className="flex flex-col">
         <div className="container h-full py-6">
           <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_200px]">
@@ -116,7 +147,9 @@ export default function CoachingSessionsPage() {
                   <TabsTrigger value="notes">Notes</TabsTrigger>
                   <TabsTrigger value="program">Program</TabsTrigger>
                   <TabsTrigger value="console">Console</TabsTrigger>
-                  <TabsTrigger value="coachs_notes">Coach&#39;s Notes</TabsTrigger>
+                  <TabsTrigger value="coachs_notes">
+                    Coach&#39;s Notes
+                  </TabsTrigger>
                 </TabsList>
                 <TabsContent value="notes">
                   <div className="flex h-full flex-col space-y-4">
