@@ -69,7 +69,7 @@ export default function CoachingSessionsPage() {
           onOpenChange={setIsOpen}
           className="w-full space-y-2"
         >
-          <div className="container flex flex-col items-start justify-between px-4">
+          <div className="flex items-center justify-between space-x-4 px-4">
             <Button
               variant="outline"
               className={cn(
@@ -77,16 +77,17 @@ export default function CoachingSessionsPage() {
               )}
               onClick={() => setIsOpen(!isOpen)}
             >
-              <span className="hidden lg:inline-flex">
+              <span className="hidden md:inline-flex md:inline-flex">
                 Overarching goal: to achieve...
               </span>
-              <span className="inline-flex lg:hidden">Goal...</span>
+              <span className="inline-flex md:hidden">Goal...</span>
               <div className="ml-auto flex w-full space-x-2 justify-end">
                 <div className="flex items-center space-x-2">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Checkbox id="oa_achieved" />
+                        {/* FIXME: causes a React hydration error to put a checkbox here, not sure why */}
+                        {/* <Checkbox id="oa_achieved" /> */}
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="font-normal">Achieved?</p>
@@ -99,23 +100,16 @@ export default function CoachingSessionsPage() {
                   {isOpen && <ChevronUp className="h-4 w-4" />}
                 </span>
               </div>
-              {/* <kbd className="pointer-events-none absolute right-[0.3rem] top-[0.3rem] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                <span className="text-xs">⌘</span>G
-              </kbd> */}
             </Button>
-            <CollapsibleTrigger asChild className="justify-items-end">
-              {/* <div className="ml-auto flex w-full space-x-2 sm:justify-end">
-                <div className="hidden space-x-2 md:flex">
-                  <span className="justify-items-end">
-                    <ChevronsUpDown className="h-4 w-4" />
-                  </span>
-                  <span>Pi</span>
-                </div>
-              </div> */}
-            </CollapsibleTrigger>
+            {/* <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-9 p-0">
+                <ChevronsUpDown className="h-4 w-4" />
+                <span className="sr-only">Toggle</span>
+              </Button>
+            </CollapsibleTrigger> */}
           </div>
-          <CollapsibleContent className="space-y-2 px-4">
-            <div className="flex-col space-y-4 pb-2 sm:flex">
+          <CollapsibleContent className="px-4">
+            <div className="flex-col space-y-4 sm:flex">
               <Tabs defaultValue="agreements" className="flex-1">
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="agreements">Agreements</TabsTrigger>
@@ -133,7 +127,6 @@ export default function CoachingSessionsPage() {
                 </TabsContent>
               </Tabs>
             </div>
-            <Separator />
           </CollapsibleContent>
         </Collapsible>
       </div>
