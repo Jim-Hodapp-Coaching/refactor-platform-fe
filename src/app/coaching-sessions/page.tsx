@@ -148,21 +148,21 @@ export default function CoachingSessionsPage() {
                   <div className="flex h-full flex-col space-y-4">
                     <Textarea
                       placeholder="Notes"
-                      className="min-h-[400px] flex-1 p-4 md:min-h-[630px] lg:min-h-[630px]"
+                      className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px]"
                     />
                   </div>
                 </TabsContent>
                 <TabsContent value="program">
-                  <div className="bg-red-500 text-white p-4">Program</div>
+                  <div className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px] bg-red-500 text-white">Program</div>
                 </TabsContent>
                 <TabsContent value="console">
-                  <div className="bg-blue-500 text-white p-4">Console</div>
+                  <div className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px] bg-blue-500 text-white">Console</div>
                 </TabsContent>
                 <TabsContent value="coachs_notes">
                   <div className="flex h-full flex-col space-y-4">
                     <Textarea
                       placeholder="Coach's notes"
-                      className="min-h-[400px] flex-1 p-4 md:min-h-[630px] lg:min-h-[630px]"
+                      className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px]"
                     />
                   </div>
                 </TabsContent>
