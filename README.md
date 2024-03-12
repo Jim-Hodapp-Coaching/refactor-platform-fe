@@ -1,6 +1,9 @@
 # Refactor Coaching & Mentoring Platform
 ### Frontend (currently web browser-only)
 
+<img width="1780" alt="311417980-16e9df34-4f87-492e-96d9-a1e4fb2bb88d-1" src="https://github.com/Jim-Hodapp-Coaching/refactor-platform-fe/assets/3219120/8c2176b8-771f-43e4-a342-17557fe98675">
+A preview of the main coaching session page (rapidly evolving)
+
 ## Intro
 
 A web frontend built on Next.js that provides a web API for various client applications (e.g. a web frontend) that facilitate the coaching and mentoring of software engineers.
