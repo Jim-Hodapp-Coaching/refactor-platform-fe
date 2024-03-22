@@ -18,6 +18,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
+import { LockClosedIcon } from "@radix-ui/react-icons";
+
 import {
   Tooltip,
   TooltipContent,
@@ -216,7 +218,10 @@ export default function CoachingSessionsPage() {
                   <TabsTrigger value="program">Program</TabsTrigger>
                   <TabsTrigger value="console">Console</TabsTrigger>
                   <TabsTrigger value="coachs_notes">
-                    Coach&#39;s Notes
+                    <div className="flex gap-2 items-start">
+                      <LockClosedIcon className="mt-1" />
+                      Coach&#39;s Notes
+                    </div>
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="notes">
@@ -228,10 +233,14 @@ export default function CoachingSessionsPage() {
                   </div>
                 </TabsContent>
                 <TabsContent value="program">
-                  <div className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px] bg-red-500 text-white">Program</div>
+                  <div className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px] bg-red-500 text-white">
+                    Program
+                  </div>
                 </TabsContent>
                 <TabsContent value="console">
-                  <div className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px] bg-blue-500 text-white">Console</div>
+                  <div className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px] bg-blue-500 text-white">
+                    Console
+                  </div>
                 </TabsContent>
                 <TabsContent value="coachs_notes">
                   <div className="flex h-full flex-col space-y-4">

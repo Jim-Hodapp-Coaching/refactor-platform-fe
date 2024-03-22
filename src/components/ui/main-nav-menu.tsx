@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { siteConfig } from "@/site.config.ts";
 import { cn } from "@/lib/utils";
 
 import { Dialog } from "@radix-ui/react-dialog";
@@ -22,10 +21,10 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { PresetSelector } from "@/components/ui/preset-selector";
+
+import { current, future, past } from "../../data/presets";
 
 export function MainNavMenu() {
   const [open, setIsOpen] = React.useState(false);
@@ -38,7 +37,7 @@ export function MainNavMenu() {
             <NavigationMenuTrigger>
               <span className="hidden font-bold sm:inline-block">
                 {/* TODO: Replace this with currently selected organization's name */}
-                {siteConfig.name}
+                Refactor Coaching
               </span>
             </NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -81,34 +80,38 @@ export function MainNavMenu() {
       <Dialog open={open} onOpenChange={setIsOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Content filter preferences</DialogTitle>
+            <DialogTitle>
+              Current Organization & Coaching Relationship
+            </DialogTitle>
             <DialogDescription>
-              The content filter flags text that may violate our content policy.
-              It&apos;s powered by our moderation endpoint which is free to use
-              to moderate your OpenAI API traffic. Learn more.
+              Select your current organization and coaching relationship to
+              access specific coaching sessions across multiple organizations
+              and coaches/coachees.
             </DialogDescription>
           </DialogHeader>
-          <div className="py-6">
+          <div className="py-6 w-full">
             <h4 className="text-sm text-muted-foreground">
-              Playground Warnings
+              Select Your Organization
             </h4>
-            <div className="flex items-start justify-between space-x-4 pt-3">
-              <Switch name="show" id="show" defaultChecked={true} />
-              <Label className="grid gap-1 font-normal" htmlFor="show">
-                <span className="font-semibold">
-                  Show a warning when content is flagged
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  A warning will be shown when sexual, hateful, violent or
-                  self-harm content is detected.
-                </span>
-              </Label>
+            <div className="flex pt-3">
+              <PresetSelector current={current} future={future} past={past} />
+            </div>
+            <h4 className="text-sm text-muted-foreground pt-6">
+              Select Your Coaching Relationship
+            </h4>
+            <div className="flex pt-3">
+              <PresetSelector current={current} future={future} past={past} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="secondary" onClick={() => setIsOpen(false)}>
-              Close
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button variant="secondary" onClick={() => setIsOpen(true)}>
+                Set Default
+              </Button>
+              <Button variant="secondary" onClick={() => setIsOpen(false)}>
+                Close
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
