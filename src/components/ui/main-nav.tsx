@@ -4,22 +4,12 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { siteConfig } from "@/site.config.ts";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/ui/icons";
 import { MainNavMenu } from "@/components/ui/main-nav-menu";
 import { buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import { NavigationMenuLink } from "@/components/ui/navigation-menu";
 
 export function MainNav() {
   const pathname = usePathname();
