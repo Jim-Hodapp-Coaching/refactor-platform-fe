@@ -213,7 +213,7 @@ export default function CoachingSessionsPage() {
           <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_200px]">
             <div className="flex-col space-y-4 sm:flex md:order-1">
               <Tabs defaultValue="notes" className="flex-1">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid flex w-96 grid-cols-4 justify-start">
                   <TabsTrigger value="notes">Notes</TabsTrigger>
                   <TabsTrigger value="program">Program</TabsTrigger>
                   <TabsTrigger value="console">Console</TabsTrigger>
