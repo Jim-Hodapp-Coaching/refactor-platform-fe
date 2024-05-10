@@ -2,11 +2,10 @@
 
 import * as React from "react";
 
-import { useRouter } from "next/navigation";
-
-import { AxiosError, AxiosResponse } from "axios";
-
 import { cn } from "@/lib/utils";
+import { loginUser } from "@/lib/api/user-session";
+import { useAuthStore } from "@/lib/providers/auth-store-provider";
+import { useRouter } from "next/navigation";
 import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,59 +15,32 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const router = useRouter();
-  const axios = require("axios");
+  const { userUUID } = useAuthStore(
+    (state) => state,
+  );
+  const { login } = useAuthStore(
+    (action) => action,
+  );
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
   const [error, setError] = React.useState<string>("");
 
-  async function login(event: React.SyntheticEvent) {
+  async function user_login(event: React.SyntheticEvent) {
     event.preventDefault();
     setIsLoading(true);
 
-    console.log("email: ", email);
-    console.log("password: ", password);
+    const [userUUID, err] = await loginUser(email, password);
+    if (userUUID.length > 0 && err.length == 0) {
+      login(userUUID);
+      router.push("/coaching-sessions");
+    } else {
+      console.error("err: " + err);
+      setError(err);
+    }
 
-    console.log("Submitting login form with a POST request");
-
-    const data = await axios
-      .post(
-        "http://localhost:4000/login",
-        {
-          email: email,
-          password: password,
-        },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
-        }
-      )
-      .then(function (response: AxiosResponse) {
-        // handle success
-        console.log(response);
-
-        router.push("/coaching-sessions");
-      })
-      .catch(function (error: AxiosError) {
-        // handle error
-        console.log(error.response?.status);
-        if (error.response?.status == 401) {
-          setError("Login failed: unauthorized");
-        } else {
-          console.log(error);
-          setError(`Login failed: ${error.message.toLocaleLowerCase}`);
-        }
-      })
-      .finally(function () {
-        // always executed
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 3000);
-      });
+    setIsLoading(false);
   }
 
   const updateEmail = (value: string) => {
@@ -83,7 +55,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={login}>
+      <form onSubmit={user_login}>
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
@@ -111,6 +83,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               type="password"
               name="password"
               autoCapitalize="none"
+              autoComplete="current-password"
               autoCorrect="off"
               required
               disabled={isLoading}
