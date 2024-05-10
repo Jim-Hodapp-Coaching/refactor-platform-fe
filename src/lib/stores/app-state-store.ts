@@ -6,12 +6,6 @@ interface AppState {
 }
 
 interface AppStateActions {
-    // TODO: change this to be more like:
-    // isLoggedIn: boolean;
-    // user: any | null;
-    // login: (user: any) => void;
-    // logout: () => void;
-    // Or, perhaps having a separate from auth-store from app-state-store is the proper thing to do?
     setUserId: (userId: string | undefined) => void;
     validUser: () => boolean;
     clearUser: () => void;
@@ -49,21 +43,3 @@ export type ExtractState<S> = S extends {
 }
 ? T
 : never;
-
-type Params<U> = Parameters<typeof useStore<typeof appStateStore, U>>;
-
-// Selectors
-const userIdSelector = (state: ExtractState<typeof appStateStore>) => state.userId;
-const actionsSelector = (state: ExtractState<typeof appStateStore>) => state;
-
-// Getters
-export const getUserId  = () => userIdSelector(appStateStore.getState());
-export const getActions = () => actionsSelector(appStateStore.getState());
-
-function useAppStateStore<U>(selector: Params<U>[1], equalityFn?: Params<U>[2]) {
-    return useStore(appStateStore, selector, equalityFn);
-}
-
-// Hooks
-export const useUserId = () => useAppStateStore(userIdSelector);
-export const useActions = () => useAppStateStore(actionsSelector);
