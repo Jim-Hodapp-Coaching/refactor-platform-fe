@@ -18,16 +18,25 @@ import {
   } from "@/components/ui/dropdown-menu"
 
 import { logoutUser } from "@/lib/api/user-session";
+import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import { useRouter } from "next/navigation";
   
 export function UserNav() {
     const router = useRouter();
 
-    async function logout() {
-      console.log("Logging out");
+    const { logout } = useAuthStore(
+      (action) => action,
+    );
 
-      logoutUser();
+    async function logout_user() {
+      const err = await logoutUser();
+      if (err.length > 0) {
+        console.error("Error while logging out: " + err);
+      }
 
+      console.log("Doing auth-store logout");
+      logout();
+      // console.log("Redirecting to /login");
       router.push("/login");
     }
   
@@ -71,7 +80,7 @@ export function UserNav() {
             <DropdownMenuItem>New Team</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={logout}>
+          <DropdownMenuItem onClick={logout_user}>
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>

@@ -27,7 +27,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [password, setPassword] = React.useState<string>("");
   const [error, setError] = React.useState<string>("");
 
-  async function user_login(event: React.SyntheticEvent) {
+  async function login_user(event: React.SyntheticEvent) {
     event.preventDefault();
     setIsLoading(true);
 
@@ -55,7 +55,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={user_login}>
+      <form onSubmit={login_user}>
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
