@@ -3,6 +3,8 @@ import { ThemeProvider } from "@/components/ui/providers"
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 
+import { AuthStoreProvider } from "@/lib/providers/auth-store-provider";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -24,7 +26,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-        {children}
+          {/* Provides a single AuthStore instance to all child pages/components/functions */}
+          <AuthStoreProvider>
+            {children}
+          </AuthStoreProvider>
         </ThemeProvider>
       </body>
     </html>

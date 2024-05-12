@@ -17,38 +17,27 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 
-import { AxiosError, AxiosResponse } from "axios";
+import { logoutUser } from "@/lib/api/user-session";
+import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import { useRouter } from "next/navigation";
-
-  export function UserNav() {
+  
+export function UserNav() {
     const router = useRouter();
-    const axios = require("axios");
 
-    async function logout() {
-      console.log("Logging out");
+    const { logout } = useAuthStore(
+      (action) => action,
+    );
 
-      const data = await axios
-        .get(
-          "http://localhost:4000/logout",
-          {
-            withCredentials: true,
-            setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
-          }
-        )
-        .then(function (response: AxiosResponse) {
-          // handle success
-          console.log(response);
+    async function logout_user() {
+      const err = await logoutUser();
+      if (err.length > 0) {
+        console.error("Error while logging out: " + err);
+      }
 
-          router.push("/login");
-        })
-        .catch(function (error: AxiosError) {
-          // handle error
-          console.log(error.response?.status);
-          console.log(`Logout failed: ${error.message}`);
-        })
-        .finally(function () {
-          // always executed
-        });
+      console.log("Doing auth-store logout");
+      logout();
+      // console.log("Redirecting to /login");
+      router.push("/login");
     }
   
     return (
@@ -91,7 +80,7 @@ import { useRouter } from "next/navigation";
             <DropdownMenuItem>New Team</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={logout}>
+          <DropdownMenuItem onClick={logout_user}>
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
           </DropdownMenuItem>
