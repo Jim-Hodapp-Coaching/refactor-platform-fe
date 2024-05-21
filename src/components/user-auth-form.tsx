@@ -30,7 +30,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     const [userUUID, err] = await loginUser(email, password);
     if (userUUID.length > 0 && err.length == 0) {
       login(userUUID);
-      router.push("/coaching-sessions");
+      router.push("/dashboard");
     } else {
       console.error("err: " + err);
       setError(err);
