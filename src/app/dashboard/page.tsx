@@ -15,6 +15,10 @@ import { DemoCookieSettings } from "@/components/ui/dashboard/cookie-settings";
 // import { DemoNotifications } from "@/components/ui/dashboard/notifications";
 // import { DemoPaymentMethod } from "@/components/ui/dashboard/payment-method";
 import { SelectOrganizationRelationship } from "@/components/ui/dashboard/select-organization-relationship";
+import { useEffect, useState } from "react";
+import { Organization } from "@/types/organization";
+import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
+import { useAuthStore } from "@/lib/providers/auth-store-provider";
 // import { DemoShareDocument } from "@/components/ui/dashboard/share-document";
 // import { DemoTeamMembers } from "@/components/ui/dashboard/team-members";
 
@@ -39,6 +43,22 @@ function DemoContainer({
 }
 
 export default function DashboardPage() {
+  const { isLoggedIn, userUUID } = useAuthStore((state) => state);
+
+  const [organizations, setOrganizations] = useState<Organization[] | null>(
+    null
+  );
+  useEffect(() => {
+    async function loadOrganizations() {
+      const fetchedOrganizations = await fetchOrganizationsByUserId(userUUID);
+      console.debug(
+        "Organizations: " + JSON.stringify(fetchedOrganizations[0])
+      );
+      setOrganizations(fetchedOrganizations[0]);
+    }
+    loadOrganizations();
+  }, []);
+
   return (
     <>
       <div className="md:hidden">

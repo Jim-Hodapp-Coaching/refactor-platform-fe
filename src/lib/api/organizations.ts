@@ -1,8 +1,10 @@
 // Interacts with the Organizations endpoints
 
+import { Id } from "@/types/general"
 import { Organization, defaultOrganization,
          defaultOrganizations, isOrganization,
-         isOrganizationsArray, organizationToString } from "@/types/organization";
+         isOrganizationsArray, organizationToString,
+         organizationsToString } from "@/types/organization";
 import { AxiosError, AxiosResponse } from "axios";
 
 // TODO:
@@ -51,7 +53,7 @@ export const fetchOrganizations = async (): Promise<[Organization[], string]> =>
         return [organizations, err];
 }
 
-export const fetchOrganization = async (id: number): Promise<[Organization, string]> => {
+export const fetchOrganization = async (id: Id): Promise<[Organization, string]> => {
     const axios = require("axios");
 
     var organization: Organization = defaultOrganization();
@@ -90,6 +92,50 @@ export const fetchOrganization = async (id: number): Promise<[Organization, stri
         })
 
         return [organization, err];
+}
+
+export const fetchOrganizationsByUserId = async (userId: Id): Promise<[Organization[], string]> => {
+    const axios = require("axios");
+
+    var organizations: Organization[] = defaultOrganizations();
+    var err: string = "";
+
+    const data = await axios
+      .get(
+            `http://localhost:4000/organizations`,
+            {
+                params: {
+                    user_id: userId
+                },
+                withCredentials: true,
+                setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
+                headers: {
+                    "X-Version": "0.0.1",
+                },
+            }
+        )
+        .then(function (response: AxiosResponse) {
+            // handle success
+            console.debug(response);
+            if (isOrganizationsArray(response.data.data)) {
+                organizations = response.data.data;
+                console.debug(`Organizations: ` + organizationsToString(organizations) + `.`);
+            }
+        })
+        .catch(function (error: AxiosError) {
+            // handle error
+            console.error(error.response?.status);
+            if (error.response?.status == 401) {
+                console.error("Retrieval of Organizations failed: unauthorized.");
+                err = "Retrieval of Organization failed: unauthorized.";
+            } else {
+                console.log(error);
+                console.error(`Retrieval of Organization(s) by user Id (` + userId + `) failed.`);
+                err = `Retrieval of Organization(s) by user Id (` + userId + `) failed.`;
+            }
+        })
+
+        return [organizations, err];
 }
 
 export const createOrganization = async (organization: Organization): Promise<[Organization, string]> => {
