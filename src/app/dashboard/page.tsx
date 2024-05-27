@@ -43,7 +43,7 @@ function DemoContainer({
 }
 
 export default function DashboardPage() {
-  const { isLoggedIn, userUUID } = useAuthStore((state) => state);
+  const { userUUID } = useAuthStore((state) => state);
 
   const [organizations, setOrganizations] = useState<Organization[] | null>(
     null
@@ -105,7 +105,7 @@ export default function DashboardPage() {
           <DemoGithub />
         </DemoContainer> */}
         <DemoContainer>
-          <SelectOrganizationRelationship />
+          <SelectOrganizationRelationship userUUID={userUUID} />
         </DemoContainer>
         <DemoContainer>
           <DemoCookieSettings />

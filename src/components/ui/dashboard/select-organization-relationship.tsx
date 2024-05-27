@@ -19,8 +19,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
+import { Organization, defaultOrganizations } from "@/types/organization";
+import { useEffect, useState } from "react";
 
-export function SelectOrganizationRelationship() {
+export interface OrganizationRelationshipProps {
+  /** The current logged in user's UUID */
+  userUUID: string;
+}
+
+export function SelectOrganizationRelationship({
+  userUUID,
+  ...props
+}: OrganizationRelationshipProps) {
+  const [organizations, setOrganizations] = useState<Organization[]>(
+    defaultOrganizations()
+  );
+  useEffect(() => {
+    async function loadOrganizations() {
+      const fetchedOrganizations = await fetchOrganizationsByUserId(userUUID);
+      console.debug(
+        "Organizations: " + JSON.stringify(fetchedOrganizations[0])
+      );
+      setOrganizations(fetchedOrganizations[0]);
+    }
+    loadOrganizations();
+  }, []);
+
   return (
     <Card>
       <CardHeader>
@@ -30,17 +55,16 @@ export function SelectOrganizationRelationship() {
       <CardContent className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="organization">Organization</Label>
-          <Select defaultValue="jim_hodapp_coaching">
+          <Select defaultValue="0">
             <SelectTrigger id="organization">
               <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="jim_hodapp_coaching">
-                Jim Hodapp Coaching
-              </SelectItem>
-              <SelectItem value="jims_other_organization">
-                Jim's Other Organization
-              </SelectItem>
+              {organizations.map((organization, index) => (
+                <SelectItem value={index.toString()} key={organization.id}>
+                  {organization.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -53,6 +77,18 @@ export function SelectOrganizationRelationship() {
             <SelectContent>
               <SelectItem value="caleb">Caleb Bourg</SelectItem>
               <SelectItem value="other_coachee">Other Coachee</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="session">Coaching Session</Label>
+          <Select defaultValue="today">
+            <SelectTrigger id="session">
+              <SelectValue placeholder="Select" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="today">Today @ 5 pm</SelectItem>
+              <SelectItem value="tomorrow">Tomorrow @ 5 pm</SelectItem>
             </SelectContent>
           </Select>
         </div>
