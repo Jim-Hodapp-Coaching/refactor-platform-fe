@@ -37,11 +37,17 @@ export function SelectOrganizationRelationship({
   );
   useEffect(() => {
     async function loadOrganizations() {
-      const fetchedOrganizations = await fetchOrganizationsByUserId(userUUID);
+      const [fetchedOrganizations, err] = await fetchOrganizationsByUserId(
+        userUUID
+      );
       console.debug(
         "Organizations: " + JSON.stringify(fetchedOrganizations[0])
       );
-      setOrganizations(fetchedOrganizations[0]);
+      if (err.length == 0) {
+        setOrganizations(fetchedOrganizations);
+      } else {
+        console.error("Failed to fetch Organizations: " + err);
+      }
     }
     loadOrganizations();
   }, []);

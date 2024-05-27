@@ -45,20 +45,6 @@ function DemoContainer({
 export default function DashboardPage() {
   const { userUUID } = useAuthStore((state) => state);
 
-  const [organizations, setOrganizations] = useState<Organization[] | null>(
-    null
-  );
-  useEffect(() => {
-    async function loadOrganizations() {
-      const fetchedOrganizations = await fetchOrganizationsByUserId(userUUID);
-      console.debug(
-        "Organizations: " + JSON.stringify(fetchedOrganizations[0])
-      );
-      setOrganizations(fetchedOrganizations[0]);
-    }
-    loadOrganizations();
-  }, []);
-
   return (
     <>
       <div className="md:hidden">
