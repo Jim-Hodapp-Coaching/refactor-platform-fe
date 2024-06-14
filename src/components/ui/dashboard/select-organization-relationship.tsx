@@ -19,22 +19,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { fetchRelationshipsByOrganizationId } from "@/lib/api/coaching-relationships";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
+import { Id } from "@/types/general";
 import { Organization, defaultOrganizations } from "@/types/organization";
 import { useEffect, useState } from "react";
 
-export interface OrganizationRelationshipProps {
-  /** The current logged in user's UUID */
-  userUUID: string;
-}
-
-export function SelectOrganizationRelationship({
+const SelectOrganizationRelationship = ({
   userUUID,
   ...props
-}: OrganizationRelationshipProps) {
+}: OrganizationRelationshipProps) => {
   const [organizations, setOrganizations] = useState<Organization[]>(
     defaultOrganizations()
   );
+  const [selectedOrganization, setSelectedOrganization] = useState<string>("");
+
+  /** Asynchronously load up all organizations associated with the currently
+   * logged in user by userUUID */
   useEffect(() => {
     async function loadOrganizations() {
       await fetchOrganizationsByUserId(userUUID)
@@ -49,6 +50,12 @@ export function SelectOrganizationRelationship({
     loadOrganizations();
   }, []);
 
+  function handleOrganizationSelectionChange(organizationId: Id) {
+    console.log("organizationId: " + organizationId);
+    setSelectedOrganization(organizationId);
+    fetchRelationshipsByOrganizationId(organizationId);
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -58,7 +65,11 @@ export function SelectOrganizationRelationship({
       <CardContent className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="organization">Organization</Label>
-          <Select defaultValue="0">
+          <Select
+            defaultValue="0"
+            value={selectedOrganization}
+            onValueChange={handleOrganizationSelectionChange}
+          >
             <SelectTrigger id="organization">
               <SelectValue placeholder="Select" />
             </SelectTrigger>
@@ -103,4 +114,11 @@ export function SelectOrganizationRelationship({
       </CardFooter>
     </Card>
   );
+};
+
+export interface OrganizationRelationshipProps {
+  /** The current logged in user's UUID */
+  userUUID: string;
 }
+
+export { SelectOrganizationRelationship };
