@@ -15,26 +15,22 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const router = useRouter();
-  const { userUUID } = useAuthStore(
-    (state) => state,
-  );
-  const { login } = useAuthStore(
-    (action) => action,
-  );
+  const { userUUID } = useAuthStore((state) => state);
+  const { login } = useAuthStore((action) => action);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
   const [error, setError] = React.useState<string>("");
 
-  async function login_user(event: React.SyntheticEvent) {
+  async function loginUserSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
     setIsLoading(true);
 
     const [userUUID, err] = await loginUser(email, password);
     if (userUUID.length > 0 && err.length == 0) {
       login(userUUID);
-      router.push("/coaching-sessions");
+      router.push("/dashboard");
     } else {
       console.error("err: " + err);
       setError(err);
@@ -55,7 +51,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
-      <form onSubmit={login_user}>
+      <form onSubmit={loginUserSubmit}>
         <div className="grid gap-2">
           <div className="grid gap-1">
             <Label className="sr-only" htmlFor="email">
