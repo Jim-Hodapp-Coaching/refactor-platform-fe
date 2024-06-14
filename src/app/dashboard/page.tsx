@@ -8,26 +8,18 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
-import { DemoCookieSettings } from "@/components/ui/dashboard/cookie-settings";
-// import { DemoCreateAccount } from "@/components/ui/dashboard/create-account";
-// import { DemoDatePicker } from "@/components/ui/dashboard/date-picker";
-// import { DemoGithub } from "@/components/ui/dashboard/github-card";
-// import { DemoNotifications } from "@/components/ui/dashboard/notifications";
-// import { DemoPaymentMethod } from "@/components/ui/dashboard/payment-method";
-import { SelectOrganizationRelationship } from "@/components/ui/dashboard/select-organization-relationship";
+import { SelectCoachingSession } from "@/components/ui/dashboard/select-coaching-session";
 import { useEffect, useState } from "react";
 import { Organization } from "@/types/organization";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
-// import { DemoShareDocument } from "@/components/ui/dashboard/share-document";
-// import { DemoTeamMembers } from "@/components/ui/dashboard/team-members";
 
 // export const metadata: Metadata = {
 //   title: "Dashboard",
 //   description: "Coaching dashboard",
 // };
 
-function DemoContainer({
+function DashboardContainer({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
@@ -64,39 +56,9 @@ export default function DashboardPage() {
         />
       </div>
       <div className="hidden items-start justify-center gap-6 rounded-lg p-8 md:grid lg:grid-cols-2 xl:grid-cols-3">
-        {/* <div className="col-span-2 grid items-start gap-6 lg:col-span-1">
-          <DemoContainer>
-          <DemoCreateAccount />
-        </DemoContainer>
-        <DemoContainer>
-          <DemoPaymentMethod />
-        </DemoContainer>
-      </div>
-      <div className="col-span-2 grid items-start gap-6 lg:col-span-1">
-        <DemoContainer>
-          <DemoTeamMembers />
-        </DemoContainer>
-        <DemoContainer>
-          <DemoShareDocument />
-        </DemoContainer>
-        <DemoContainer>
-          <DemoDatePicker />
-        </DemoContainer>
-        <DemoContainer>
-          <DemoNotifications />
-        </DemoContainer>
-      </div>
-      <div className="col-span-2 grid items-start gap-6 lg:col-span-2 lg:grid-cols-2 xl:col-span-1 xl:grid-cols-1">
-        <DemoContainer>
-          <DemoGithub />
-        </DemoContainer> */}
-        <DemoContainer>
-          <SelectOrganizationRelationship userUUID={userUUID} />
-        </DemoContainer>
-        <DemoContainer>
-          <DemoCookieSettings />
-        </DemoContainer>
-        {/* </div> */}
+        <DashboardContainer>
+          <SelectCoachingSession userUUID={userUUID} />
+        </DashboardContainer>
       </div>
     </>
   );

@@ -23,15 +23,15 @@ import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
 import { Organization, defaultOrganizations } from "@/types/organization";
 import { useEffect, useState } from "react";
 
-export interface OrganizationRelationshipProps {
+export interface CoachingSessionProps {
   /** The current logged in user's UUID */
   userUUID: string;
 }
 
-export function SelectOrganizationRelationship({
+export function SelectCoachingSession({
   userUUID,
   ...props
-}: OrganizationRelationshipProps) {
+}: CoachingSessionProps) {
   const [organizations, setOrganizations] = useState<Organization[]>(
     defaultOrganizations()
   );
@@ -73,14 +73,18 @@ export function SelectOrganizationRelationship({
           </Select>
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="relationship">Coachee</Label>
+          <Label htmlFor="relationship">Relationship</Label>
           <Select defaultValue="caleb">
             <SelectTrigger id="relationship">
               <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="caleb">Caleb Bourg</SelectItem>
-              <SelectItem value="other_coachee">Other Coachee</SelectItem>
+              <SelectItem value="caleb">
+                Jim Hodapp -&gt; Caleb Bourg
+              </SelectItem>
+              <SelectItem value="other_coachee">
+                Jim Hodapp -&gt; Other Coachee
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
