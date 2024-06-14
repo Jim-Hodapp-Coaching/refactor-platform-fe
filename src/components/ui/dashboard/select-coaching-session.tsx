@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
+import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import { Organization, defaultOrganizations } from "@/types/organization";
 import { useEffect, useState } from "react";
 
@@ -28,18 +29,15 @@ export interface CoachingSessionProps {
   userUUID: string;
 }
 
-export function SelectCoachingSession({
-  userUUID,
-  ...props
-}: CoachingSessionProps) {
+export function SelectCoachingSession() {
   const [organizations, setOrganizations] = useState<Organization[]>(
     defaultOrganizations()
   );
-  useEffect(() => {
-    async function loadOrganizations() {
-      if (!userUUID) return;
+  const { userUUID } = useAuthStore((state) => state);
 
-      await fetchOrganizationsByUserId(userUUID)
+  useEffect(() => {
+    if (userUUID) {
+      fetchOrganizationsByUserId(userUUID)
         .then(([orgs]) => {
           setOrganizations(orgs);
         })
@@ -47,7 +45,6 @@ export function SelectCoachingSession({
           console.error("Failed to fetch Organizations: " + err);
         });
     }
-    loadOrganizations();
   }, [userUUID]);
 
   return (
