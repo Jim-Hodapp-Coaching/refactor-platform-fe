@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -18,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
 import { Organization, defaultOrganizations } from "@/types/organization";
 import { useEffect, useState } from "react";
@@ -32,6 +30,31 @@ export function SelectCoachingSession({
   userUUID,
   ...props
 }: CoachingSessionProps) {
+  const [organizationSelection, setOrganizationSelection] =
+    useState<string>("");
+  const [relationshipSelection, setRelationshipSelection] =
+    useState<string>("");
+  const [coachSessionSelection, setCoachingSessionSelection] =
+    useState<string>("");
+
+  const handleOrganizationSelectionChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setOrganizationSelection(event.target.value);
+  };
+
+  const handleRelationshipSelectionChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setRelationshipSelection(event.target.value);
+  };
+
+  const handleCoachingSessionChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setCoachingSessionSelection(event.target.value);
+  };
+
   const [organizations, setOrganizations] = useState<Organization[]>(
     defaultOrganizations()
   );
@@ -53,13 +76,19 @@ export function SelectCoachingSession({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Organization Relationship</CardTitle>
-        <CardDescription>Select current organization & coachee</CardDescription>
+        <CardTitle>Join a Coaching Session</CardTitle>
+        <CardDescription>
+          Select current organization, relationship and session
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="organization">Organization</Label>
-          <Select defaultValue="0">
+          <Select
+            defaultValue="0"
+            value={organizationSelection}
+            onValueChange={setOrganizationSelection}
+          >
             <SelectTrigger id="organization">
               <SelectValue placeholder="Select" />
             </SelectTrigger>
@@ -74,7 +103,12 @@ export function SelectCoachingSession({
         </div>
         <div className="grid gap-2">
           <Label htmlFor="relationship">Relationship</Label>
-          <Select defaultValue="caleb">
+          <Select
+            defaultValue="caleb"
+            disabled={!organizationSelection}
+            value={relationshipSelection}
+            onValueChange={setRelationshipSelection}
+          >
             <SelectTrigger id="relationship">
               <SelectValue placeholder="Select" />
             </SelectTrigger>
@@ -90,7 +124,12 @@ export function SelectCoachingSession({
         </div>
         <div className="grid gap-2">
           <Label htmlFor="session">Coaching Session</Label>
-          <Select defaultValue="today">
+          <Select
+            defaultValue="today"
+            disabled={!relationshipSelection}
+            value={coachSessionSelection}
+            onValueChange={setCoachingSessionSelection}
+          >
             <SelectTrigger id="session">
               <SelectValue placeholder="Select" />
             </SelectTrigger>
@@ -102,8 +141,12 @@ export function SelectCoachingSession({
         </div>
       </CardContent>
       <CardFooter>
-        <Button variant="outline" className="w-full">
-          Apply
+        <Button
+          variant="outline"
+          className="w-full"
+          disabled={!coachSessionSelection}
+        >
+          Join
         </Button>
       </CardFooter>
     </Card>
