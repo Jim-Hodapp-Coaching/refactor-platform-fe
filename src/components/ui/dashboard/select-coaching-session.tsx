@@ -22,15 +22,7 @@ import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import { Organization, defaultOrganizations } from "@/types/organization";
 import { useEffect, useState } from "react";
 
-export interface CoachingSessionProps {
-  /** The current logged in user's UUID */
-  userUUID: string;
-}
-
-export function SelectCoachingSession({
-  userUUID,
-  ...props
-}: CoachingSessionProps) {
+export function SelectCoachingSession() {
   const [organizationSelection, setOrganizationSelection] =
     useState<string>("");
   const [relationshipSelection, setRelationshipSelection] =
