@@ -53,14 +53,14 @@ export function defaultCoachingRelationshipWithUserNames(): CoachingRelationship
     };
   }
   
-  export function defaultOrganizations(): CoachingRelationshipWithUserNames[] {
+  export function defaultCoachingRelationshipsWithUserNames(): CoachingRelationshipWithUserNames[] {
     return [defaultCoachingRelationshipWithUserNames()];
   }
   
-  export function organizationToString(relationship: CoachingRelationshipWithUserNames): string {
+  export function coachingRelationshipWithUserNamesToString(relationship: CoachingRelationshipWithUserNames): string {
     return JSON.stringify(relationship);
   }
   
-  export function organizationsToString(relationships: CoachingRelationshipWithUserNames[]): string {
+  export function coachingRelationshipsWithUserNamesToString(relationships: CoachingRelationshipWithUserNames[]): string {
     return JSON.stringify(relationships);
   }

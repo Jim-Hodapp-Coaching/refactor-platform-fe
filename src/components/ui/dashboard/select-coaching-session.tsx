@@ -17,8 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { fetchCoachingRelationshipsWithUserNames } from "@/lib/api/coaching-relationships";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
-import { Organization, defaultOrganizations } from "@/types/organization";
+import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
+import { Organization } from "@/types/organization";
 import { useEffect, useState } from "react";
 
 export interface CoachingSessionProps {
@@ -30,40 +32,25 @@ export function SelectCoachingSession({
   userUUID,
   ...props
 }: CoachingSessionProps) {
-  const [organizationSelection, setOrganizationSelection] =
-    useState<string>("");
-  const [relationshipSelection, setRelationshipSelection] =
-    useState<string>("");
-  const [coachSessionSelection, setCoachingSessionSelection] =
-    useState<string>("");
+  const [organizationUUID, setOrganizationUUID] = useState<string>("");
+  const [relationshipUUID, setRelationshipUUID] = useState<string>("");
+  const [coachingSessionUUID, setCoachingSessionUUID] = useState<string>("");
 
-  const handleOrganizationSelectionChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setOrganizationSelection(event.target.value);
-  };
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [coachingRelationships, setCoachingRelationships] = useState<
+    CoachingRelationshipWithUserNames[]
+  >([]);
 
-  const handleRelationshipSelectionChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setRelationshipSelection(event.target.value);
-  };
-
-  const handleCoachingSessionChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setCoachingSessionSelection(event.target.value);
-  };
-
-  const [organizations, setOrganizations] = useState<Organization[]>(
-    defaultOrganizations()
-  );
   useEffect(() => {
     async function loadOrganizations() {
       if (!userUUID) return;
 
       await fetchOrganizationsByUserId(userUUID)
         .then(([orgs]) => {
+          // Apparently it's normal for this to be triggered twice in modern
+          // React versions in strict + development modes
+          // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
+          console.debug("setOrganizations: " + JSON.stringify(orgs));
           setOrganizations(orgs);
         })
         .catch(([err]) => {
@@ -72,6 +59,24 @@ export function SelectCoachingSession({
     }
     loadOrganizations();
   }, [userUUID]);
+
+  useEffect(() => {
+    async function loadCoachingRelationships() {
+      if (!organizationUUID) return;
+
+      await fetchCoachingRelationshipsWithUserNames(organizationUUID)
+        .then(([relationships]) => {
+          console.debug(
+            "setCoachingRelationships: " + JSON.stringify(relationships)
+          );
+          setCoachingRelationships(relationships);
+        })
+        .catch(([err]) => {
+          console.error("Failed to fetch coaching relationships: " + err);
+        });
+    }
+    loadCoachingRelationships();
+  }, [organizationUUID]);
 
   return (
     <Card>
@@ -86,15 +91,15 @@ export function SelectCoachingSession({
           <Label htmlFor="organization">Organization</Label>
           <Select
             defaultValue="0"
-            value={organizationSelection}
-            onValueChange={setOrganizationSelection}
+            value={organizationUUID}
+            onValueChange={setOrganizationUUID}
           >
             <SelectTrigger id="organization">
-              <SelectValue placeholder="Select" />
+              <SelectValue placeholder="Select organization" />
             </SelectTrigger>
             <SelectContent>
-              {organizations.map((organization, index) => (
-                <SelectItem value={index.toString()} key={organization.id}>
+              {organizations.map((organization) => (
+                <SelectItem value={organization.id} key={organization.id}>
                   {organization.name}
                 </SelectItem>
               ))}
@@ -105,20 +110,21 @@ export function SelectCoachingSession({
           <Label htmlFor="relationship">Relationship</Label>
           <Select
             defaultValue="caleb"
-            disabled={!organizationSelection}
-            value={relationshipSelection}
-            onValueChange={setRelationshipSelection}
+            disabled={!organizationUUID}
+            value={relationshipUUID}
+            onValueChange={setRelationshipUUID}
           >
             <SelectTrigger id="relationship">
-              <SelectValue placeholder="Select" />
+              <SelectValue placeholder="Select coaching relationship" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="caleb">
-                Jim Hodapp -&gt; Caleb Bourg
-              </SelectItem>
-              <SelectItem value="other_coachee">
-                Jim Hodapp -&gt; Other Coachee
-              </SelectItem>
+              {coachingRelationships.map((relationship) => (
+                <SelectItem value={relationship.id} key={relationship.id}>
+                  {relationship.coach_first_name} {relationship.coach_last_name}{" "}
+                  -&gt; {relationship.coachee_first_name}{" "}
+                  {relationship.coachee_last_name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -126,12 +132,12 @@ export function SelectCoachingSession({
           <Label htmlFor="session">Coaching Session</Label>
           <Select
             defaultValue="today"
-            disabled={!relationshipSelection}
-            value={coachSessionSelection}
-            onValueChange={setCoachingSessionSelection}
+            disabled={!relationshipUUID}
+            value={coachingSessionUUID}
+            onValueChange={setCoachingSessionUUID}
           >
             <SelectTrigger id="session">
-              <SelectValue placeholder="Select" />
+              <SelectValue placeholder="Select coaching session" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="today">Today @ 5 pm</SelectItem>
@@ -144,7 +150,7 @@ export function SelectCoachingSession({
         <Button
           variant="outline"
           className="w-full"
-          disabled={!coachSessionSelection}
+          disabled={!coachingSessionUUID}
         >
           Join
         </Button>
