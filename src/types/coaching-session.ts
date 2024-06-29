@@ -1,5 +1,5 @@
 import { DateTime } from "ts-luxon";
-import { Id } from "@/types/general";
+import { Id, SortOrder } from "@/types/general";
 
 // This must always reflect the Rust struct on the backend
 // entity::coaching_sessions::Model
@@ -47,6 +47,17 @@ export function isCoachingSession(value: unknown): value is CoachingSession {
 
 export function isCoachingSessionArray(value: unknown): value is CoachingSession[] {
   return Array.isArray(value) && value.every(isCoachingSession);
+}
+
+export function sortCoachingSessionArray(sessions: CoachingSession[], order: SortOrder): CoachingSession[] {
+  if (order == SortOrder.Ascending) {
+    sessions.sort((a, b) => 
+      new Date(a.date.toString()).getTime() - new Date(b.date.toString()).getTime());
+  } else if (order == SortOrder.Descending) {
+    sessions.sort((a, b) => 
+      new Date(b.date.toString()).getTime() - new Date(a.date.toString()).getTime());
+  }
+  return sessions;
 }
 
 export function defaultCoachingSession(): CoachingSession {

@@ -195,13 +195,6 @@ export function SelectCoachingSession({
                 </SelectGroup>
               )}
             </SelectContent>
-            {/* <SelectContent>
-              {coachingSessions.map((session) => (
-                <SelectItem value={session.id} key={session.id}>
-                  {session.date.toLocaleString(DateTime.DATETIME_FULL)}
-                </SelectItem>
-              ))}
-            </SelectContent> */}
           </Select>
         </div>
       </CardContent>

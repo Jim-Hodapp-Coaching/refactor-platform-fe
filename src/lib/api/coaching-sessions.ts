@@ -5,9 +5,10 @@ import {
   coachingSessionsToString,
   defaultCoachingSessions,
   isCoachingSessionArray,
-  parseCoachingSession
+  parseCoachingSession,
+  sortCoachingSessionArray
 } from "@/types/coaching-session";
-import { Id } from "@/types/general";
+import { Id, SortOrder } from "@/types/general";
 import { AxiosError, AxiosResponse } from "axios";
 import { DateTime } from "ts-luxon";
 
@@ -44,11 +45,11 @@ export const fetchCoachingSessions = async (
     .then(function (response: AxiosResponse) {
       // handle success
       console.debug(response);
-      const sessions_data = response.data.data;
+      var sessions_data = response.data.data;
       if (isCoachingSessionArray(sessions_data)) {
         // Sort returned sessions in ascending order by their date field
-        sessions_data.sort((a, b) => 
-          new Date(a.date.toString()).getTime() - new Date(b.date.toString()).getTime());
+        sessions_data = sortCoachingSessionArray(sessions_data, SortOrder.Ascending);
+
         sessions_data.forEach((session_data: any) => {
           //console.debug("session_data: " + JSON.stringify(session_data));
           coaching_sessions.push(parseCoachingSession(session_data))
