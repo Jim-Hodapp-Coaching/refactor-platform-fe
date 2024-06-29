@@ -13,15 +13,20 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { fetchCoachingRelationshipsWithUserNames } from "@/lib/api/coaching-relationships";
+import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
+import { CoachingSession } from "@/types/coaching-session";
 import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
 import { Organization } from "@/types/organization";
 import { useEffect, useState } from "react";
+import { DateTime } from "ts-luxon";
 
 export interface CoachingSessionProps {
   /** The current logged in user's UUID */
@@ -40,6 +45,9 @@ export function SelectCoachingSession({
   const [coachingRelationships, setCoachingRelationships] = useState<
     CoachingRelationshipWithUserNames[]
   >([]);
+  const [coachingSessions, setCoachingSessions] = useState<CoachingSession[]>(
+    []
+  );
 
   useEffect(() => {
     async function loadOrganizations() {
@@ -77,6 +85,24 @@ export function SelectCoachingSession({
     }
     loadCoachingRelationships();
   }, [organizationUUID]);
+
+  useEffect(() => {
+    async function loadCoachingSessions() {
+      if (!organizationUUID) return;
+
+      await fetchCoachingSessions(relationshipUUID)
+        .then(([coaching_sessions]) => {
+          console.debug(
+            "setCoachingSessions: " + JSON.stringify(coaching_sessions)
+          );
+          setCoachingSessions(coaching_sessions);
+        })
+        .catch(([err]) => {
+          console.error("Failed to fetch coaching sessions: " + err);
+        });
+    }
+    loadCoachingSessions();
+  }, [relationshipUUID]);
 
   return (
     <Card>
@@ -140,9 +166,42 @@ export function SelectCoachingSession({
               <SelectValue placeholder="Select coaching session" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="today">Today @ 5 pm</SelectItem>
-              <SelectItem value="tomorrow">Tomorrow @ 5 pm</SelectItem>
+              {coachingSessions.some(
+                (session) => session.date < DateTime.now()
+              ) && (
+                <SelectGroup>
+                  <SelectLabel>Previous Sessions</SelectLabel>
+                  {coachingSessions
+                    .filter((session) => session.date < DateTime.now())
+                    .map((session) => (
+                      <SelectItem value={session.id} key={session.id}>
+                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              )}
+              {coachingSessions.some(
+                (session) => session.date >= DateTime.now()
+              ) && (
+                <SelectGroup>
+                  <SelectLabel>Upcoming Sessions</SelectLabel>
+                  {coachingSessions
+                    .filter((session) => session.date >= DateTime.now())
+                    .map((session) => (
+                      <SelectItem value={session.id} key={session.id}>
+                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              )}
             </SelectContent>
+            {/* <SelectContent>
+              {coachingSessions.map((session) => (
+                <SelectItem value={session.id} key={session.id}>
+                  {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                </SelectItem>
+              ))}
+            </SelectContent> */}
           </Select>
         </div>
       </CardContent>
