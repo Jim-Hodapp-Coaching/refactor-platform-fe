@@ -216,7 +216,6 @@ export function SelectCoachingSession({
       </CardContent>
       <CardFooter>
         <Button
-          asChild
           variant="outline"
           className="w-full"
           disabled={!coachingSessionUUID}
