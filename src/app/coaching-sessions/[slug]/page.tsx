@@ -36,13 +36,9 @@ import { PresetShare } from "@/components/ui/preset-share";
 import { TemperatureSelector } from "@/components/ui/temperature-selector";
 import { TopPSelector } from "@/components/ui/top-p-selector";
 import { cn } from "@/lib/utils";
-// import { fetchOrganizations, fetchOrganization, deleteOrganization, createOrganization, updateOrganization } from "@/lib/api/organizations";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
-import { models, types } from "../../data/models";
-import { current, future, past } from "../../data/presets";
-// import { useEffect, useState } from "react";
-// import { Organization } from "@/types/organization";
-// import { DateTime } from "ts-luxon";
+import { models, types } from "@/data/models";
+import { current, future, past } from "@/data/presets";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -51,76 +47,7 @@ import { current, future, past } from "../../data/presets";
 
 export default function CoachingSessionsPage() {
   const [isOpen, setIsOpen] = React.useState(false);
-  const { isLoggedIn, userUUID } = useAuthStore(
-    (state) => state,
-  )
-
-  // FIXME: these are here as "unit tests" ahead of adding real unit testing in a
-  // near future commit.
-
-  // const [organization, setOrganization] = useState<Organization | null>(null);
-  // useEffect(() => {
-  //   async function loadOrganization() {
-  //     const fetchedOrganization = await fetchOrganization(1);
-  //     console.debug("Organization(1): " + JSON.stringify(fetchedOrganization[0]));
-  //     setOrganization(fetchedOrganization[0]);
-  //   }
-  //   loadOrganization();
-  // }, []);
-
-  // const [organizations, setOrganizations] = useState<Organization[] | null>(null);
-  // useEffect(() => {
-  //   async function loadOrganizations() {
-  //     const fetchedOrganizations = await fetchOrganizations();
-  //     console.debug("Organizations: " + JSON.stringify(fetchedOrganizations[0]));
-  //     setOrganizations(fetchedOrganizations[0]);
-  //   }
-  //   loadOrganizations();
-  // }, []);
-
-  // const [createdOrganization, setCreatedOrganization] = useState<Organization | null>(null);
-  // useEffect(() => {
-  //   async function loadOrganization() {
-  //     var organization: Organization = {
-  //       external_id: "fa594ab3-fad0-4be9-a8fe-9088b2911914",
-  //       name: "New test organization",
-  //       logo: "http://www.fake.org/logo",
-  //       created_at: DateTime.now(),
-  //       updated_at: DateTime.now()
-  //     }
-  //     const createdOrganization = await createOrganization(organization);
-  //     console.debug("createdOrganization: " + JSON.stringify(createdOrganization[0]));
-  //     setCreatedOrganization(createdOrganization[0]);
-  //   }
-  //   loadOrganization();
-  // }, []);
-
-  // const [updatedOrganization, setUpdatedOrganization] = useState<Organization | null>(null);
-  // useEffect(() => {
-  //   async function loadOrganization() {
-  //     var organization: Organization = {
-  //       external_id: "fa594ab3-fad0-4be9-a8fe-9088b2911914",
-  //       name: "Jim Hodapp Coaching",
-  //       logo: "http://www.fake.org/logo",
-  //       created_at: DateTime.now(),
-  //       updated_at: DateTime.now()
-  //     }
-  //     const updatedOrganization = await updateOrganization(1, organization);
-  //     console.debug("updatedOrganization: " + JSON.stringify(updatedOrganization[0]));
-  //     setUpdatedOrganization(updatedOrganization[0]);
-  //   }
-  //   loadOrganization();
-  // }, []);
-
-  // const [deletedOrganization, setDeletedOrganization] = useState<string | null>(null);
-  // useEffect(() => {
-  //   async function loadOrganization() {
-  //     const deletedOrganizationId = await deleteOrganization(1);
-  //     console.debug("deletedOrganizationId: " + JSON.stringify(deletedOrganizationId[0]));
-  //     setDeletedOrganization(deletedOrganizationId[0]);
-  //   }
-  //   loadOrganization();
-  // }, []);
+  const { isLoggedIn, userUUID } = useAuthStore((state) => state);
 
   return (
     <>

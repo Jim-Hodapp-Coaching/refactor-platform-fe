@@ -25,6 +25,7 @@ import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
 import { CoachingSession } from "@/types/coaching-session";
 import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
 import { Organization } from "@/types/organization";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DateTime } from "ts-luxon";
 
@@ -200,11 +201,12 @@ export function SelectCoachingSession({
       </CardContent>
       <CardFooter>
         <Button
+          asChild
           variant="outline"
           className="w-full"
           disabled={!coachingSessionUUID}
         >
-          Join
+          <Link href={`/coaching-sessions/${coachingSessionUUID}`}>Join</Link>
         </Button>
       </CardFooter>
     </Card>
