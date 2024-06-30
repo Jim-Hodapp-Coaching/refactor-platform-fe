@@ -130,6 +130,11 @@ export function SelectCoachingSession({
                   {organization.name}
                 </SelectItem>
               ))}
+              {organizations.length == 0 && (
+                <SelectItem disabled={true} value="none">
+                  None found
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -152,6 +157,11 @@ export function SelectCoachingSession({
                   {relationship.coachee_last_name}
                 </SelectItem>
               ))}
+              {coachingRelationships.length == 0 && (
+                <SelectItem disabled={true} value="none">
+                  None found
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -194,6 +204,11 @@ export function SelectCoachingSession({
                       </SelectItem>
                     ))}
                 </SelectGroup>
+              )}
+              {coachingSessions.length == 0 && (
+                <SelectItem disabled={true} value="none">
+                  None found
+                </SelectItem>
               )}
             </SelectContent>
           </Select>
