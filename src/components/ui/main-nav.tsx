@@ -17,7 +17,7 @@ export function MainNav() {
   return (
     <div className="mr-4 hidden md:flex">
       {/* TODO: make the href target for this link send the user back to the coaching-sessions page  */}
-      <Link href="/" className="mr-2 flex items-center space-x-2">
+      <Link href="/dashboard" className="mr-2 flex items-center space-x-2">
         <div
           className={cn(
             buttonVariants({
