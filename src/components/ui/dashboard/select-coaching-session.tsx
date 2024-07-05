@@ -22,25 +22,33 @@ import {
 import { fetchCoachingRelationshipsWithUserNames } from "@/lib/api/coaching-relationships";
 import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
+import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { CoachingSession } from "@/types/coaching-session";
 import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
+import { Id } from "@/types/general";
 import { Organization } from "@/types/organization";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DateTime } from "ts-luxon";
 
 export interface CoachingSessionProps {
-  /** The current logged in user's UUID */
-  userUUID: string;
+  /** The current logged in user's Id */
+  userId: Id;
 }
 
 export function SelectCoachingSession({
-  userUUID,
+  userId: userId,
   ...props
 }: CoachingSessionProps) {
-  const [organizationUUID, setOrganizationUUID] = useState<string>("");
-  const [relationshipUUID, setRelationshipUUID] = useState<string>("");
-  const [coachingSessionUUID, setCoachingSessionUUID] = useState<string>("");
+  const { organizationId, setOrganizationId } = useAppStateStore(
+    (state) => state
+  );
+  const { relationshipId, setRelationshipId } = useAppStateStore(
+    (state) => state
+  );
+  const { coachingSessionId, setCoachingSessionId } = useAppStateStore(
+    (state) => state
+  );
 
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [coachingRelationships, setCoachingRelationships] = useState<
@@ -52,9 +60,9 @@ export function SelectCoachingSession({
 
   useEffect(() => {
     async function loadOrganizations() {
-      if (!userUUID) return;
+      if (!userId) return;
 
-      await fetchOrganizationsByUserId(userUUID)
+      await fetchOrganizationsByUserId(userId)
         .then(([orgs]) => {
           // Apparently it's normal for this to be triggered twice in modern
           // React versions in strict + development modes
@@ -67,13 +75,15 @@ export function SelectCoachingSession({
         });
     }
     loadOrganizations();
-  }, [userUUID]);
+  }, [userId]);
 
   useEffect(() => {
     async function loadCoachingRelationships() {
-      if (!organizationUUID) return;
+      if (!organizationId) return;
 
-      await fetchCoachingRelationshipsWithUserNames(organizationUUID)
+      console.debug("organizationId: " + organizationId);
+
+      await fetchCoachingRelationshipsWithUserNames(organizationId)
         .then(([relationships]) => {
           console.debug(
             "setCoachingRelationships: " + JSON.stringify(relationships)
@@ -85,13 +95,13 @@ export function SelectCoachingSession({
         });
     }
     loadCoachingRelationships();
-  }, [organizationUUID]);
+  }, [organizationId]);
 
   useEffect(() => {
     async function loadCoachingSessions() {
-      if (!organizationUUID) return;
+      if (!organizationId) return;
 
-      await fetchCoachingSessions(relationshipUUID)
+      await fetchCoachingSessions(relationshipId)
         .then(([coaching_sessions]) => {
           console.debug(
             "setCoachingSessions: " + JSON.stringify(coaching_sessions)
@@ -103,7 +113,7 @@ export function SelectCoachingSession({
         });
     }
     loadCoachingSessions();
-  }, [relationshipUUID]);
+  }, [relationshipId]);
 
   return (
     <Card>
@@ -118,8 +128,8 @@ export function SelectCoachingSession({
           <Label htmlFor="organization">Organization</Label>
           <Select
             defaultValue="0"
-            value={organizationUUID}
-            onValueChange={setOrganizationUUID}
+            value={organizationId}
+            onValueChange={setOrganizationId}
           >
             <SelectTrigger id="organization">
               <SelectValue placeholder="Select organization" />
@@ -142,9 +152,9 @@ export function SelectCoachingSession({
           <Label htmlFor="relationship">Relationship</Label>
           <Select
             defaultValue="caleb"
-            disabled={!organizationUUID}
-            value={relationshipUUID}
-            onValueChange={setRelationshipUUID}
+            disabled={!organizationId}
+            value={relationshipId}
+            onValueChange={setRelationshipId}
           >
             <SelectTrigger id="relationship">
               <SelectValue placeholder="Select coaching relationship" />
@@ -169,9 +179,9 @@ export function SelectCoachingSession({
           <Label htmlFor="session">Coaching Session</Label>
           <Select
             defaultValue="today"
-            disabled={!relationshipUUID}
-            value={coachingSessionUUID}
-            onValueChange={setCoachingSessionUUID}
+            disabled={!relationshipId}
+            value={coachingSessionId}
+            onValueChange={setCoachingSessionId}
           >
             <SelectTrigger id="session">
               <SelectValue placeholder="Select coaching session" />
@@ -218,9 +228,9 @@ export function SelectCoachingSession({
         <Button
           variant="outline"
           className="w-full"
-          disabled={!coachingSessionUUID}
+          disabled={!coachingSessionId}
         >
-          <Link href={`/coaching-sessions/${coachingSessionUUID}`}>Join</Link>
+          <Link href={`/coaching-sessions/${coachingSessionId}`}>Join</Link>
         </Button>
       </CardFooter>
     </Card>

@@ -1,14 +1,15 @@
+import { Id } from '@/types/general';
 import { create, useStore } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 interface AuthState {
-    // Holds external_id UUID from the backend DB schema for a User
-    userUUID: string;
+    // Holds user id UUID from the backend DB schema for a User
+    userUUID: Id;
     isLoggedIn: boolean;
 }
 
 interface AuthActions {
-    login: (userUUID: string) => void;
+    login: (userUUID: Id) => void;
     logout: () => void;
 }
 
