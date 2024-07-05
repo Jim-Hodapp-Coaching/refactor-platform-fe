@@ -47,7 +47,7 @@ import { current, future, past } from "@/data/presets";
 
 export default function CoachingSessionsPage() {
   const [isOpen, setIsOpen] = React.useState(false);
-  const { isLoggedIn, userUUID } = useAuthStore((state) => state);
+  const { isLoggedIn, userId } = useAuthStore((state) => state);
 
   return (
     <>
