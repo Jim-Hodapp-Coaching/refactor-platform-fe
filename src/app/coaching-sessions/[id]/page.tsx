@@ -36,9 +36,10 @@ import { PresetShare } from "@/components/ui/preset-share";
 import { TemperatureSelector } from "@/components/ui/temperature-selector";
 import { TopPSelector } from "@/components/ui/top-p-selector";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import { models, types } from "@/data/models";
 import { current, future, past } from "@/data/presets";
+import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
+//import { useAuthStore } from "@/lib/providers/auth-store-provider";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -47,7 +48,9 @@ import { current, future, past } from "@/data/presets";
 
 export default function CoachingSessionsPage() {
   const [isOpen, setIsOpen] = React.useState(false);
-  const { isLoggedIn, userId } = useAuthStore((state) => state);
+  //const { isLoggedIn, userId } = useAuthStore((state) => state);
+  const { organizationId, relationshipId, coachingSessionId } =
+    useAppStateStore((state) => state);
 
   return (
     <>
