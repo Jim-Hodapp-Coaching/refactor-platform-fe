@@ -4,19 +4,19 @@ import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 interface AuthState {
     // Holds user id UUID from the backend DB schema for a User
-    userUUID: Id;
+    userId: Id;
     isLoggedIn: boolean;
 }
 
 interface AuthActions {
-    login: (userUUID: Id) => void;
+    login: (userId: Id) => void;
     logout: () => void;
 }
 
 export type AuthStore = AuthState & AuthActions;
 
 export const defaultInitState: AuthState = {
-    userUUID: "",
+    userId: "",
     isLoggedIn: false,
 }
 
@@ -29,11 +29,11 @@ export const createAuthStore = (
                 (set) => ({
                     ... initState,
 
-                    login: (userUUID) => {
-                        set({ isLoggedIn: true, userUUID });
+                    login: (userId) => {
+                        set({ isLoggedIn: true, userId });
                     },
                     logout: () => {
-                        set({ isLoggedIn: false, userUUID: undefined });
+                        set({ isLoggedIn: false, userId: undefined });
                     },
                 }),
                 {
