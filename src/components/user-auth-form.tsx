@@ -15,7 +15,7 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const router = useRouter();
-  const { userUUID } = useAuthStore((state) => state);
+  const { userId } = useAuthStore((state) => state);
   const { login } = useAuthStore((action) => action);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -27,9 +27,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     event.preventDefault();
     setIsLoading(true);
 
-    const [userUUID, err] = await loginUser(email, password);
-    if (userUUID.length > 0 && err.length == 0) {
-      login(userUUID);
+    const [userId, err] = await loginUser(email, password);
+    if (userId.length > 0 && err.length == 0) {
+      login(userId);
       router.push("/dashboard");
     } else {
       console.error("err: " + err);

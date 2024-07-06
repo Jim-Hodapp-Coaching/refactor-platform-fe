@@ -1,13 +1,14 @@
 // Interacts with the user_session_controller endpoints
+import { Id } from "@/types/general";
 import { AxiosError, AxiosResponse } from "axios";
 
-export const loginUser = async (email: string, password: string): Promise<[string, string]> => {
+export const loginUser = async (email: string, password: string): Promise<[Id, string]> => {
     const axios = require("axios");
 
     console.log("email: ", email);
     console.log("password: ", password.replace(/./g, "*"));
 
-    var userUUID: string = "";
+    var userId: Id = "";
     var err: string = "";
 
     const data = await axios
@@ -27,11 +28,7 @@ export const loginUser = async (email: string, password: string): Promise<[strin
       )
       .then(function (response: AxiosResponse) {
         // handle success
-        console.debug(response);
-        console.debug("data: ", response.data)
-
-        userUUID = response.data.data.id;
-        console.debug("userUUID: ", userUUID);
+        userId = response.data.data.id;
       })
       .catch(function (error: AxiosError) {
         // handle error
@@ -44,7 +41,7 @@ export const loginUser = async (email: string, password: string): Promise<[strin
         }
       })
 
-      return [userUUID, err];
+      return [userId, err];
 }
 
 export const logoutUser = async (): Promise<string> => {
@@ -64,7 +61,6 @@ export const logoutUser = async (): Promise<string> => {
         })
         .catch(function (error: AxiosError) {
           // handle error
-          console.error(error.response?.status);
           console.error(`Logout failed: ${error.message}`);
           return(`Logout failed: ${error.message}`);
         })

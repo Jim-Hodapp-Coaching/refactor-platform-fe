@@ -9,9 +9,6 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 import { SelectCoachingSession } from "@/components/ui/dashboard/select-coaching-session";
-import { useEffect, useState } from "react";
-import { Organization } from "@/types/organization";
-import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
 
 // export const metadata: Metadata = {
@@ -35,7 +32,7 @@ function DashboardContainer({
 }
 
 export default function DashboardPage() {
-  const { userUUID } = useAuthStore((state) => state);
+  const { userId } = useAuthStore((state) => state);
 
   return (
     <>
@@ -57,7 +54,7 @@ export default function DashboardPage() {
       </div>
       <div className="hidden items-start justify-center gap-6 rounded-lg p-8 md:grid lg:grid-cols-2 xl:grid-cols-3">
         <DashboardContainer>
-          <SelectCoachingSession userUUID={userUUID} />
+          <SelectCoachingSession userId={userId} />
         </DashboardContainer>
       </div>
     </>

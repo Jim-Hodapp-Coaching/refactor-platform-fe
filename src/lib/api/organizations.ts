@@ -35,10 +35,8 @@ export const fetchOrganizations = async (): Promise<
     })
     .then(function (response: AxiosResponse) {
       // handle success
-      console.debug(response);
       if (isOrganizationsArray(response.data.data)) {
         organizations = response.data.data;
-        //console.debug(`Organizations: ` + organizationToString(organizations) + `.`);
       }
     })
     .catch(function (error: AxiosError) {
@@ -75,10 +73,8 @@ export const fetchOrganization = async (
     })
     .then(function (response: AxiosResponse) {
       // handle success
-      console.debug(response);
       if (isOrganization(response.data.data)) {
         organization = response.data.data;
-        //console.debug(`Organization(` + id + `): ` + organizationToString(organization) + `.`);
       }
     })
     .catch(function (error: AxiosError) {
@@ -118,12 +114,8 @@ export const fetchOrganizationsByUserId = async (
     })
     .then(function (response: AxiosResponse) {
       // handle success
-      console.debug(response);
       if (isOrganizationsArray(response.data.data)) {
         organizations = response.data.data;
-        console.debug(
-          `Organizations: ` + organizationsToString(organizations) + `.`
-        );
       }
     })
     .catch(function (error: AxiosError) {
@@ -165,14 +157,8 @@ export const createOrganization = async (
     })
     .then(function (response: AxiosResponse) {
       // handle success
-      console.debug(response);
       if (isOrganization(response.data.data)) {
         createdOrganization = response.data.data;
-        console.debug(
-          `Successfully created new Organization: ` +
-            organizationToString(createdOrganization) +
-            `.`
-        );
       }
     })
     .catch(function (error: AxiosError) {
@@ -217,16 +203,8 @@ export const updateOrganization = async (
     })
     .then(function (response: AxiosResponse) {
       // handle success
-      console.debug(response);
       if (isOrganization(response.data.data)) {
         updatedOrganization = response.data.data;
-        console.debug(
-          `Successfully updated Organization(` +
-            id +
-            `): ` +
-            organizationToString(updatedOrganization) +
-            `.`
-        );
       }
     })
     .catch(function (error: AxiosError) {
@@ -266,14 +244,9 @@ export const deleteOrganization = async (
     })
     .then(function (response: AxiosResponse) {
       // handle success
-      console.debug(response);
-      //console.debug(`Organization(` + id + `) successfully deleted.`);
       var json = response.data;
       if ("id" in json) {
         deleted_id = json.id;
-        console.debug(
-          "Organization id: " + deleted_id + " successfully deleted."
-        );
       }
     })
     .catch(function (error: AxiosError) {

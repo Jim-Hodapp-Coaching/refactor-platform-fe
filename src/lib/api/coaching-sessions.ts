@@ -2,8 +2,6 @@
 
 import {
   CoachingSession,
-  coachingSessionsToString,
-  defaultCoachingSessions,
   isCoachingSessionArray,
   parseCoachingSession,
   sortCoachingSessionArray
@@ -44,19 +42,14 @@ export const fetchCoachingSessions = async (
     })
     .then(function (response: AxiosResponse) {
       // handle success
-      console.debug(response);
       var sessions_data = response.data.data;
       if (isCoachingSessionArray(sessions_data)) {
         // Sort returned sessions in ascending order by their date field
         sessions_data = sortCoachingSessionArray(sessions_data, SortOrder.Ascending);
 
         sessions_data.forEach((session_data: any) => {
-          //console.debug("session_data: " + JSON.stringify(session_data));
           coaching_sessions.push(parseCoachingSession(session_data))
         });
-        console.debug(
-          `CoachingSessions: ` + coachingSessionsToString(coaching_sessions) + `.`
-        );
       }
     })
     .catch(function (error: AxiosError) {
