@@ -1,4 +1,4 @@
-import useSWR, { SWRConfiguration, SWRResponse } from 'swr';
+import useSWR, { BareFetcher, SWRConfiguration, SWRResponse } from 'swr';
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 
 interface UseRequestResult<T> {
@@ -28,10 +28,10 @@ export function useRequest<T>(
   swrConfig?: SWRConfiguration
 ): UseRequestResult<T> & Pick<SWRResponse<T, AxiosError>, 'mutate'> {
   // Simplify the fetcher function call by directly using a ternary operator for the key check
-  const fetcherFunction = key ? () => {
+  const fetcherFunction: BareFetcher<T> | null = key ? (() => {
     const url = typeof key === 'function' ? key() : key;
     return url ? fetcher<T>(url, config) : null;
-  } : null;
+  }) as BareFetcher<T> : null;
 
   const { data, error, mutate } = useSWR<T, AxiosError>(key, fetcherFunction, swrConfig);
 
