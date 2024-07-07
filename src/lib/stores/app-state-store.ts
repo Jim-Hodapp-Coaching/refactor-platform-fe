@@ -1,45 +1,56 @@
+import { Id } from '@/types/general';
 import { create, useStore } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 interface AppState {
-    userId: string | undefined;
+    organizationId: Id;
+    relationshipId: Id;
+    coachingSessionId: Id;
 }
 
 interface AppStateActions {
-    setUserId: (userId: string | undefined) => void;
-    validUser: () => boolean;
-    clearUser: () => void;
+    setOrganizationId: (organizationId: Id) => void;
+    setRelationshipId: (relationshipId: Id) => void;
+    setCoachingSessionId: (coachingSessionId: Id) => void;
+    reset (): void;
 }
 
-// TODO: make this store persist across page reloads
-const appStateStore = create<AppState & AppStateActions>()(
-    devtools(
-        persist(
-            (set, get) => ({
-                userId: undefined,
+export type AppStateStore = AppState & AppStateActions;
 
-                setUserId: (userId: string | undefined) => {
-                    set({ userId });
-                },
+export const defaultInitState: AppState = {
+    organizationId: "",
+    relationshipId: "",
+    coachingSessionId: "",
+}
 
-                validUser: (): boolean => {
-                    return get().userId !== undefined;
-                },
+export const createAppStateStore = (
+    initState: AppState = defaultInitState,
+) => {
+    const appStateStore = create<AppStateStore>()(
+        devtools(
+            persist(
+                (set) => ({
+                    ... initState,
 
-                clearUser: () => {
-                    set({ userId: undefined });
-                },
-            }),
-            {
-                name: 'app-state-store',
-                storage: createJSONStorage(() => sessionStorage),
-            }
+                    setOrganizationId: (organizationId) => {
+                        set({ organizationId });
+                    },
+                    setRelationshipId: (relationshipId) => {
+                        set({ relationshipId });
+                    },
+                    setCoachingSessionId: (coachingSessionId) => {
+                        set({ coachingSessionId });
+                    },
+                    reset (): void {
+                        set(defaultInitState);
+                    }
+                }),
+                {
+                    name: 'app-state-store',
+                    storage: createJSONStorage(() => sessionStorage),
+                }
+            )
         )
     )
-);
-
-export type ExtractState<S> = S extends {
-    getState: () => infer T;
+    return appStateStore;
 }
-? T
-: never;

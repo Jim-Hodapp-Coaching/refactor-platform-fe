@@ -1,21 +1,22 @@
+import { Id } from '@/types/general';
 import { create, useStore } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 interface AuthState {
-    // Holds external_id UUID from the backend DB schema for a User
-    userUUID: string;
+    // Holds user id UUID from the backend DB schema for a User
+    userId: Id;
     isLoggedIn: boolean;
 }
 
 interface AuthActions {
-    login: (userUUID: string) => void;
+    login: (userId: Id) => void;
     logout: () => void;
 }
 
 export type AuthStore = AuthState & AuthActions;
 
 export const defaultInitState: AuthState = {
-    userUUID: "",
+    userId: "",
     isLoggedIn: false,
 }
 
@@ -28,11 +29,11 @@ export const createAuthStore = (
                 (set) => ({
                     ... initState,
 
-                    login: (userUUID) => {
-                        set({ isLoggedIn: true, userUUID });
+                    login: (userId) => {
+                        set({ isLoggedIn: true, userId });
                     },
                     logout: () => {
-                        set({ isLoggedIn: false, userUUID: undefined });
+                        set({ isLoggedIn: false, userId: undefined });
                     },
                 }),
                 {
