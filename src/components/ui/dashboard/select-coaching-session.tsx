@@ -20,16 +20,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRequest } from "@/hooks/use-request";
-import { fetchCoachingRelationshipsWithUserNames } from "@/lib/api/coaching-relationships";
-import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
-import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { CoachingSession } from "@/types/coaching-session";
 import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
 import { Id } from "@/types/general";
 import { Organization } from "@/types/organization";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { DateTime } from "ts-luxon";
 
 export interface CoachingSessionProps {
