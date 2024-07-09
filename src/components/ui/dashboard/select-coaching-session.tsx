@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRequest } from "@/hooks/use-request";
 import { fetchCoachingRelationshipsWithUserNames } from "@/lib/api/coaching-relationships";
 import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
@@ -50,70 +51,21 @@ export function SelectCoachingSession({
     (state) => state
   );
 
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [coachingRelationships, setCoachingRelationships] = useState<
-    CoachingRelationshipWithUserNames[]
-  >([]);
-  const [coachingSessions, setCoachingSessions] = useState<CoachingSession[]>(
-    []
-  );
+  const endpoints = [
+    `/organizations/${userId}`,
+    `/coaching-relationships/${organizationId}`,
+    `/coaching-sessions/${relationshipId}`,
+  ];
 
-  useEffect(() => {
-    async function loadOrganizations() {
-      if (!userId) return;
+  const { data: [organizations, coachingRelationships, coachingSessions] = [[], [], []], error, isLoading, mutate } = useRequest<
+    [Organization[], CoachingRelationshipWithUserNames[], CoachingSession[]]
+  >(endpoints);
 
-      await fetchOrganizationsByUserId(userId)
-        .then(([orgs]) => {
-          // Apparently it's normal for this to be triggered twice in modern
-          // React versions in strict + development modes
-          // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
-          console.debug("setOrganizations: " + JSON.stringify(orgs));
-          setOrganizations(orgs);
-        })
-        .catch(([err]) => {
-          console.error("Failed to fetch Organizations: " + err);
-        });
-    }
-    loadOrganizations();
-  }, [userId]);
+  const coachingSessionsArray = coachingSessions as CoachingSession[];
 
-  useEffect(() => {
-    async function loadCoachingRelationships() {
-      if (!organizationId) return;
+  const coachingRelationshipsArray = coachingRelationships as CoachingRelationshipWithUserNames[];
 
-      console.debug("organizationId: " + organizationId);
-
-      await fetchCoachingRelationshipsWithUserNames(organizationId)
-        .then(([relationships]) => {
-          console.debug(
-            "setCoachingRelationships: " + JSON.stringify(relationships)
-          );
-          setCoachingRelationships(relationships);
-        })
-        .catch(([err]) => {
-          console.error("Failed to fetch coaching relationships: " + err);
-        });
-    }
-    loadCoachingRelationships();
-  }, [organizationId]);
-
-  useEffect(() => {
-    async function loadCoachingSessions() {
-      if (!organizationId) return;
-
-      await fetchCoachingSessions(relationshipId)
-        .then(([coaching_sessions]) => {
-          console.debug(
-            "setCoachingSessions: " + JSON.stringify(coaching_sessions)
-          );
-          setCoachingSessions(coaching_sessions);
-        })
-        .catch(([err]) => {
-          console.error("Failed to fetch coaching sessions: " + err);
-        });
-    }
-    loadCoachingSessions();
-  }, [relationshipId]);
+  const organizationsArray = organizations as Organization[];
 
   return (
     <Card>
@@ -135,12 +87,12 @@ export function SelectCoachingSession({
               <SelectValue placeholder="Select organization" />
             </SelectTrigger>
             <SelectContent>
-              {organizations.map((organization) => (
+              {organizationsArray.map((organization) => (
                 <SelectItem value={organization.id} key={organization.id}>
                   {organization.name}
                 </SelectItem>
               ))}
-              {organizations.length == 0 && (
+              {organizationsArray && (
                 <SelectItem disabled={true} value="none">
                   None found
                 </SelectItem>
@@ -160,14 +112,14 @@ export function SelectCoachingSession({
               <SelectValue placeholder="Select coaching relationship" />
             </SelectTrigger>
             <SelectContent>
-              {coachingRelationships.map((relationship) => (
+              {coachingRelationshipsArray.map((relationship) => (
                 <SelectItem value={relationship.id} key={relationship.id}>
                   {relationship.coach_first_name} {relationship.coach_last_name}{" "}
                   -&gt; {relationship.coachee_first_name}{" "}
                   {relationship.coachee_last_name}
                 </SelectItem>
               ))}
-              {coachingRelationships.length == 0 && (
+              {coachingRelationshipsArray.length == 0 && (
                 <SelectItem disabled={true} value="none">
                   None found
                 </SelectItem>
@@ -187,35 +139,35 @@ export function SelectCoachingSession({
               <SelectValue placeholder="Select coaching session" />
             </SelectTrigger>
             <SelectContent>
-              {coachingSessions.some(
+              {coachingSessionsArray.some(
                 (session) => session.date < DateTime.now()
               ) && (
-                <SelectGroup>
-                  <SelectLabel>Previous Sessions</SelectLabel>
-                  {coachingSessions
-                    .filter((session) => session.date < DateTime.now())
-                    .map((session) => (
-                      <SelectItem value={session.id} key={session.id}>
-                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
-                      </SelectItem>
-                    ))}
-                </SelectGroup>
-              )}
-              {coachingSessions.some(
+                  <SelectGroup>
+                    <SelectLabel>Previous Sessions</SelectLabel>
+                    {coachingSessionsArray
+                      .filter((session) => session.date < DateTime.now())
+                      .map((session) => (
+                        <SelectItem value={session.id} key={session.id}>
+                          {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                        </SelectItem>
+                      ))}
+                  </SelectGroup>
+                )}
+              {coachingSessionsArray.some(
                 (session) => session.date >= DateTime.now()
               ) && (
-                <SelectGroup>
-                  <SelectLabel>Upcoming Sessions</SelectLabel>
-                  {coachingSessions
-                    .filter((session) => session.date >= DateTime.now())
-                    .map((session) => (
-                      <SelectItem value={session.id} key={session.id}>
-                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
-                      </SelectItem>
-                    ))}
-                </SelectGroup>
-              )}
-              {coachingSessions.length == 0 && (
+                  <SelectGroup>
+                    <SelectLabel>Upcoming Sessions</SelectLabel>
+                    {coachingSessionsArray
+                      .filter((session) => session.date >= DateTime.now())
+                      .map((session) => (
+                        <SelectItem value={session.id} key={session.id}>
+                          {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                        </SelectItem>
+                      ))}
+                  </SelectGroup>
+                )}
+              {coachingSessionsArray.length == 0 && (
                 <SelectItem disabled={true} value="none">
                   None found
                 </SelectItem>
