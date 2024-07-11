@@ -26,7 +26,6 @@ import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship
 import { Id } from "@/types/general";
 import { Organization } from "@/types/organization";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { DateTime } from "ts-luxon";
 
 export interface CoachingSessionProps {
@@ -44,27 +43,33 @@ export function SelectCoachingSession({
     relationshipId,
     setRelationshipId,
     coachingSessionId,
-    setCoachingSessionId
-  } = useAppStateStore(
-    state => state
-  );
+    setCoachingSessionId,
+  } = useAppStateStore((state) => state);
 
   // Fetch organizations
   const {
     data: organizations = [],
     error: organizationsError,
-    isLoading: organizationsLoading
-  } = useRequest<Organization[]>(userId ? `organizations/${userId}` : '');
+    isLoading: organizationsLoading,
+  } = useRequest<Organization[]>(userId ? `organizations/${userId}` : "");
 
   // Fetch coaching relationships
-  const { data: coachingRelationships = [], error: relationshipsError, isLoading: relationshipsLoading } = useRequest<CoachingRelationshipWithUserNames[]>(
-    organizationId ? `organizations/${organizationId}/coaching_relationships` : ''
+  const {
+    data: coachingRelationships = [],
+    error: relationshipsError,
+    isLoading: relationshipsLoading,
+  } = useRequest<CoachingRelationshipWithUserNames[]>(
+    organizationId
+      ? `organizations/${organizationId}/coaching_relationships`
+      : ""
   );
 
   // Fetch coaching sessions
-  const { data: coachingSessions = [], error: sessionsError, isLoading: sessionsLoading } = useRequest<CoachingSession[]>(
-    organizationId ? 'coaching-sessions' : ''
-  );
+  const {
+    data: coachingSessions = [],
+    error: sessionsError,
+    isLoading: sessionsLoading,
+  } = useRequest<CoachingSession[]>(organizationId ? "coaching-sessions" : "");
 
   // Consolidate error and loading checks
   const hasError = organizationsError || relationshipsError || sessionsError;
@@ -93,11 +98,12 @@ export function SelectCoachingSession({
               <SelectValue placeholder="Select organization" />
             </SelectTrigger>
             <SelectContent>
-              {Array.isArray(organizations) && organizations.map((organization) => (
-                <SelectItem value={organization.id} key={organization.id}>
-                  {organization.name}
-                </SelectItem>
-              ))}
+              {Array.isArray(organizations) &&
+                organizations.map((organization) => (
+                  <SelectItem value={organization.id} key={organization.id}>
+                    {organization.name}
+                  </SelectItem>
+                ))}
               {organizations && (
                 <SelectItem disabled={true} value="none">
                   None found
@@ -148,31 +154,31 @@ export function SelectCoachingSession({
               {coachingSessions?.some(
                 (session) => session.date < DateTime.now()
               ) && (
-                  <SelectGroup>
-                    <SelectLabel>Previous Sessions</SelectLabel>
-                    {coachingSessions
-                      .filter((session) => session.date < DateTime.now())
-                      .map((session) => (
-                        <SelectItem value={session.id} key={session.id}>
-                          {session.date.toLocaleString(DateTime.DATETIME_FULL)}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                )}
+                <SelectGroup>
+                  <SelectLabel>Previous Sessions</SelectLabel>
+                  {coachingSessions
+                    .filter((session) => session.date < DateTime.now())
+                    .map((session) => (
+                      <SelectItem value={session.id} key={session.id}>
+                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              )}
               {coachingSessions?.some(
                 (session) => session.date >= DateTime.now()
               ) && (
-                  <SelectGroup>
-                    <SelectLabel>Upcoming Sessions</SelectLabel>
-                    {coachingSessions
-                      .filter((session) => session.date >= DateTime.now())
-                      .map((session) => (
-                        <SelectItem value={session.id} key={session.id}>
-                          {session.date.toLocaleString(DateTime.DATETIME_FULL)}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                )}
+                <SelectGroup>
+                  <SelectLabel>Upcoming Sessions</SelectLabel>
+                  {coachingSessions
+                    .filter((session) => session.date >= DateTime.now())
+                    .map((session) => (
+                      <SelectItem value={session.id} key={session.id}>
+                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              )}
               {coachingSessions?.length == 0 && (
                 <SelectItem disabled={true} value="none">
                   None found

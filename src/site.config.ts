@@ -1,6 +1,6 @@
 export const siteConfig = {
     name: "Refactor Platform",
-    url: "https://refactorcoach.com",
+    url: "http://localhost:4000",
     ogImage: "https://ui.shadcn.com/og.jpg",
     description:
       "Beautifully designed components that you can copy and paste into your apps. Accessible. Customizable. Open Source.",

@@ -1,5 +1,6 @@
 import useSWR, { SWRConfiguration, SWRResponse } from 'swr';
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import { siteConfig } from '@/site.config';
 
 interface UseRequestResult<T> {
   data: T | undefined;
@@ -12,7 +13,7 @@ interface RequestConfig extends AxiosRequestConfig {
 }
 
 type RequestKey = string; // Single URL string
-const baseUrl = 'http://localhost:4000'; // Define the base URL
+const baseUrl = siteConfig.url;
 
 const defaultConfig: RequestConfig = {
   headers: {
@@ -28,14 +29,18 @@ export function useRequest<T>(
   config: RequestConfig = {},
   swrConfig?: SWRConfiguration
 ): UseRequestResult<T> & Pick<SWRResponse<T, AxiosError>, 'mutate'> {
+  console.debug("Entered into useRequest()");
 
   const combinedConfig = { ...defaultConfig, ...config };
 
   const fullUrl = `${baseUrl}/${url}`.replace(/\/+$/, '');
-
+  console.debug("url: " + url);
+  console.debug("fullURL: " + fullUrl);
 
   const fetchData = async (): Promise<T> => {
+    console.debug("Entered into fetchData()");
     const response = await axios.get(fullUrl, combinedConfig);
+    console.debug("response.data: " + JSON.stringify(response.data));
     return response.data;
   };
 
