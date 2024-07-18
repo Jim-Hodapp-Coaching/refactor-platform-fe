@@ -1,5 +1,5 @@
 import useSWR, { SWRConfiguration, SWRResponse } from 'swr'
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, AxiosInstance } from 'axios'
 import { siteConfig } from '@/site.config';
 
 // Extended Axios Request Config with defaults
@@ -46,7 +46,7 @@ export interface Config<Data = unknown, Error = unknown>
 }
 
 export default function useRequest<Data = unknown, Error = unknown>(
-  request: GetRequest,
+  request: AxiosRequestConfig | null,
   { fallbackData, ...config }: Config<Data, Error> = {}
 ): Return<Data, Error> {
   const {
