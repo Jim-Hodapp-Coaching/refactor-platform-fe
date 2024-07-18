@@ -1,55 +1,83 @@
-import useSWR, { SWRConfiguration, SWRResponse } from 'swr';
-import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import useSWR, { SWRConfiguration, SWRResponse } from 'swr'
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
 import { siteConfig } from '@/site.config';
 
-interface UseRequestResult<T> {
-  data: T | undefined;
-  error: AxiosError | undefined;
-  isLoading: boolean;
-}
+// Extended Axios Request Config with defaults
+export interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
+  headers: {
+    'Content-Type': 'application/json';
+    'X-Version': '0.0.1';
+  };
+  withCredentials: boolean;
+  timeout: number;
+};
 
-interface RequestConfig extends AxiosRequestConfig {
-  params?: Record<string, any>;
-}
+const baseURL = siteConfig.url;
 
-type RequestKey = string; // Single URL string
-const baseUrl = siteConfig.url;
-
-const defaultConfig: RequestConfig = {
+const defaultConfig: AxiosRequestConfig = {
   headers: {
     'Content-Type': 'application/json',
     'X-Version': '0.0.1',
   },
   withCredentials: true,
-  timeout: 5000, // 5 seconds before timing out trying to log in with the backend
+  timeout: 5000,
 };
 
-export function useRequest<T>(
-  url: RequestKey,
-  config: RequestConfig = {},
-  swrConfig?: SWRConfiguration
-): UseRequestResult<T> & Pick<SWRResponse<T, AxiosError>, 'mutate'> {
-  console.debug("Entered into useRequest()");
+export const axiosInstance = axios.create({
+  baseURL,
+  ...defaultConfig,
+});
 
-  const combinedConfig = { ...defaultConfig, ...config };
+interface Return<Data, Error>
+  extends Pick<
+    SWRResponse<AxiosResponse<Data>, AxiosError<Error>>,
+    'isValidating' | 'error' | 'mutate'
+  > {
+  data: Data | undefined
+  response: AxiosResponse<Data> | undefined
+}
 
-  const fullUrl = `${baseUrl}/${url}`.replace(/\/+$/, '');
-  console.debug("url: " + url);
-  console.debug("fullURL: " + fullUrl);
+export interface Config<Data = unknown, Error = unknown>
+  extends Omit<
+    SWRConfiguration<AxiosResponse<Data>, AxiosError<Error>>,
+    'fallbackData'
+  > {
+  fallbackData?: Data
+}
 
-  const fetchData = async (): Promise<T> => {
-    console.debug("Entered into fetchData()");
-    const response = await axios.get(fullUrl, combinedConfig);
-    console.debug("response.data: " + JSON.stringify(response.data));
-    return response.data;
-  };
-
-  const { data, error, mutate } = useSWR<T, AxiosError>(url, fetchData, swrConfig);
+export default function useRequest<Data = unknown, Error = unknown>(
+  request: GetRequest,
+  { fallbackData, ...config }: Config<Data, Error> = {}
+): Return<Data, Error> {
+  const {
+    data: response,
+    error,
+    isValidating,
+    mutate
+  } = useSWR<AxiosResponse<Data>, AxiosError<Error>>(
+    request,
+    /**
+     * NOTE: Typescript thinks `request` can be `null` here, but the fetcher
+     * function is actually only called by `useSWR` when it isn't.
+     */
+    () => axiosInstance.request<Data>(request!),
+    {
+      ...config,
+      fallbackData: fallbackData && {
+        status: 200,
+        statusText: 'InitialData',
+        config: request!,
+        headers: {},
+        data: fallbackData
+      } as AxiosResponse<Data>
+    }
+  )
 
   return {
-    data,
+    data: response && response.data,
+    response,
     error,
-    isLoading: !error && !data,
-    mutate,
-  };
+    isValidating,
+    mutate
+  }
 }

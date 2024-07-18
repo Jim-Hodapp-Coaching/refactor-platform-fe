@@ -33,7 +33,6 @@ function DashboardContainer({
 
 export default function DashboardPage() {
   const { userId } = useAuthStore((state) => state);
-  console.debug("userId: " + userId);
 
   return (
     <>
