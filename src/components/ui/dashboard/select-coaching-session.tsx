@@ -19,16 +19,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { fetchCoachingRelationshipsWithUserNames } from "@/lib/api/coaching-relationships";
-import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
-import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
+import useRequest from "@/hooks/use-request";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { CoachingSession } from "@/types/coaching-session";
 import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
 import { Id } from "@/types/general";
 import { Organization } from "@/types/organization";
+import { AxiosError } from "axios";
+import { set } from "date-fns";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { DateTime } from "ts-luxon";
 
 export interface CoachingSessionProps {
@@ -40,80 +40,64 @@ export function SelectCoachingSession({
   userId: userId,
   ...props
 }: CoachingSessionProps) {
-  const { organizationId, setOrganizationId } = useAppStateStore(
-    (state) => state
-  );
-  const { relationshipId, setRelationshipId } = useAppStateStore(
-    (state) => state
-  );
-  const { coachingSessionId, setCoachingSessionId } = useAppStateStore(
-    (state) => state
-  );
 
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [coachingRelationships, setCoachingRelationships] = useState<
-    CoachingRelationshipWithUserNames[]
-  >([]);
-  const [coachingSessions, setCoachingSessions] = useState<CoachingSession[]>(
-    []
-  );
+  const {
+    organizationId,
+    setOrganizationId,
+    relationshipId,
+    setRelationshipId,
+    coachingSessionId,
+    setCoachingSessionId,
+  } = useAppStateStore((state) => state);
+
+  const [organizationsData, setOrgData] = useState<null | { organization: Organization[] }>(null);
+  const [relationshipsData, setRelationshipsData] = useState<CoachingRelationshipWithUserNames[] | null>(null);
+  const [sessionsData, setSessionsData] = useState<CoachingSession[] | null>(null);
+  const [isLoading, setIsLoading] = useState(false); // Track loading state
+  const [error, setError] = useState<AxiosError<unknown, any> | null>(null);
 
   useEffect(() => {
-    async function loadOrganizations() {
-      if (!userId) return;
+    const fetchData = async () => {
+      setIsLoading(true); // Set loading state to true
+      setError(null); // Clear previous errors
 
-      await fetchOrganizationsByUserId(userId)
-        .then(([orgs]) => {
-          // Apparently it's normal for this to be triggered twice in modern
-          // React versions in strict + development modes
-          // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
-          console.debug("setOrganizations: " + JSON.stringify(orgs));
-          setOrganizations(orgs);
-        })
-        .catch(([err]) => {
-          console.error("Failed to fetch Organizations: " + err);
-        });
-    }
-    loadOrganizations();
-  }, [userId]);
+      try {
+        const [
+          organizationsResponse,
+          coachingRelationshipsResponse,
+          coachingSessionsResponse] = await Promise.all([
+            useRequest<{ organization: Organization[] }>(userId ? {
+              url: `organizations/`,
+              params: { userId }
+            } : null),
+            useRequest<{ coachingRelationships: CoachingRelationshipWithUserNames[] }>(
+              organizationId ? {
+                url: `organizations/${organizationId}/coaching_relationships`
+              } : null
+            ),
+            useRequest<{ coachingSessions: CoachingSession[] }>(
+              relationshipId ? {
+                url: 'coaching-sessions',
+                params: {
+                  coaching_relationship_id: relationshipId,
+                  from_date: DateTime.now().minus({ month: 1 }).toISODate(),
+                  to_date: DateTime.now().plus({ month: 1 }).toISODate()
+                }
+              } : null
+            )
+          ]);
+        setOrgData(organizationsResponse.data || null);
+        setRelationshipsData(coachingRelationshipsResponse.data?.coachingRelationships || null);
+        setSessionsData(coachingSessionsResponse.data?.coachingSessions || null);
+      } catch (error) {
+        setError(error as AxiosError || null); // Store error for handling
+      } finally {
+        setIsLoading(false); // Set loading state to false regardless of success or failure
+      }
+    };
 
-  useEffect(() => {
-    async function loadCoachingRelationships() {
-      if (!organizationId) return;
-
-      console.debug("organizationId: " + organizationId);
-
-      await fetchCoachingRelationshipsWithUserNames(organizationId)
-        .then(([relationships]) => {
-          console.debug(
-            "setCoachingRelationships: " + JSON.stringify(relationships)
-          );
-          setCoachingRelationships(relationships);
-        })
-        .catch(([err]) => {
-          console.error("Failed to fetch coaching relationships: " + err);
-        });
-    }
-    loadCoachingRelationships();
-  }, [organizationId]);
-
-  useEffect(() => {
-    async function loadCoachingSessions() {
-      if (!organizationId) return;
-
-      await fetchCoachingSessions(relationshipId)
-        .then(([coaching_sessions]) => {
-          console.debug(
-            "setCoachingSessions: " + JSON.stringify(coaching_sessions)
-          );
-          setCoachingSessions(coaching_sessions);
-        })
-        .catch(([err]) => {
-          console.error("Failed to fetch coaching sessions: " + err);
-        });
-    }
-    loadCoachingSessions();
-  }, [relationshipId]);
+    fetchData();
+  }, [userId]); // Update effect only when userId changes
 
   return (
     <Card>
@@ -135,12 +119,18 @@ export function SelectCoachingSession({
               <SelectValue placeholder="Select organization" />
             </SelectTrigger>
             <SelectContent>
-              {organizations.map((organization) => (
-                <SelectItem value={organization.id} key={organization.id}>
-                  {organization.name}
-                </SelectItem>
-              ))}
-              {organizations.length == 0 && (
+              {isLoading ? (
+                <p>Loading</p>
+              ) : error ? (
+                <p>Error: {error.message}</p>
+              ) : (
+                organizationsData?.organization.map((organization) => (
+                  <SelectItem value={organization.id} key={organization.id}>
+                    {organization.name}
+                  </SelectItem>
+                ))
+              )}
+              {organizationsData?.organization && (
                 <SelectItem disabled={true} value="none">
                   None found
                 </SelectItem>
@@ -160,14 +150,13 @@ export function SelectCoachingSession({
               <SelectValue placeholder="Select coaching relationship" />
             </SelectTrigger>
             <SelectContent>
-              {coachingRelationships.map((relationship) => (
+              {relationshipsData?.map((relationship) => (
                 <SelectItem value={relationship.id} key={relationship.id}>
-                  {relationship.coach_first_name} {relationship.coach_last_name}{" "}
-                  -&gt; {relationship.coachee_first_name}{" "}
-                  {relationship.coachee_last_name}
+                  {relationship.coach_first_name} {relationship.coach_last_name} -&gt;{" "}
+                  {relationship.coachee_first_name} {relationship.coachee_last_name}
                 </SelectItem>
               ))}
-              {coachingRelationships.length == 0 && (
+              {relationshipsData?.length == 0 && (
                 <SelectItem disabled={true} value="none">
                   None found
                 </SelectItem>
@@ -187,12 +176,10 @@ export function SelectCoachingSession({
               <SelectValue placeholder="Select coaching session" />
             </SelectTrigger>
             <SelectContent>
-              {coachingSessions.some(
-                (session) => session.date < DateTime.now()
-              ) && (
+              {sessionsData?.some((session) => session.date < DateTime.now()) && (
                 <SelectGroup>
                   <SelectLabel>Previous Sessions</SelectLabel>
-                  {coachingSessions
+                  {sessionsData
                     .filter((session) => session.date < DateTime.now())
                     .map((session) => (
                       <SelectItem value={session.id} key={session.id}>
@@ -201,12 +188,10 @@ export function SelectCoachingSession({
                     ))}
                 </SelectGroup>
               )}
-              {coachingSessions.some(
-                (session) => session.date >= DateTime.now()
-              ) && (
+              {sessionsData?.some((session) => session.date >= DateTime.now()) && (
                 <SelectGroup>
                   <SelectLabel>Upcoming Sessions</SelectLabel>
-                  {coachingSessions
+                  {sessionsData
                     .filter((session) => session.date >= DateTime.now())
                     .map((session) => (
                       <SelectItem value={session.id} key={session.id}>
@@ -215,7 +200,7 @@ export function SelectCoachingSession({
                     ))}
                 </SelectGroup>
               )}
-              {coachingSessions.length == 0 && (
+              {sessionsData?.length == 0 && (
                 <SelectItem disabled={true} value="none">
                   None found
                 </SelectItem>
@@ -224,15 +209,11 @@ export function SelectCoachingSession({
           </Select>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button
-          variant="outline"
-          className="w-full"
-          disabled={!coachingSessionId}
-        >
+      {/* <CardFooter>
+        <Button variant="outline" className="w-full" disabled={!coachingSessionId}>
           <Link href={`/coaching-sessions/${coachingSessionId}`}>Join</Link>
         </Button>
-      </CardFooter>
+      </CardFooter> */}
     </Card>
   );
 }
