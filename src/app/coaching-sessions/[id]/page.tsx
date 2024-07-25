@@ -39,6 +39,9 @@ import { cn } from "@/lib/utils";
 import { models, types } from "@/data/models";
 import { current, future, past } from "@/data/presets";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
+import { useEffect, useState } from "react";
+import { createNote } from "@/lib/api/notes";
+import { noteToString } from "@/types/note";
 //import { useAuthStore } from "@/lib/providers/auth-store-provider";
 
 // export const metadata: Metadata = {
@@ -47,10 +50,30 @@ import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 // };
 
 export default function CoachingSessionsPage() {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [noteId, setNoteId] = useState("");
   //const { isLoggedIn, userId } = useAuthStore((state) => state);
   const { organizationId, relationshipId, coachingSessionId } =
     useAppStateStore((state) => state);
+
+  useEffect(() => {
+    async function createEmptyNote() {
+      if (!coachingSessionId) return;
+
+      await createNote(coachingSessionId, "")
+        .then((note) => {
+          // Apparently it's normal for this to be triggered twice in modern
+          // React versions in strict + development modes
+          // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
+          console.debug("note: " + noteToString(note));
+          setNoteId(note.id);
+        })
+        .catch((err) => {
+          console.error("Failed to create empty Note: " + err);
+        });
+    }
+    createEmptyNote();
+  }, [coachingSessionId, !noteId]);
 
   return (
     <>
