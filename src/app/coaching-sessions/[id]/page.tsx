@@ -40,9 +40,14 @@ import { models, types } from "@/data/models";
 import { current, future, past } from "@/data/presets";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { useEffect, useState } from "react";
-import { createNote } from "@/lib/api/notes";
-import { noteToString } from "@/types/note";
-//import { useAuthStore } from "@/lib/providers/auth-store-provider";
+import {
+  createNote,
+  fetchNotesByCoachingSessionId,
+  updateNote,
+} from "@/lib/api/notes";
+import { Note, noteToString } from "@/types/note";
+import { useAuthStore } from "@/lib/providers/auth-store-provider";
+import { Id } from "@/types/general";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -51,29 +56,66 @@ import { noteToString } from "@/types/note";
 
 export default function CoachingSessionsPage() {
   const [isOpen, setIsOpen] = useState(false);
-  const [noteId, setNoteId] = useState("");
-  //const { isLoggedIn, userId } = useAuthStore((state) => state);
-  const { organizationId, relationshipId, coachingSessionId } =
-    useAppStateStore((state) => state);
+  const [noteId, setNoteId] = useState<Id>("");
+  const [note, setNote] = useState<string>("");
+  const [syncStatus, setSyncStatus] = useState<string>("");
+  const { userId } = useAuthStore((state) => state);
+  const { coachingSessionId } = useAppStateStore((state) => state);
 
   useEffect(() => {
-    async function createEmptyNote() {
+    async function fetchNote() {
       if (!coachingSessionId) return;
 
-      await createNote(coachingSessionId, "")
+      await fetchNotesByCoachingSessionId(coachingSessionId)
+        .then((notes) => {
+          // Apparently it's normal for this to be triggered twice in modern
+          // React versions in strict + development modes
+          // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
+          const note = notes[0];
+          console.trace("note: " + noteToString(note));
+          setNoteId(note.id);
+          setNote(note.body);
+        })
+        .catch((err) => {
+          console.error(
+            "Failed to fetch Note for current coaching session: " + err
+          );
+
+          createNote(coachingSessionId, userId, "")
+            .then((note) => {
+              // Apparently it's normal for this to be triggered twice in modern
+              // React versions in strict + development modes
+              // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
+              console.trace("New empty note: " + noteToString(note));
+              setNoteId(note.id);
+            })
+            .catch((err) => {
+              console.error("Failed to create new empty Note: " + err);
+            });
+        });
+    }
+    fetchNote();
+  }, [coachingSessionId, !note]);
+
+  const handleInputChange = (value: string) => {
+    setSyncStatus("");
+    setNote(value);
+
+    if (noteId && coachingSessionId && userId) {
+      updateNote(noteId, coachingSessionId, userId, value)
         .then((note) => {
           // Apparently it's normal for this to be triggered twice in modern
           // React versions in strict + development modes
           // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
-          console.debug("note: " + noteToString(note));
-          setNoteId(note.id);
+          console.trace("Updated Note: " + noteToString(note));
+          setSyncStatus("All changes saved");
         })
         .catch((err) => {
-          console.error("Failed to create empty Note: " + err);
+          setSyncStatus("Failed to save changes");
+          console.error("Failed to update Note: " + err);
         });
     }
-    createEmptyNote();
-  }, [coachingSessionId, !noteId]);
+  };
 
   return (
     <>
@@ -179,10 +221,13 @@ export default function CoachingSessionsPage() {
                 </TabsList>
                 <TabsContent value="notes">
                   <div className="flex h-full flex-col space-y-4">
-                    <Textarea
-                      placeholder="Session notes"
-                      className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px]"
-                    />
+                    <CoachingNotes
+                      value={note}
+                      onChange={handleInputChange}
+                    ></CoachingNotes>
+                    <p className="text-sm text-muted-foreground">
+                      {syncStatus}
+                    </p>
                   </div>
                 </TabsContent>
                 <TabsContent value="program">
@@ -217,3 +262,54 @@ export default function CoachingSessionsPage() {
     </>
   );
 }
+
+// A debounced input CoachingNotes textarea component
+// TODO: move this into the components dir
+const CoachingNotes: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ value, onChange }) => {
+  const WAIT_INTERVAL = 1000;
+  const [timer, setTimer] = useState<number | undefined>(undefined);
+  const [note, setNote] = useState<string>(value);
+
+  // Make sure the internal value prop updates when the component interface's
+  // value prop changes.
+  useEffect(() => {
+    setNote(value);
+  }, [value]);
+
+  const handleSessionNoteChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const newValue = e.target.value;
+    setNote(newValue);
+
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    const newTimer = window.setTimeout(() => {
+      onChange(newValue);
+    }, WAIT_INTERVAL);
+
+    setTimer(newTimer);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [timer]);
+
+  return (
+    <Textarea
+      placeholder="Session notes"
+      value={note}
+      className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px]"
+      onChange={handleSessionNoteChange}
+    />
+  );
+};

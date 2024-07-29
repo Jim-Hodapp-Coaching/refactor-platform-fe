@@ -6,7 +6,7 @@ import { Id, SortOrder } from "@/types/general";
 export interface Note {
   id: Id;
   coaching_session_id: Id,
-  body: String,
+  body: string,
   user_id: Id,
   created_at: DateTime;
   updated_at: DateTime;
