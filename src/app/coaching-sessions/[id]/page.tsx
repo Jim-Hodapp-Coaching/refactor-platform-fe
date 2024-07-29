@@ -116,7 +116,7 @@ export default function CoachingSessionsPage() {
     }
   };
 
-  const handleKeyDown = (value: string) => {
+  const handleKeyDown = () => {
     setSyncStatus("");
   };
 
