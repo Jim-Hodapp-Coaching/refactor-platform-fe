@@ -98,7 +98,6 @@ export default function CoachingSessionsPage() {
   }, [coachingSessionId, !note]);
 
   const handleInputChange = (value: string) => {
-    setSyncStatus("");
     setNote(value);
 
     if (noteId && coachingSessionId && userId) {
@@ -115,6 +114,10 @@ export default function CoachingSessionsPage() {
           console.error("Failed to update Note: " + err);
         });
     }
+  };
+
+  const handleKeyDown = (value: string) => {
+    setSyncStatus("");
   };
 
   return (
@@ -224,6 +227,7 @@ export default function CoachingSessionsPage() {
                     <CoachingNotes
                       value={note}
                       onChange={handleInputChange}
+                      onKeyDown={handleKeyDown}
                     ></CoachingNotes>
                     <p className="text-sm text-muted-foreground">
                       {syncStatus}
@@ -268,7 +272,8 @@ export default function CoachingSessionsPage() {
 const CoachingNotes: React.FC<{
   value: string;
   onChange: (value: string) => void;
-}> = ({ value, onChange }) => {
+  onKeyDown: () => void;
+}> = ({ value, onChange, onKeyDown }) => {
   const WAIT_INTERVAL = 1000;
   const [timer, setTimer] = useState<number | undefined>(undefined);
   const [note, setNote] = useState<string>(value);
@@ -296,6 +301,10 @@ const CoachingNotes: React.FC<{
     setTimer(newTimer);
   };
 
+  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    onKeyDown();
+  };
+
   useEffect(() => {
     return () => {
       if (timer) {
@@ -310,6 +319,7 @@ const CoachingNotes: React.FC<{
       value={note}
       className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px]"
       onChange={handleSessionNoteChange}
+      onKeyDown={handleOnKeyDown}
     />
   );
 };
