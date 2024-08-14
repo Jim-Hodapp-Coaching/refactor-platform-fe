@@ -25,16 +25,11 @@ export const fetchNotesByCoachingSessionId = async (
       })
       .then(function (response: AxiosResponse) {
         // handle success
-        if (response?.status == 204) {
-            console.error("Retrieval of Note failed: no content.");
-            err = "Retrieval of Note failed: no content.";
-        } else {
-            var notes_data = response.data.data;
-            if (isNoteArray(notes_data)) {
-                notes_data.forEach((note_data: any) => {
-                    notes.push(parseNote(note_data))
-                });
-            }
+        var notes_data = response.data.data;
+        if (isNoteArray(notes_data)) {
+            notes_data.forEach((note_data: any) => {
+                notes.push(parseNote(note_data))
+            });
         }
       })
       .catch(function (error: AxiosError) {
@@ -43,6 +38,9 @@ export const fetchNotesByCoachingSessionId = async (
         if (error.response?.status == 401) {
           console.error("Retrieval of Note failed: unauthorized.");
           err = "Retrieval of Note failed: unauthorized.";
+        } else if (error.response?.status == 404) {
+          console.error("Retrieval of Note failed: Note by coaching session Id (" + coachingSessionId + ") not found.");
+          err = "Retrieval of Note failed: Note by coaching session Id (" + coachingSessionId + ") not found.";
         } else {
           console.log(error);
           console.error(
