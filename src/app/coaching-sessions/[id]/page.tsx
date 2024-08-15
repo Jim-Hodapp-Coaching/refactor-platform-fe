@@ -64,38 +64,32 @@ export default function CoachingSessionsPage() {
 
   useEffect(() => {
     async function fetchNote() {
-      if (!coachingSessionId) return;
+      if (!coachingSessionId) {
+        console.error(
+          "Failed to fetch Note since coachingSessionId is not set."
+        );
+        return;
+      }
 
       await fetchNotesByCoachingSessionId(coachingSessionId)
         .then((notes) => {
-          // Apparently it's normal for this to be triggered twice in modern
-          // React versions in strict + development modes
-          // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
           const note = notes[0];
-          console.trace("note: " + noteToString(note));
-          setNoteId(note.id);
-          setNote(note.body);
+          if (notes.length > 0) {
+            console.trace("note: " + noteToString(note));
+            setNoteId(note.id);
+            setNote(note.body);
+          } else {
+            console.trace("No Notes associated with this coachingSessionId");
+          }
         })
         .catch((err) => {
           console.error(
             "Failed to fetch Note for current coaching session: " + err
           );
-
-          createNote(coachingSessionId, userId, "")
-            .then((note) => {
-              // Apparently it's normal for this to be triggered twice in modern
-              // React versions in strict + development modes
-              // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
-              console.trace("New empty note: " + noteToString(note));
-              setNoteId(note.id);
-            })
-            .catch((err) => {
-              console.error("Failed to create new empty Note: " + err);
-            });
         });
     }
     fetchNote();
-  }, [coachingSessionId, !note]);
+  }, [coachingSessionId, noteId]);
 
   const handleInputChange = (value: string) => {
     setNote(value);
@@ -103,9 +97,6 @@ export default function CoachingSessionsPage() {
     if (noteId && coachingSessionId && userId) {
       updateNote(noteId, coachingSessionId, userId, value)
         .then((note) => {
-          // Apparently it's normal for this to be triggered twice in modern
-          // React versions in strict + development modes
-          // https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
           console.trace("Updated Note: " + noteToString(note));
           setSyncStatus("All changes saved");
         })
@@ -113,6 +104,21 @@ export default function CoachingSessionsPage() {
           setSyncStatus("Failed to save changes");
           console.error("Failed to update Note: " + err);
         });
+    } else if (!noteId && coachingSessionId && userId) {
+      createNote(coachingSessionId, userId, value)
+        .then((note) => {
+          console.trace("Newly created Note: " + noteToString(note));
+          setNoteId(note.id);
+          setSyncStatus("All changes saved");
+        })
+        .catch((err) => {
+          setSyncStatus("Failed to save changes");
+          console.error("Failed to create new Note: " + err);
+        });
+    } else {
+      console.error(
+        "Could not update or create a Note since coachingSessionId or userId are not set."
+      );
     }
   };
 
