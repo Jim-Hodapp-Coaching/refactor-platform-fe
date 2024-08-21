@@ -133,10 +133,6 @@ export default function CoachingSessionsPage() {
           <h4 className="w-16 md:w-32 lg:w-48 font-semibold">Session Title</h4>
           <div className="ml-auto flex w-full space-x-2 sm:justify-end">
             <PresetSelector current={current} future={future} past={past} />
-            <div className="hidden space-x-2 md:flex">
-              <CodeViewer />
-              <PresetShare />
-            </div>
             <PresetActions />
           </div>
         </div>
