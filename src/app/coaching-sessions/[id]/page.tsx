@@ -129,7 +129,7 @@ export default function CoachingSessionsPage() {
   return (
     <>
       <div className="hidden h-full flex-col md:flex">
-        <div className="container flex flex-col items-start justify-between space-y-2 py-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
+        <div className="flex flex-col items-start justify-between space-y-2 py-4 px-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
           <h4 className="w-16 md:w-32 lg:w-48 font-semibold">Session Title</h4>
           <div className="ml-auto flex w-full space-x-2 sm:justify-end">
             <PresetSelector current={current} future={future} past={past} />
@@ -217,16 +217,15 @@ export default function CoachingSessionsPage() {
           <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_200px]">
             <div className="flex-col space-y-4 sm:flex md:order-1">
               <Tabs defaultValue="notes" className="flex-1">
-                <TabsList className="grid flex w-96 grid-cols-4 justify-start">
+                <TabsList className="grid flex w-128 grid-cols-2 justify-start">
                   <TabsTrigger value="notes">Notes</TabsTrigger>
-                  <TabsTrigger value="program">Program</TabsTrigger>
                   <TabsTrigger value="console">Console</TabsTrigger>
-                  <TabsTrigger value="coachs_notes">
+                  {/* <TabsTrigger value="coachs_notes">
                     <div className="flex gap-2 items-start">
                       <LockClosedIcon className="mt-1" />
                       Coach&#39;s Notes
                     </div>
-                  </TabsTrigger>
+                  </TabsTrigger> */}
                 </TabsList>
                 <TabsContent value="notes">
                   <div className="flex h-full flex-col space-y-4">
@@ -238,11 +237,6 @@ export default function CoachingSessionsPage() {
                     <p className="text-sm text-muted-foreground">
                       {syncStatus}
                     </p>
-                  </div>
-                </TabsContent>
-                <TabsContent value="program">
-                  <div className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px] bg-red-500 text-white">
-                    Program
                   </div>
                 </TabsContent>
                 <TabsContent value="console">
