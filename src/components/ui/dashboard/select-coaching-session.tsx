@@ -50,7 +50,8 @@ export function SelectCoachingSession({
     setCoachingSessionId,
   } = useAppStateStore((state) => state);
 
-  const [organizationsData, setOrgData] = useState<null | { organization: Organization[] }>(null);
+
+  const [organizationsData, setOrgData] = useState<null | { organization: Organization[] } | { organization: Organization[]; } | { organization: Organization[]; } | { organization: Organization[]; } | CoachingRelationshipWithUserNames[] | CoachingSession[] | Organization[]>(null);
   const [relationshipsData, setRelationshipsData] = useState<CoachingRelationshipWithUserNames[] | null>(null);
   const [sessionsData, setSessionsData] = useState<CoachingSession[] | null>(null);
   const [isLoading, setIsLoading] = useState(false); // Track loading state
@@ -66,29 +67,26 @@ export function SelectCoachingSession({
           organizationsResponse,
           coachingRelationshipsResponse,
           coachingSessionsResponse] = await Promise.all([
-            useRequest<{ organization: Organization[] }>(userId ? {
-              url: `organizations/`,
-              params: { userId }
-            } : null),
-            useRequest<{ coachingRelationships: CoachingRelationshipWithUserNames[] }>(
-              organizationId ? {
-                url: `organizations/${organizationId}/coaching_relationships`
-              } : null
+            useRequest(
+              userId ? { url: 'organizations/', params: { userId } } : null
             ),
-            useRequest<{ coachingSessions: CoachingSession[] }>(
+            useRequest(
+              organizationId ? { url: `organizations/${organizationId}/coaching_relationships` } : null
+            ),
+            useRequest(
               relationshipId ? {
                 url: 'coaching-sessions',
                 params: {
                   coaching_relationship_id: relationshipId,
-                  from_date: DateTime.now().minus({ month: 1 }).toISODate(),
-                  to_date: DateTime.now().plus({ month: 1 }).toISODate()
-                }
+                  from_date: DateTime.now().minus({ months: 1 }).toISODate(),
+                  to_date: DateTime.now().plus({ months: 1 }).toISODate(),
+                },
               } : null
             )
           ]);
-        setOrgData(organizationsResponse.data || null);
-        setRelationshipsData(coachingRelationshipsResponse.data?.coachingRelationships || null);
-        setSessionsData(coachingSessionsResponse.data?.coachingSessions || null);
+        setOrgData(organizationsResponse?.data || null);
+        setRelationshipsData(coachingRelationshipsResponse.data as CoachingRelationshipWithUserNames[] || null);
+        setSessionsData(coachingSessionsResponse.data as CoachingSession[] || null);
       } catch (error) {
         setError(error as AxiosError || null); // Store error for handling
       } finally {
@@ -124,13 +122,13 @@ export function SelectCoachingSession({
               ) : error ? (
                 <p>Error: {error.message}</p>
               ) : (
-                organizationsData?.organization.map((organization) => (
+                (organizationsData as { organization: Organization[] })?.organization.map((organization) => (
                   <SelectItem value={organization.id} key={organization.id}>
                     {organization.name}
                   </SelectItem>
                 ))
               )}
-              {organizationsData?.organization && (
+              {organizationsData && (
                 <SelectItem disabled={true} value="none">
                   None found
                 </SelectItem>

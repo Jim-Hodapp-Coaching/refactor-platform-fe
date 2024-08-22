@@ -1,6 +1,9 @@
 import useSWR, { SWRConfiguration, SWRResponse } from 'swr'
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, AxiosInstance } from 'axios'
 import { siteConfig } from '@/site.config';
+import { Organization } from '@/types/organization';
+import { CoachingRelationshipWithUserNames } from '@/types/coaching_relationship_with_user_names';
+import { CoachingSession } from '@/types/coaching-session';
 
 // Extended Axios Request Config with defaults
 export interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
@@ -33,7 +36,7 @@ interface Return<Data, Error>
     SWRResponse<AxiosResponse<Data>, AxiosError<Error>>,
     'isValidating' | 'error' | 'mutate'
   > {
-  data: Data | undefined
+  data: (Organization[] | CoachingRelationshipWithUserNames[] | CoachingSession[]) | undefined
   response: AxiosResponse<Data> | undefined
 }
 
@@ -45,7 +48,7 @@ export interface Config<Data = unknown, Error = unknown>
   fallbackData?: Data
 }
 
-export default function useRequest<Data = unknown, Error = unknown>(
+export default function useRequest<Data extends Organization[] | CoachingRelationshipWithUserNames[] | CoachingSession[] | undefined, Error = unknown>(
   request: AxiosRequestConfig | null,
   { fallbackData, ...config }: Config<Data, Error> = {}
 ): Return<Data, Error> {
