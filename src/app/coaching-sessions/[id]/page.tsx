@@ -39,7 +39,15 @@ import { cn } from "@/lib/utils";
 import { models, types } from "@/data/models";
 import { current, future, past } from "@/data/presets";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
-//import { useAuthStore } from "@/lib/providers/auth-store-provider";
+import { useEffect, useState } from "react";
+import {
+  createNote,
+  fetchNotesByCoachingSessionId,
+  updateNote,
+} from "@/lib/api/notes";
+import { Note, noteToString } from "@/types/note";
+import { useAuthStore } from "@/lib/providers/auth-store-provider";
+import { Id } from "@/types/general";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -47,10 +55,76 @@ import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 // };
 
 export default function CoachingSessionsPage() {
-  const [isOpen, setIsOpen] = React.useState(false);
-  //const { isLoggedIn, userId } = useAuthStore((state) => state);
-  const { organizationId, relationshipId, coachingSessionId } =
-    useAppStateStore((state) => state);
+  const [isOpen, setIsOpen] = useState(false);
+  const [noteId, setNoteId] = useState<Id>("");
+  const [note, setNote] = useState<string>("");
+  const [syncStatus, setSyncStatus] = useState<string>("");
+  const { userId } = useAuthStore((state) => state);
+  const { coachingSessionId } = useAppStateStore((state) => state);
+
+  useEffect(() => {
+    async function fetchNote() {
+      if (!coachingSessionId) {
+        console.error(
+          "Failed to fetch Note since coachingSessionId is not set."
+        );
+        return;
+      }
+
+      await fetchNotesByCoachingSessionId(coachingSessionId)
+        .then((notes) => {
+          const note = notes[0];
+          if (notes.length > 0) {
+            console.trace("note: " + noteToString(note));
+            setNoteId(note.id);
+            setNote(note.body);
+          } else {
+            console.trace("No Notes associated with this coachingSessionId");
+          }
+        })
+        .catch((err) => {
+          console.error(
+            "Failed to fetch Note for current coaching session: " + err
+          );
+        });
+    }
+    fetchNote();
+  }, [coachingSessionId, noteId]);
+
+  const handleInputChange = (value: string) => {
+    setNote(value);
+
+    if (noteId && coachingSessionId && userId) {
+      updateNote(noteId, coachingSessionId, userId, value)
+        .then((note) => {
+          console.trace("Updated Note: " + noteToString(note));
+          setSyncStatus("All changes saved");
+        })
+        .catch((err) => {
+          setSyncStatus("Failed to save changes");
+          console.error("Failed to update Note: " + err);
+        });
+    } else if (!noteId && coachingSessionId && userId) {
+      createNote(coachingSessionId, userId, value)
+        .then((note) => {
+          console.trace("Newly created Note: " + noteToString(note));
+          setNoteId(note.id);
+          setSyncStatus("All changes saved");
+        })
+        .catch((err) => {
+          setSyncStatus("Failed to save changes");
+          console.error("Failed to create new Note: " + err);
+        });
+    } else {
+      console.error(
+        "Could not update or create a Note since coachingSessionId or userId are not set."
+      );
+    }
+  };
+
+  const handleKeyDown = () => {
+    setSyncStatus("");
+  };
 
   return (
     <>
@@ -156,10 +230,14 @@ export default function CoachingSessionsPage() {
                 </TabsList>
                 <TabsContent value="notes">
                   <div className="flex h-full flex-col space-y-4">
-                    <Textarea
-                      placeholder="Session notes"
-                      className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px]"
-                    />
+                    <CoachingNotes
+                      value={note}
+                      onChange={handleInputChange}
+                      onKeyDown={handleKeyDown}
+                    ></CoachingNotes>
+                    <p className="text-sm text-muted-foreground">
+                      {syncStatus}
+                    </p>
                   </div>
                 </TabsContent>
                 <TabsContent value="program">
@@ -194,3 +272,60 @@ export default function CoachingSessionsPage() {
     </>
   );
 }
+
+// A debounced input CoachingNotes textarea component
+// TODO: move this into the components dir
+const CoachingNotes: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  onKeyDown: () => void;
+}> = ({ value, onChange, onKeyDown }) => {
+  const WAIT_INTERVAL = 1000;
+  const [timer, setTimer] = useState<number | undefined>(undefined);
+  const [note, setNote] = useState<string>(value);
+
+  // Make sure the internal value prop updates when the component interface's
+  // value prop changes.
+  useEffect(() => {
+    setNote(value);
+  }, [value]);
+
+  const handleSessionNoteChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const newValue = e.target.value;
+    setNote(newValue);
+
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    const newTimer = window.setTimeout(() => {
+      onChange(newValue);
+    }, WAIT_INTERVAL);
+
+    setTimer(newTimer);
+  };
+
+  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    onKeyDown();
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [timer]);
+
+  return (
+    <Textarea
+      placeholder="Session notes"
+      value={note}
+      className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px]"
+      onChange={handleSessionNoteChange}
+      onKeyDown={handleOnKeyDown}
+    />
+  );
+};
