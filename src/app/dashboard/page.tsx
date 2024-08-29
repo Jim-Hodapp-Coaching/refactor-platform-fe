@@ -8,7 +8,7 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
-import { SelectCoachingSession } from "@/components/ui/dashboard/select-coaching-session";
+import { CoachingSessionCard } from "@/components/dashboard/coaching-session/coaching-session-card";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
 
 // export const metadata: Metadata = {
@@ -54,7 +54,7 @@ export default function DashboardPage() {
       </div>
       <div className="hidden items-start justify-center gap-6 rounded-lg p-8 md:grid lg:grid-cols-2 xl:grid-cols-3">
         <DashboardContainer>
-          <SelectCoachingSession userId={userId} />
+          <CoachingSessionCard userId={userId} />
         </DashboardContainer>
       </div>
     </>
