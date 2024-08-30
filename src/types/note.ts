@@ -17,7 +17,7 @@ export interface Note {
 // will agree to work with internally.
 export function parseNote(data: any): Note {
   if (!isNote(data)) {
-    throw new Error('Invalid Note data');
+    throw new Error('Invalid Note object data');
   }
   return {
     id: data.id,
@@ -34,7 +34,7 @@ export function isNote(value: unknown): value is Note {
       return false;
     }
     const object = value as Record<string, unknown>;
-  
+
     return (
       typeof object.id === "string" &&
       typeof object.coaching_session_id === "string" &&

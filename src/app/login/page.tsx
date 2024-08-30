@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { UserAuthForm } from "@/components/user-auth-form";
+import { siteConfig } from "@/site.config";
 
 export const metadata: Metadata = {
   title: "Authentication",
@@ -55,13 +56,11 @@ export default function AuthenticationPage() {
             >
               <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
             </svg>
-            Refactor Coaching & Mentoring
+            {siteConfig.name}
           </div>
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
-              <p className="text-lg">
-                A coaching and mentorship platform for engineering leaders and software engineers.
-              </p>
+              <p className="text-lg">{siteConfig.description}</p>
             </blockquote>
           </div>
         </div>

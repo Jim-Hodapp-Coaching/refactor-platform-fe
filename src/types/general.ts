@@ -7,3 +7,10 @@ export enum SortOrder {
     Ascending = "ascending",
     Descending = "descending"
   }
+
+export enum CompletionStatus {
+  NotStarted = "not_started",
+  InProgress = "in_progress",
+  Completed = "completed",
+  WontDo = "wont_do"
+}

@@ -48,6 +48,7 @@ import {
 import { Note, noteToString } from "@/types/note";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import { Id } from "@/types/general";
+import { Agreements } from "@/components/ui/coaching-sessions/agreements";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -195,7 +196,9 @@ export default function CoachingSessionsPage() {
                     <TabsTrigger value="program">Program</TabsTrigger>
                   </TabsList>
                   <TabsContent value="agreements">
-                    <div className="bg-gray-500 text-white p-4">Agreements</div>
+                    <Agreements
+                      coachingSessionId={coachingSessionId}
+                    ></Agreements>
                   </TabsContent>
                   <TabsContent value="actions">
                     <div className="bg-red-500 text-white p-4">Actions</div>
