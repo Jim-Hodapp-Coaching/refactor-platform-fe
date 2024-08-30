@@ -3,7 +3,7 @@ export const siteConfig = {
     url: "https://refactorcoach.com",
     ogImage: "https://ui.shadcn.com/og.jpg",
     description:
-      "A platform for software engineers and engineering leaders to level up their foundational skills.",
+      "A platform for software engineers and tech leaders to level up their foundational skills.",
     links: {
       twitter: "https://twitter.com/shadcn",
       github: "https://github.com/shadcn-ui/ui",
