@@ -49,6 +49,7 @@ import { Note, noteToString } from "@/types/note";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import { Id } from "@/types/general";
 import { Agreements } from "@/components/ui/coaching-sessions/agreements";
+import { Agreement } from "@/types/agreement";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
