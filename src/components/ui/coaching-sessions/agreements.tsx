@@ -140,352 +140,89 @@ const Agreements: React.FC<{
   }, [timer]);
 
   return (
-    <div>
-      <div className="flex min-h-screen w-full flex-col bg-muted/40">
-        <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
-          <div className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-            <Tabs defaultValue="all">
-              <div className="flex items-center">
-                <TabsList>
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="active">Active</TabsTrigger>
-                  <TabsTrigger value="draft">Draft</TabsTrigger>
-                  <TabsTrigger value="archived" className="hidden sm:flex">
-                    Archived
-                  </TabsTrigger>
-                </TabsList>
-                <div className="ml-auto flex items-center gap-2">
-                  <Button size="sm" className="h-8 gap-1">
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                      Agreement
-                    </span>
-                  </Button>
-                </div>
+    <div className="flex w-full flex-col bg-muted/40">
+      <div className="flex flex-col sm:gap-4 sm:py-2 ">
+        <div className="grid flex-1 items-start gap-4 sm:py-0 md:gap-8">
+          <Card x-chunk="dashboard-06-chunk-0">
+            <CardHeader>
+              <CardTitle>Agreements</CardTitle>
+              <CardDescription>
+                Manage agreements for this session
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Body</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Created
+                    </TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Last updated
+                    </TableHead>
+                    <TableHead>
+                      <span className="sr-only">Actions</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {agreements.map((agreement) => (
+                    <TableRow>
+                      <TableCell className="font-medium">
+                        {agreement.body}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {agreement.created_at.toLocaleString(
+                          DateTime.DATETIME_FULL
+                        )}
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {agreement.updated_at.toLocaleString(
+                          DateTime.DATETIME_FULL
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              aria-haspopup="true"
+                              size="icon"
+                              variant="ghost"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {agreements.length == 0 && (
+                    <TableRow>
+                      <div className="py-4 w-32">No agreements</div>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+            <CardFooter>
+              <div className="text-xs text-muted-foreground">
+                Showing{" "}
+                <strong>
+                  {agreements.length > 0 ? <>1 -</> : <></>} {agreements.length}
+                </strong>{" "}
+                of <strong>{agreements.length}</strong> agreements
               </div>
-              <TabsContent value="all">
-                <Card x-chunk="dashboard-06-chunk-0">
-                  <CardHeader>
-                    <CardTitle>Agreements</CardTitle>
-                    <CardDescription>
-                      Manage your agreements for this session
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="hidden w-[100px] sm:table-cell">
-                            <span className="sr-only">Image</span>
-                          </TableHead>
-                          <TableHead>Body</TableHead>
-                          <TableHead className="hidden md:table-cell">
-                            Created
-                          </TableHead>
-                          <TableHead className="hidden md:table-cell">
-                            Last updated
-                          </TableHead>
-                          <TableHead>
-                            <span className="sr-only">Actions</span>
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell className="hidden sm:table-cell">
-                            <Image
-                              alt="Product image"
-                              className="aspect-square rounded-md object-cover"
-                              height="64"
-                              src="/placeholder.svg"
-                              width="64"
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            Laser Lemonade Machine
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-07-12 10:42 AM
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2024-02-12 9:42 AM
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  aria-haspopup="true"
-                                  size="icon"
-                                  variant="ghost"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="hidden sm:table-cell">
-                            <Image
-                              alt="Product image"
-                              className="aspect-square rounded-md object-cover"
-                              height="64"
-                              src="/placeholder.svg"
-                              width="64"
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            Hypernova Headphones
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-10-18 03:21 PM
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2024-10-18 03:21 PM
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  aria-haspopup="true"
-                                  size="icon"
-                                  variant="ghost"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="hidden sm:table-cell">
-                            <Image
-                              alt="Product image"
-                              className="aspect-square rounded-md object-cover"
-                              height="64"
-                              src="/placeholder.svg"
-                              width="64"
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            AeroGlow Desk Lamp
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-11-29 08:15 AM
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2024-11-29 08:15 AM
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  aria-haspopup="true"
-                                  size="icon"
-                                  variant="ghost"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="hidden sm:table-cell">
-                            <Image
-                              alt="Product image"
-                              className="aspect-square rounded-md object-cover"
-                              height="64"
-                              src="/placeholder.svg"
-                              width="64"
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            TechTonic Energy Drink
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2023-12-25 11:59 PM
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2024-12-25 11:59 PM
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  aria-haspopup="true"
-                                  size="icon"
-                                  variant="ghost"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="hidden sm:table-cell">
-                            <Image
-                              alt="Product image"
-                              className="aspect-square rounded-md object-cover"
-                              height="64"
-                              src="/placeholder.svg"
-                              width="64"
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            Gamer Gear Pro Controller
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2024-01-01 12:00 AM
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2024-05-01 12:00 AM
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  aria-haspopup="true"
-                                  size="icon"
-                                  variant="ghost"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell className="hidden sm:table-cell">
-                            <Image
-                              alt="Product image"
-                              className="aspect-square rounded-md object-cover"
-                              height="64"
-                              src="/placeholder.svg"
-                              width="64"
-                            />
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            Luminous VR Headset
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2024-02-14 02:14 PM
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            2024-04-14 02:14 PM
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  aria-haspopup="true"
-                                  size="icon"
-                                  variant="ghost"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                  <CardFooter>
-                    <div className="text-xs text-muted-foreground">
-                      Showing <strong>1-10</strong> of <strong>32</strong>{" "}
-                      products
-                    </div>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
+            </CardFooter>
+          </Card>
         </div>
       </div>
-
-      {/* ------------------ */}
-      {/* <div className="grid gap-2">
-        <Select
-          defaultValue="0"
-          value={agreementBody}
-          onValueChange={handleAgreementSelectionChange}
-        >
-          <SelectTrigger id="agreement">
-            <SelectValue placeholder="Select agreement" />
-          </SelectTrigger>
-          <SelectContent>
-            {agreements.map((agreement) => (
-              <SelectItem
-                value={agreement.body || agreement.id}
-                key={agreement.id}
-              >
-                {agreement.body}
-              </SelectItem>
-            ))}
-            {agreements.length == 0 && (
-              <SelectItem disabled={true} value="none">
-                None found
-              </SelectItem>
-            )}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="grid gap-2">
-        <textarea
-          value={agreementBody}
-          onChange={handleAgreementChange}
-          onKeyDown={handleOnKeyDown}
-        ></textarea>
-      </div>
-      <div className="grid gap-2">
-        <Button
-          variant="outline"
-          className="w-full"
-          disabled={!coachingSessionId}
-        >
-          <Link href={`/coaching-sessions/${coachingSessionId}`}>
-            Add Agreement
-          </Link>
-        </Button>
-      </div> */}
     </div>
   );
 };

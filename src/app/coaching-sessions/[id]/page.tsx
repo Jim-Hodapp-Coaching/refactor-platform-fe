@@ -190,30 +190,34 @@ export default function CoachingSessionsPage() {
             </div>
             <CollapsibleContent className="px-4">
               <div className="flex-col space-y-4 sm:flex">
-                <Tabs defaultValue="agreements" className="flex-1">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="agreements">Agreements</TabsTrigger>
-                    <TabsTrigger value="actions">Actions</TabsTrigger>
-                    <TabsTrigger value="program">Program</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="agreements">
-                    <Agreements
-                      coachingSessionId={coachingSessionId}
-                    ></Agreements>
-                  </TabsContent>
-                  <TabsContent value="actions">
-                    <div className="bg-red-500 text-white p-4">Actions</div>
-                  </TabsContent>
-                  <TabsContent value="program">
-                    <div className="bg-blue-500 text-white p-4">Program</div>
-                  </TabsContent>
-                </Tabs>
+                <div className="grid flex-1 items-start gap-4 sm:py-0 md:gap-8">
+                  <Tabs defaultValue="agreements">
+                    <div className="flex items-center">
+                      <TabsList className="grid grid-cols-3">
+                        <TabsTrigger value="agreements">Agreements</TabsTrigger>
+                        <TabsTrigger value="actions">Actions</TabsTrigger>
+                        <TabsTrigger value="program">Program</TabsTrigger>
+                      </TabsList>
+                    </div>
+                    <TabsContent value="agreements">
+                      <Agreements
+                        coachingSessionId={coachingSessionId}
+                      ></Agreements>
+                    </TabsContent>
+                    <TabsContent value="actions">
+                      {/* <div className="bg-red-500 text-white">Actions</div> */}
+                    </TabsContent>
+                    <TabsContent value="program">
+                      {/* <div className="bg-blue-500 text-white">Program</div> */}
+                    </TabsContent>
+                  </Tabs>
+                </div>
               </div>
             </CollapsibleContent>
           </Collapsible>
         </div>
 
-        <div className="row-span-1 h-full py-6 px-4">
+        <div className="row-span-1 h-full py-4 px-4">
           <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_200px]">
             <div className="flex-col space-y-4 sm:flex md:order-1">
               <Tabs defaultValue="notes" className="flex-1">
