@@ -1,19 +1,27 @@
 import useRequest from "@/hooks/use-request";
-import { SelectItem } from "@radix-ui/react-select";
-import { memo, useMemo } from "react";
+import { Select, SelectItem } from "@radix-ui/react-select";
+import { memo, useEffect, useMemo, useState } from "react";
 import { SWRResponse } from "swr";
 
 export type SelectListDataType = any;
 
 export interface LoadedSelectProps {
-    url: string,
-    params?: any,
+    url: string;
+    params?: any;
+    selectedItem?: (value: string) => void;
+    onSelectedValue?: (value: string) => void;
 }
 
 const LoadedSelect = memo(function LoadedSelect({
     url: url,
     params: params,
+    selectedItem,
+    onSelectedValue
 }: LoadedSelectProps): JSX.Element {
+
+    const [selectedValue, setSelectedValue] = useState<string>("");
+
+    useEffect(() => setSelectedValue(selectedValue), [selectedValue]);
 
     const {
         data: selectList,
@@ -37,6 +45,10 @@ const LoadedSelect = memo(function LoadedSelect({
         });
     }, [selectList]);
 
+    const handleValueChange = (value: string) => {
+        setSelectedValue(value);
+    };
+
     if (error) {
         return <div>Error: {error.message}</div>
     }
@@ -45,7 +57,13 @@ const LoadedSelect = memo(function LoadedSelect({
         return <div>Loading...</div>
     }
 
-    return (<div>{selectItemList}</div>)
+    return (
+        <Select
+            onValueChange={handleValueChange}
+        >{
+                selectItemList
+            }
+        </Select>)
 });
 
 export default LoadedSelect;
