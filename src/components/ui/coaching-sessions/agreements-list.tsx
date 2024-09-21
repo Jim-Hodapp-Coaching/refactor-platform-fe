@@ -18,17 +18,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, ArrowUpDown, Save } from "lucide-react";
-import { CompletionStatus, Id } from "@/types/general";
-import { fetchAgreementsByCoachingSessionId } from "@/lib/api/agreements";
-import { Agreement } from "@/types/agreement";
+import { Id } from "@/types/general";
+import {
+  createAgreement,
+  updateAgreement as updateAgreementApi,
+  fetchAgreementsByCoachingSessionId,
+} from "@/lib/api/agreements";
+import { Agreement, agreementToString } from "@/types/agreement";
 import { DateTime } from "ts-luxon";
-
-// interface Agreement {
-//   id: number;
-//   text: string;
-//   createdAt: string;
-//   lastUpdated: string;
-// }
 
 const AgreementsList: React.FC<{
   coachingSessionId: Id;
@@ -43,37 +40,63 @@ const AgreementsList: React.FC<{
 
   const addAgreement = () => {
     if (newAgreement.trim() === "") return;
-    const now = DateTime.now();
-    setAgreements((prevAgreements) => [
-      ...prevAgreements,
-      {
-        id: "",
-        coaching_session_id: coachingSessionId,
-        body: newAgreement,
-        user_id: userId,
-        status: CompletionStatus.NotStarted,
-        status_changed_at: now,
-        created_at: now,
-        updated_at: now,
-      },
-    ]);
+
+    createAgreement(coachingSessionId, userId, newAgreement)
+      .then((agreement) => {
+        console.trace(
+          "Newly created Agreement: " + agreementToString(agreement)
+        );
+        setAgreements((prevAgreements) => [
+          ...prevAgreements,
+          {
+            id: agreement.id,
+            coaching_session_id: agreement.coaching_session_id,
+            body: agreement.body,
+            user_id: agreement.user_id,
+            created_at: agreement.created_at,
+            updated_at: agreement.updated_at,
+          },
+        ]);
+      })
+      .catch((err) => {
+        console.error("Failed to create new Agreement: " + err);
+        throw err;
+      });
+
     setNewAgreement("");
   };
 
-  const updateAgreement = (id: Id, newBody: string) => {
-    setAgreements(
-      agreements.map((agreement) =>
-        agreement.id === id
-          ? {
-              ...agreement,
+  const updateAgreement = async (id: Id, newBody: string) => {
+    try {
+      const updatedAgreements = await Promise.all(
+        agreements.map(async (agreement) => {
+          if (agreement.id === id) {
+            // Call the async updateAgreement function
+            const updatedAgreement = await updateAgreementApi(
+              id,
+              agreement.user_id,
+              agreement.coaching_session_id,
+              newBody
+            );
+
+            return {
+              ...updatedAgreement,
               body: newBody,
               updated_at: DateTime.now(),
-            }
-          : agreement
-      )
-    );
-    setEditingId(null);
-    setEditBody("");
+            };
+          }
+          return agreement;
+        })
+      );
+
+      setAgreements(updatedAgreements);
+      setEditingId(null);
+      setEditBody("");
+    } catch (err) {
+      console.error("Failed to update Agreement:", err);
+      throw err;
+      // Handle error (e.g., show an error message to the user)
+    }
   };
 
   const deleteAgreement = (id: Id) => {
@@ -97,12 +120,6 @@ const AgreementsList: React.FC<{
     if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
     return 0;
   });
-
-  // const sortedAgreements = [...agreements].sort((a, b) => {
-  //   if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1;
-  //   if (a[sortColumn] > b[sortColumn]) return sortDirection === "asc" ? 1 : -1;
-  //   return 0;
-  // });
 
   useEffect(() => {
     async function loadAgreements() {

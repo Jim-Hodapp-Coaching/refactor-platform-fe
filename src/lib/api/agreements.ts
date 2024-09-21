@@ -1,8 +1,9 @@
 // Interacts with the note endpoints
 
 import { Agreement, defaultAgreement, isAgreement, isAgreementArray, parseAgreement } from "@/types/agreement";
-import { Id } from "@/types/general";
+import { CompletionStatus, Id } from "@/types/general";
 import { AxiosError, AxiosResponse } from "axios";
+import { DateTime } from "ts-luxon";
 
 export const fetchAgreementsByCoachingSessionId = async (
     coachingSessionId: Id
@@ -35,21 +36,19 @@ export const fetchAgreementsByCoachingSessionId = async (
       .catch(function (error: AxiosError) {
         // handle error
         if (error.response?.status == 401) {
-          console.error("Retrieval of Agreements failed: unauthorized.");
           err = "Retrieval of Agreements failed: unauthorized.";
         } else if (error.response?.status == 404) {
-          console.error("Retrieval of Agreements failed: Agreements by coaching session Id (" + coachingSessionId + ") not found.");
           err = "Retrieval of Agreements failed: Agreements by coaching session Id (" + coachingSessionId + ") not found.";
         } else {
-          console.error("GET error: " + error);
           err =
             `Retrieval of Agreements by coaching session Id (` + coachingSessionId + `) failed.`;
-          console.error(err);
         }
       });
 
-    if (err)
+    if (err) {
+      console.error(err);
       throw err;
+    }
   
     return agreements;
   };
@@ -64,7 +63,9 @@ export const createAgreement = async (
     const newAgreementJson = {
         coaching_session_id: coaching_session_id,
         user_id: user_id,
-        body: body
+        body: body,
+        status: CompletionStatus.NotStarted,
+        status_changed_at: DateTime.now()
     };
     console.debug("newAgreementJson: " + JSON.stringify(newAgreementJson));
     // A full real note to be returned from the backend with the same body
@@ -91,23 +92,19 @@ export const createAgreement = async (
         // handle error
         console.error(error.response?.status);
         if (error.response?.status == 401) {
-          console.error("Creation of Agreement failed: unauthorized.");
           err = "Creation of Agreement failed: unauthorized.";
         } else if (error.response?.status == 500) {
-          console.error(
-            "Creation of Agreement failed: internal server error."
-          );
           err = "Creation of Agreement failed: internal server error.";
         } else {
-          console.log(error);
           err = `Creation of new Agreement failed.`;
-          console.error(err);
         }
       }
     );
     
-    if (err)
+    if (err) {
+      console.error(err);
       throw err;
+    }
   
     return createdAgreement;
   };
@@ -149,19 +146,18 @@ export const createAgreement = async (
         console.error(error.response?.status);
         if (error.response?.status == 401) {
           err = "Update of Agreement failed: unauthorized.";
-          console.error(err);
         } else if (error.response?.status == 500) {
           err = "Update of Agreement failed: internal server error.";
-          console.error(err);
         } else {
           console.log(error);
           err = `Update of new Agreement failed.`;
-          console.error(err);
         }
       });
 
-    if (err)
+    if (err) {
+      console.error(err);
       throw err;
+    }
   
     return updatedAgreement;
   };

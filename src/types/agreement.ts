@@ -8,8 +8,6 @@ export interface Agreement {
   coaching_session_id: Id,
   body?: string,
   user_id: Id,
-  status: CompletionStatus,
-  status_changed_at?: DateTime,
   created_at: DateTime;
   updated_at: DateTime;
 }
@@ -26,8 +24,6 @@ export function parseAgreement(data: any): Agreement {
     coaching_session_id: data.coaching_session_id,
     body: data.body,
     user_id: data.user_id,
-    status: data.status,
-    status_changed_at: data.status_changed_at,
     created_at: DateTime.fromISO(data.created_at.toString()),
     updated_at: DateTime.fromISO(data.updated_at.toString()),
   };
@@ -43,11 +39,9 @@ export function isAgreement(value: unknown): value is Agreement {
       (typeof object.id === "string" &&
       typeof object.coaching_session_id === "string" &&
       typeof object.user_id === "string" &&
-      typeof object.status === "string" &&
       typeof object.created_at === "string" &&
       typeof object.updated_at === "string") || 
-      (typeof object.body === "string"  ||            // body is optional
-      typeof object.status_changed_at === "string")   // status_changed_at is optional
+      typeof object.body === "string"            // body is optional
     );
   }
 
@@ -73,8 +67,6 @@ export function defaultAgreement(): Agreement {
       coaching_session_id: "",
       body: "",
       user_id: "",
-      status: CompletionStatus.NotStarted,
-      status_changed_at: now,
       created_at: now,
       updated_at: now,
     };
