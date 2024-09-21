@@ -48,7 +48,8 @@ import {
 import { Note, noteToString } from "@/types/note";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import { Id } from "@/types/general";
-import { Agreements } from "@/components/ui/coaching-sessions/agreements";
+//import { Agreements } from "@/components/ui/coaching-sessions/agreements";
+import { AgreementsList } from "@/components/ui/coaching-sessions/agreements-list";
 import { Agreement } from "@/types/agreement";
 
 // export const metadata: Metadata = {
@@ -200,9 +201,13 @@ export default function CoachingSessionsPage() {
                       </TabsList>
                     </div>
                     <TabsContent value="agreements">
-                      <Agreements
-                        coachingSessionId={coachingSessionId}
-                      ></Agreements>
+                      {/* TODO: see if I can add small, medium & large breakpoints for this div */}
+                      <div className="w-full">
+                        <AgreementsList
+                          coachingSessionId={coachingSessionId}
+                          userId={userId}
+                        ></AgreementsList>
+                      </div>
                     </TabsContent>
                     <TabsContent value="actions">
                       {/* <div className="bg-red-500 text-white">Actions</div> */}
