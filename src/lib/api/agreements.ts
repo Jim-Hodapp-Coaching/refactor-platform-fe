@@ -149,7 +149,6 @@ export const createAgreement = async (
         } else if (error.response?.status == 500) {
           err = "Update of Agreement failed: internal server error.";
         } else {
-          console.log(error);
           err = `Update of new Agreement failed.`;
         }
       });
@@ -160,4 +159,47 @@ export const createAgreement = async (
     }
   
     return updatedAgreement;
+  };
+
+  export const deleteAgreement = async (
+    id: Id
+  ): Promise<Agreement> => {
+    const axios = require("axios");
+  
+    var deletedAgreement: Agreement = defaultAgreement();
+    var err: string = "";
+  
+    const data = await axios
+      .delete(`http://localhost:4000/agreements/${id}`, {
+        withCredentials: true,
+        setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
+        headers: {
+          "X-Version": "0.0.1",
+          "Content-Type": "application/json",
+        },
+      })
+      .then(function (response: AxiosResponse) {
+        // handle success
+        if (isAgreement(response.data.data)) {
+          deletedAgreement = response.data.data;
+        }
+      })
+      .catch(function (error: AxiosError) {
+        // handle error
+        console.error(error.response?.status);
+        if (error.response?.status == 401) {
+          err = "Deletion of Agreement failed: unauthorized.";
+        } else if (error.response?.status == 500) {
+          err = "Deletion of Agreement failed: internal server error.";
+        } else {
+          err = `Deletion of new Agreement failed.`;
+        }
+      });
+
+    if (err) {
+      console.error(err);
+      throw err;
+    }
+  
+    return deletedAgreement;
   };

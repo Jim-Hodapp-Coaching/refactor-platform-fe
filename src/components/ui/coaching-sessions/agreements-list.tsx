@@ -21,6 +21,7 @@ import { MoreHorizontal, ArrowUpDown, Save } from "lucide-react";
 import { Id } from "@/types/general";
 import {
   createAgreement,
+  deleteAgreement as deleteAgreementApi,
   updateAgreement as updateAgreementApi,
   fetchAgreementsByCoachingSessionId,
 } from "@/lib/api/agreements";
@@ -41,6 +42,8 @@ const AgreementsList: React.FC<{
   const addAgreement = () => {
     if (newAgreement.trim() === "") return;
 
+    // TODO: move this and the other backend calls outside of this component and trigger
+    // an event instead, especially if we end up making this a reusable Agreement/Action component.
     createAgreement(coachingSessionId, userId, newAgreement)
       .then((agreement) => {
         console.trace(
@@ -100,7 +103,16 @@ const AgreementsList: React.FC<{
   };
 
   const deleteAgreement = (id: Id) => {
-    setAgreements(agreements.filter((agreement) => agreement.id !== id));
+    deleteAgreementApi(id)
+      .then((deleted_id) => {
+        console.trace("Deleted Agreement id: " + JSON.stringify(deleted_id));
+
+        setAgreements(agreements.filter((agreement) => agreement.id !== id));
+      })
+      .catch((err) => {
+        console.error("Failed to create new Agreement: " + err);
+        throw err;
+      });
   };
 
   const sortAgreements = (column: keyof Agreement) => {
