@@ -240,7 +240,6 @@ export default function CoachingSessionsPage() {
                       </TabsList>
                     </div>
                     <TabsContent value="agreements">
-                      {/* TODO: see if I can add small, medium & large breakpoints for this div */}
                       <div className="w-full">
                         <AgreementsList
                           coachingSessionId={coachingSessionId}
