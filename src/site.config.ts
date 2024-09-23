@@ -2,6 +2,7 @@ export const siteConfig = {
     name: "Refactor Coaching & Mentoring",
     url: "https://refactorcoach.com",
     ogImage: "https://ui.shadcn.com/og.jpg",
+    locale: "us",
     description:
       "A platform for software engineers and tech leaders to level up their foundational skills.",
     links: {

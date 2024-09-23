@@ -1,4 +1,4 @@
-// Interacts with the note endpoints
+// Interacts with the agreement endpoints
 
 import { Agreement, defaultAgreement, isAgreement, isAgreementArray, parseAgreement } from "@/types/agreement";
 import { CompletionStatus, Id } from "@/types/general";
@@ -136,9 +136,10 @@ export const createAgreement = async (
         },
       })
       .then(function (response: AxiosResponse) {
-        // handle success
-        if (isAgreement(response.data.data)) {
-          updatedAgreement = response.data.data;
+        // handle success 
+        const agreement_data = response.data.data;
+        if (isAgreement(agreement_data)) {
+          updatedAgreement = parseAgreement(agreement_data);
         }
       })
       .catch(function (error: AxiosError) {

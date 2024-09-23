@@ -48,9 +48,14 @@ import {
 import { Note, noteToString } from "@/types/note";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import { Id } from "@/types/general";
-//import { Agreements } from "@/components/ui/coaching-sessions/agreements";
 import { AgreementsList } from "@/components/ui/coaching-sessions/agreements-list";
-import { Agreement } from "@/types/agreement";
+import { Agreement, agreementToString } from "@/types/agreement";
+import {
+  createAgreement,
+  deleteAgreement,
+  updateAgreement,
+} from "@/lib/api/agreements";
+import { siteConfig } from "@/site.config";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -93,6 +98,40 @@ export default function CoachingSessionsPage() {
     }
     fetchNote();
   }, [coachingSessionId, noteId]);
+
+  const handleAgreementAdded = (body: string): Promise<Agreement> => {
+    // Calls the backend endpoint that creates and stores a full Agreement entity
+    return createAgreement(coachingSessionId, userId, body)
+      .then((agreement) => {
+        return agreement;
+      })
+      .catch((err) => {
+        console.error("Failed to create new Agreement: " + err);
+        throw err;
+      });
+  };
+
+  const handleAgreementEdited = (id: Id, body: string): Promise<Agreement> => {
+    return updateAgreement(id, coachingSessionId, userId, body)
+      .then((agreement) => {
+        return agreement;
+      })
+      .catch((err) => {
+        console.error("Failed to update Agreement (id: " + id + "): " + err);
+        throw err;
+      });
+  };
+
+  const handleAgreementDeleted = (id: Id): Promise<Agreement> => {
+    return deleteAgreement(id)
+      .then((agreement) => {
+        return agreement;
+      })
+      .catch((err) => {
+        console.error("Failed to update Agreement (id: " + id + "): " + err);
+        throw err;
+      });
+  };
 
   const handleInputChange = (value: string) => {
     setNote(value);
@@ -206,6 +245,10 @@ export default function CoachingSessionsPage() {
                         <AgreementsList
                           coachingSessionId={coachingSessionId}
                           userId={userId}
+                          locale={siteConfig.locale}
+                          onAgreementAdded={handleAgreementAdded}
+                          onAgreementEdited={handleAgreementEdited}
+                          onAgreementDeleted={handleAgreementDeleted}
                         ></AgreementsList>
                       </div>
                     </TabsContent>

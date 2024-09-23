@@ -27,39 +27,50 @@ import {
 } from "@/lib/api/agreements";
 import { Agreement, agreementToString } from "@/types/agreement";
 import { DateTime } from "ts-luxon";
+import { siteConfig } from "@/site.config";
 
 const AgreementsList: React.FC<{
   coachingSessionId: Id;
   userId: Id;
-}> = ({ coachingSessionId, userId }) => {
+  locale: string | "us";
+  onAgreementAdded: (value: string) => Promise<Agreement>;
+  onAgreementEdited: (id: Id, value: string) => Promise<Agreement>;
+  onAgreementDeleted: (id: Id) => Promise<Agreement>;
+}> = ({
+  coachingSessionId,
+  userId,
+  locale,
+  onAgreementAdded,
+  onAgreementEdited,
+  onAgreementDeleted,
+}) => {
+  enum AgreementSortField {
+    Body = "body",
+    CreatedAt = "created_at",
+    UpdatedAt = "updated_at",
+  }
+
   const [agreements, setAgreements] = useState<Agreement[]>([]);
   const [newAgreement, setNewAgreement] = useState("");
   const [editingId, setEditingId] = useState<Id | null>(null);
   const [editBody, setEditBody] = useState("");
-  const [sortColumn, setSortColumn] = useState<keyof Agreement>("created_at");
+  const [sortColumn, setSortColumn] = useState<keyof Agreement>(
+    AgreementSortField.CreatedAt
+  );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   const addAgreement = () => {
     if (newAgreement.trim() === "") return;
 
-    // TODO: move this and the other backend calls outside of this component and trigger
-    // an event instead, especially if we end up making this a reusable Agreement/Action component.
-    createAgreement(coachingSessionId, userId, newAgreement)
+    // Call the external onAgreementAdded handler function which should
+    // store this agreement in the backend database
+    onAgreementAdded(newAgreement)
       .then((agreement) => {
         console.trace(
-          "Newly created Agreement: " + agreementToString(agreement)
+          "Newly created Agreement (onAgreementAdded): " +
+            agreementToString(agreement)
         );
-        setAgreements((prevAgreements) => [
-          ...prevAgreements,
-          {
-            id: agreement.id,
-            coaching_session_id: agreement.coaching_session_id,
-            body: agreement.body,
-            user_id: agreement.user_id,
-            created_at: agreement.created_at,
-            updated_at: agreement.updated_at,
-          },
-        ]);
+        setAgreements((prevAgreements) => [...prevAgreements, agreement]);
       })
       .catch((err) => {
         console.error("Failed to create new Agreement: " + err);
@@ -70,23 +81,30 @@ const AgreementsList: React.FC<{
   };
 
   const updateAgreement = async (id: Id, newBody: string) => {
+    const body = newBody.trim();
+    if (body === "") return;
+
     try {
       const updatedAgreements = await Promise.all(
         agreements.map(async (agreement) => {
           if (agreement.id === id) {
-            // Call the async updateAgreement function
-            const updatedAgreement = await updateAgreementApi(
-              id,
-              agreement.user_id,
-              agreement.coaching_session_id,
-              newBody
-            );
+            // Call the external onAgreementEdited handler function which should
+            // update the stored version of this agreement in the backend database
+            agreement = await onAgreementEdited(id, body)
+              .then((updatedAgreement) => {
+                console.trace(
+                  "Updated Agreement (onAgreementUpdated): " +
+                    agreementToString(updatedAgreement)
+                );
 
-            return {
-              ...updatedAgreement,
-              body: newBody,
-              updated_at: DateTime.now(),
-            };
+                return updatedAgreement;
+              })
+              .catch((err) => {
+                console.error(
+                  "Failed to update Agreement (id: " + id + "): " + err
+                );
+                throw err;
+              });
           }
           return agreement;
         })
@@ -96,21 +114,26 @@ const AgreementsList: React.FC<{
       setEditingId(null);
       setEditBody("");
     } catch (err) {
-      console.error("Failed to update Agreement:", err);
+      console.error("Failed to update Agreement (id: " + id + "): ", err);
       throw err;
-      // Handle error (e.g., show an error message to the user)
     }
   };
 
   const deleteAgreement = (id: Id) => {
-    deleteAgreementApi(id)
-      .then((deleted_id) => {
-        console.trace("Deleted Agreement id: " + JSON.stringify(deleted_id));
+    if (id === "") return;
 
+    // Call the external onAgreementDeleted handler function which should
+    // delete this agreement from the backend database
+    onAgreementDeleted(id)
+      .then((agreement) => {
+        console.trace(
+          "Deleted Agreement (onAgreementDeleted): " +
+            agreementToString(agreement)
+        );
         setAgreements(agreements.filter((agreement) => agreement.id !== id));
       })
       .catch((err) => {
-        console.error("Failed to create new Agreement: " + err);
+        console.error("Failed to Agreement (id: " + id + "): " + err);
         throw err;
       });
   };
@@ -150,29 +173,42 @@ const AgreementsList: React.FC<{
   }, [coachingSessionId]);
 
   return (
-    <div className="flex">
+    <div>
       <div className="bg-inherit rounded-lg border border-gray-200 p-6">
         <div className="mb-4">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead
-                  onClick={() => sortAgreements("body")}
-                  className="cursor-pointer"
+                  onClick={() => sortAgreements(AgreementSortField.Body)}
+                  className={`cursor-pointer ${
+                    sortColumn === AgreementSortField.Body
+                      ? "underline"
+                      : "no-underline"
+                  }`}
                 >
                   Agreement <ArrowUpDown className="ml-2 h-4 w-4 inline" />
                 </TableHead>
                 <TableHead
                   onClick={() => sortAgreements("created_at")}
-                  className="cursor-pointer hidden md:table-cell"
+                  className={`cursor-pointer hidden sm:table-cell ${
+                    sortColumn === AgreementSortField.CreatedAt
+                      ? "underline"
+                      : "no-underline"
+                  }`}
                 >
-                  Created At <ArrowUpDown className="ml-2 h-4 w-4 inline" />
+                  Created
+                  <ArrowUpDown className="ml-2 h-4 w-4 inline" />
                 </TableHead>
                 <TableHead
-                  onClick={() => sortAgreements("updated_at")}
-                  className="cursor-pointer hidden md:table-cell"
+                  className={`cursor-pointer hidden md:table-cell ${
+                    sortColumn === AgreementSortField.UpdatedAt
+                      ? "underline"
+                      : "no-underline"
+                  }`}
+                  onClick={() => sortAgreements(AgreementSortField.UpdatedAt)}
                 >
-                  Last Updated <ArrowUpDown className="ml-2 h-4 w-4 inline" />
+                  Updated <ArrowUpDown className="ml-2 h-4 w-4 inline" />
                 </TableHead>
                 <TableHead className="w-[100px]"></TableHead>
               </TableRow>
@@ -205,15 +241,15 @@ const AgreementsList: React.FC<{
                       agreement.body
                     )}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {agreement.created_at.toLocaleString(
-                      DateTime.DATETIME_FULL
-                    )}
+                  <TableCell className="hidden sm:table-cell">
+                    {agreement.created_at
+                      .setLocale(siteConfig.locale)
+                      .toLocaleString(DateTime.DATETIME_MED)}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {agreement.updated_at.toLocaleString(
-                      DateTime.DATETIME_FULL
-                    )}
+                    {agreement.updated_at
+                      .setLocale(siteConfig.locale)
+                      .toLocaleString(DateTime.DATETIME_MED)}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
