@@ -1,9 +1,10 @@
 export const siteConfig = {
-    name: "Refactor Platform",
+    name: "Refactor Coaching & Mentoring",
     url: "https://refactorcoach.com",
     ogImage: "https://ui.shadcn.com/og.jpg",
+    locale: "us",
     description:
-      "Beautifully designed components that you can copy and paste into your apps. Accessible. Customizable. Open Source.",
+      "A platform for software engineers and tech leaders to level up their foundational skills.",
     links: {
       twitter: "https://twitter.com/shadcn",
       github: "https://github.com/shadcn-ui/ui",

@@ -1,12 +1,12 @@
 import { DateTime } from "ts-luxon";
-import { Id, SortOrder } from "@/types/general";
+import { CompletionStatus, Id, SortOrder } from "@/types/general";
 
 // This must always reflect the Rust struct on the backend
-// entity::notes::Model
-export interface Note {
+// entity::agreements::Model
+export interface Agreement {
   id: Id;
   coaching_session_id: Id,
-  body: string,
+  body?: string,
   user_id: Id,
   created_at: DateTime;
   updated_at: DateTime;
@@ -15,9 +15,9 @@ export interface Note {
 // The main purpose of having this parsing function is to be able to parse the
 // returned DateTimeWithTimeZone (Rust type) string into something that ts-luxon
 // will agree to work with internally.
-export function parseNote(data: any): Note {
-  if (!isNote(data)) {
-    throw new Error('Invalid Note object data');
+export function parseAgreement(data: any): Agreement {
+  if (!isAgreement(data)) {
+    throw new Error('Invalid Agreement object data');
   }
   return {
     id: data.id,
@@ -29,38 +29,38 @@ export function parseNote(data: any): Note {
   };
 }
 
-export function isNote(value: unknown): value is Note {
+export function isAgreement(value: unknown): value is Agreement {
     if (!value || typeof value !== "object") {
       return false;
     }
     const object = value as Record<string, unknown>;
 
     return (
-      typeof object.id === "string" &&
+      (typeof object.id === "string" &&
       typeof object.coaching_session_id === "string" &&
-      typeof object.body === "string" &&
       typeof object.user_id === "string" &&
       typeof object.created_at === "string" &&
-      typeof object.updated_at === "string"
+      typeof object.updated_at === "string") || 
+      typeof object.body === "string"            // body is optional
     );
   }
 
-export function isNoteArray(value: unknown): value is Note[] {
-  return Array.isArray(value) && value.every(isNote);
+export function isAgreementArray(value: unknown): value is Agreement[] {
+  return Array.isArray(value) && value.every(isAgreement);
 }
 
-export function sortNoteArray(notes: Note[], order: SortOrder): Note[] {
+export function sortAgreementArray(agreements: Agreement[], order: SortOrder): Agreement[] {
   if (order == SortOrder.Ascending) {
-    notes.sort((a, b) => 
+    agreements.sort((a, b) => 
       new Date(a.updated_at.toString()).getTime() - new Date(b.updated_at.toString()).getTime());
   } else if (order == SortOrder.Descending) {
-    notes.sort((a, b) => 
+    agreements.sort((a, b) => 
       new Date(b.updated_at.toString()).getTime() - new Date(a.updated_at.toString()).getTime());
   }
-  return notes;
+  return agreements;
 }
 
-export function defaultNote(): Note {
+export function defaultAgreement(): Agreement {
     var now = DateTime.now();
     return {
       id: "",
@@ -72,14 +72,14 @@ export function defaultNote(): Note {
     };
   }
   
-  export function defaultNotes(): Note[] {
-    return [defaultNote()];
+  export function defaultAgreements(): Agreement[] {
+    return [defaultAgreement()];
   }
   
-  export function noteToString(note: Note): string {
-    return JSON.stringify(note);
+  export function agreementToString(agreement: Agreement): string {
+    return JSON.stringify(agreement);
   }
   
-  export function notesToString(notes: Note[]): string {
-    return JSON.stringify(notes);
+  export function agreementsToString(agreements: Agreement[]): string {
+    return JSON.stringify(agreements);
   }
