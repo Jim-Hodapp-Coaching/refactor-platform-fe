@@ -45,17 +45,21 @@ import {
   fetchNotesByCoachingSessionId,
   updateNote,
 } from "@/lib/api/notes";
-import { Note, noteToString } from "@/types/note";
+import { noteToString } from "@/types/note";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
-import { Id } from "@/types/general";
+import { ActionStatus, Id } from "@/types/general";
 import { AgreementsList } from "@/components/ui/coaching-sessions/agreements-list";
-import { Agreement, agreementToString } from "@/types/agreement";
+import { Agreement } from "@/types/agreement";
 import {
   createAgreement,
   deleteAgreement,
   updateAgreement,
 } from "@/lib/api/agreements";
 import { siteConfig } from "@/site.config";
+import { ActionsList } from "@/components/ui/coaching-sessions/actions-list";
+import { Action } from "@/types/action";
+import { createAction, deleteAction, updateAction } from "@/lib/api/actions";
+import { DateTime } from "ts-luxon";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -129,6 +133,49 @@ export default function CoachingSessionsPage() {
       })
       .catch((err) => {
         console.error("Failed to update Agreement (id: " + id + "): " + err);
+        throw err;
+      });
+  };
+
+  const handleActionAdded = (
+    body: string,
+    status: ActionStatus,
+    dueBy: DateTime
+  ): Promise<Action> => {
+    // Calls the backend endpoint that creates and stores a full Action entity
+    return createAction(coachingSessionId, body, status, dueBy)
+      .then((action) => {
+        return action;
+      })
+      .catch((err) => {
+        console.error("Failed to create new Action: " + err);
+        throw err;
+      });
+  };
+
+  const handleActionEdited = (
+    id: Id,
+    body: string,
+    status: ActionStatus,
+    dueBy: DateTime
+  ): Promise<Action> => {
+    return updateAction(id, coachingSessionId, body, status, dueBy)
+      .then((action) => {
+        return action;
+      })
+      .catch((err) => {
+        console.error("Failed to update Action (id: " + id + "): " + err);
+        throw err;
+      });
+  };
+
+  const handleActionDeleted = (id: Id): Promise<Action> => {
+    return deleteAction(id)
+      .then((action) => {
+        return action;
+      })
+      .catch((err) => {
+        console.error("Failed to update Action (id: " + id + "): " + err);
         throw err;
       });
   };
@@ -252,7 +299,16 @@ export default function CoachingSessionsPage() {
                       </div>
                     </TabsContent>
                     <TabsContent value="actions">
-                      {/* <div className="bg-red-500 text-white">Actions</div> */}
+                      <div className="w-full">
+                        <ActionsList
+                          coachingSessionId={coachingSessionId}
+                          userId={userId}
+                          locale={siteConfig.locale}
+                          onActionAdded={handleActionAdded}
+                          onActionEdited={handleActionEdited}
+                          onActionDeleted={handleActionDeleted}
+                        ></ActionsList>
+                      </div>
                     </TabsContent>
                     <TabsContent value="program">
                       {/* <div className="bg-blue-500 text-white">Program</div> */}
