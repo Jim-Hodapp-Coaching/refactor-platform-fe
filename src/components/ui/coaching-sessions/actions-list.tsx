@@ -309,7 +309,7 @@ const ActionsList: React.FC<{
                           </SelectTrigger>
                           <SelectContent>
                             {Object.values(ActionStatus).map((s) => (
-                              <SelectItem value={s}>
+                              <SelectItem value={s} key={s}>
                                 {actionStatusToString(s)}
                               </SelectItem>
                             ))}
