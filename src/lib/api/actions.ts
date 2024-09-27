@@ -1,19 +1,20 @@
-// Interacts with the agreement endpoints
+// Interacts with the action endpoints
 
-import { Agreement, defaultAgreement, isAgreement, isAgreementArray, parseAgreement } from "@/types/agreement";
-import { Id } from "@/types/general";
+import { Action, actionToString, defaultAction, isAction, isActionArray, parseAction } from "@/types/action";
+import { ActionStatus, Id } from "@/types/general";
 import { AxiosError, AxiosResponse } from "axios";
+import { DateTime } from "ts-luxon";
 
-export const fetchAgreementsByCoachingSessionId = async (
+export const fetchActionsByCoachingSessionId = async (
     coachingSessionId: Id
-  ): Promise<Agreement[]> => {
+  ): Promise<Action[]> => {
     const axios = require("axios");
   
-    var agreements: Agreement[] = [];
+    var actions: Action[] = [];
     var err: string = "";
   
     const data = await axios
-      .get(`http://localhost:4000/agreements`, {
+      .get(`http://localhost:4000/actions`, {
         params: {
           coaching_session_id: coachingSessionId,
         },
@@ -25,22 +26,22 @@ export const fetchAgreementsByCoachingSessionId = async (
       })
       .then(function (response: AxiosResponse) {
         // handle success
-        var agreements_data = response.data.data;
-        if (isAgreementArray(agreements_data)) {
-            agreements_data.forEach((agreements_data: any) => {
-                agreements.push(parseAgreement(agreements_data))
+        var actions_data = response.data.data;
+        if (isActionArray(actions_data)) {
+            actions_data.forEach((actions_data: any) => {
+                actions.push(parseAction(actions_data))
             });
         }
       })
       .catch(function (error: AxiosError) {
         // handle error
         if (error.response?.status == 401) {
-          err = "Retrieval of Agreements failed: unauthorized.";
+          err = "Retrieval of Actions failed: unauthorized.";
         } else if (error.response?.status == 404) {
-          err = "Retrieval of Agreements failed: Agreements by coaching session Id (" + coachingSessionId + ") not found.";
+          err = "Retrieval of Actions failed: Actions by coaching session Id (" + coachingSessionId + ") not found.";
         } else {
           err =
-            `Retrieval of Agreements by coaching session Id (` + coachingSessionId + `) failed.`;
+            `Retrieval of Actions by coaching session Id (` + coachingSessionId + `) failed.`;
         }
       });
 
@@ -49,28 +50,30 @@ export const fetchAgreementsByCoachingSessionId = async (
       throw err;
     }
   
-    return agreements;
+    return actions;
   };
 
-export const createAgreement = async (
+export const createAction = async (
     coaching_session_id: Id,
-    user_id: Id,
-    body: string
-  ): Promise<Agreement> => {
+    body: string,
+    status: ActionStatus,
+    due_by: DateTime
+  ): Promise<Action> => {
     const axios = require("axios");
   
-    const newAgreementJson = {
+    const newActionJson = {
         coaching_session_id: coaching_session_id,
-        user_id: user_id,
         body: body,
+        due_by: due_by,
+        status: status,
     };
-    console.debug("newAgreementJson: " + JSON.stringify(newAgreementJson));
-    // A full real note to be returned from the backend with the same body
-    var createdAgreement: Agreement = defaultAgreement();
+    console.debug("newActionJson: " + JSON.stringify(newActionJson));
+    // A full real action to be returned from the backend with the same body
+    var createdAction: Action = defaultAction();
     var err: string = "";
   
     const data = await axios
-      .post(`http://localhost:4000/agreements`, newAgreementJson, {
+      .post(`http://localhost:4000/actions`, newActionJson, {
         withCredentials: true,
         setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
         headers: {
@@ -80,20 +83,20 @@ export const createAgreement = async (
       })
       .then(function (response: AxiosResponse) {
         // handle success
-        const agreement_data = response.data.data;
-        if (isAgreement(agreement_data)) {
-          createdAgreement = parseAgreement(agreement_data);
+        const action_data = response.data.data;
+        if (isAction(action_data)) {
+          createdAction = parseAction(action_data);
         }
       })
       .catch(function (error: AxiosError) {
         // handle error
         console.error(error.response?.status);
         if (error.response?.status == 401) {
-          err = "Creation of Agreement failed: unauthorized.";
+          err = "Creation of Action failed: unauthorized.";
         } else if (error.response?.status == 500) {
-          err = "Creation of Agreement failed: internal server error.";
+          err = "Creation of Action failed: internal server error.";
         } else {
-          err = `Creation of Agreement failed.`;
+          err = `Creation of new Action failed.`;
         }
       }
     );
@@ -103,28 +106,31 @@ export const createAgreement = async (
       throw err;
     }
   
-    return createdAgreement;
+    return createdAction;
   };
 
-  export const updateAgreement = async (
+  export const updateAction = async (
     id: Id,
-    user_id: Id,
     coaching_session_id: Id,
     body: string,
-  ): Promise<Agreement> => {
+    status: ActionStatus,
+    due_by: DateTime
+  ): Promise<Action> => {
     const axios = require("axios");
   
-    var updatedAgreement: Agreement = defaultAgreement();
+    var updatedAction: Action = defaultAction();
     var err: string = "";
   
-    const newAgreementJson = {
+    const newActionJson = {
         coaching_session_id: coaching_session_id,
-        user_id: user_id,
-        body: body
+        body: body,
+        status: status,
+        due_by: due_by,
     };
+    console.debug("newActionJson: " + JSON.stringify(newActionJson));
 
     const data = await axios
-      .put(`http://localhost:4000/agreements/${id}`, newAgreementJson, {
+      .put(`http://localhost:4000/actions/${id}`, newActionJson, {
         withCredentials: true,
         setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
         headers: {
@@ -134,20 +140,20 @@ export const createAgreement = async (
       })
       .then(function (response: AxiosResponse) {
         // handle success 
-        const agreement_data = response.data.data;
-        if (isAgreement(agreement_data)) {
-          updatedAgreement = parseAgreement(agreement_data);
+        const action_data = response.data.data;
+        if (isAction(action_data)) {
+          updatedAction = parseAction(action_data);
         }
       })
       .catch(function (error: AxiosError) {
         // handle error
         console.error(error.response?.status);
         if (error.response?.status == 401) {
-          err = "Update of Agreement failed: unauthorized.";
+          err = "Update of Action failed: unauthorized.";
         } else if (error.response?.status == 500) {
-          err = "Update of Agreement failed: internal server error.";
+          err = "Update of Action failed: internal server error.";
         } else {
-          err = `Update of new Agreement failed.`;
+          err = `Update of new Action failed.`;
         }
       });
 
@@ -156,19 +162,19 @@ export const createAgreement = async (
       throw err;
     }
   
-    return updatedAgreement;
+    return updatedAction;
   };
 
-  export const deleteAgreement = async (
+  export const deleteAction = async (
     id: Id
-  ): Promise<Agreement> => {
+  ): Promise<Action> => {
     const axios = require("axios");
   
-    var deletedAgreement: Agreement = defaultAgreement();
+    var deletedAction: Action = defaultAction();
     var err: string = "";
   
     const data = await axios
-      .delete(`http://localhost:4000/agreements/${id}`, {
+      .delete(`http://localhost:4000/actions/${id}`, {
         withCredentials: true,
         setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
         headers: {
@@ -178,20 +184,20 @@ export const createAgreement = async (
       })
       .then(function (response: AxiosResponse) {
         // handle success
-        const agreement_data = response.data.data;
-        if (isAgreement(agreement_data)) {
-          deletedAgreement = parseAgreement(agreement_data);
-        } 
+        const action_data = response.data.data;
+        if (isAction(action_data)) {
+          deletedAction = parseAction(action_data);
+        }
       })
       .catch(function (error: AxiosError) {
         // handle error
         console.error(error.response?.status);
         if (error.response?.status == 401) {
-          err = "Deletion of Agreement failed: unauthorized.";
+          err = "Deletion of Action failed: unauthorized.";
         } else if (error.response?.status == 500) {
-          err = "Deletion of Agreement failed: internal server error.";
+          err = "Deletion of Action failed: internal server error.";
         } else {
-          err = `Deletion of new Agreement failed.`;
+          err = `Deletion of Action failed.`;
         }
       });
 
@@ -200,5 +206,5 @@ export const createAgreement = async (
       throw err;
     }
   
-    return deletedAgreement;
+    return deletedAction;
   };
