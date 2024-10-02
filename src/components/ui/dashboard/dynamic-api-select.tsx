@@ -10,6 +10,8 @@ interface DynamicApiSelectProps<T> {
   placeholder?: string;
   getOptionLabel: (item: T) => string;
   getOptionValue: (item: T) => string;
+  elementId: string;
+  groupByDate?: boolean;
 }
 
 interface ApiResponse<T> {
@@ -24,7 +26,9 @@ export function DynamicApiSelect<T>({
   onChange,
   placeholder = "Select an organization",
   getOptionLabel,
-  getOptionValue
+  getOptionValue,
+  elementId,
+  groupByDate
 }: DynamicApiSelectProps<T>) {
   const { data: response, isLoading, error } = useApiData<ApiResponse<T>>(url, { method, params });
   const [value, setValue] = useState<string>('');
@@ -41,11 +45,13 @@ export function DynamicApiSelect<T>({
   const items = response.data;
 
   return (
-    <Select value={value} onValueChange={handleValueChange}>
-      <SelectTrigger className="w-[180px]">
+    <Select
+      value={value}
+      onValueChange={handleValueChange}>
+      <SelectTrigger id={elementId} className='w-auto'>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className='w-full'>
         {items.map((item, index) => (
           <SelectItem key={index} value={getOptionValue(item)}>
             {getOptionLabel(item)}
