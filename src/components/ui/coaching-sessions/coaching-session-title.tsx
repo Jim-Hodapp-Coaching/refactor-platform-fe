@@ -36,7 +36,7 @@ const CoachingSessionTitle: React.FC<{
 
   return (
     <h4 className="font-semibold break-words w-full px-2 md:px-4 lg:px-6 md:text-clip">
-      {sessionTitle?.title}
+      {sessionTitle ? sessionTitle.title : "Untitled Session"}
     </h4>
   );
 };
