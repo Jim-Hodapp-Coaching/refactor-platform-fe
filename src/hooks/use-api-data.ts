@@ -23,7 +23,6 @@ const fetcher = async ({ url, method = 'POST', params }: FetcherOptions) => {
         method,
         headers,
         credentials: 'include',
-        // ...(body != null && { body: JSON.stringify(body) }),
     };
     console.log(JSON.stringify(fetchOptions));
 

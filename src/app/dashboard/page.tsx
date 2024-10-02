@@ -8,7 +8,6 @@ import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 
-// import { SelectCoachingSession } from "@/components/ui/dashboard/select-coaching-session";
 import { JoinCoachingSession } from "@/components/ui/dashboard/join-coaching-session";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
 
