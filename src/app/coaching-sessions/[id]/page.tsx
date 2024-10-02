@@ -231,7 +231,7 @@ export default function CoachingSessionsPage() {
             coachingSession={coachingSession}
             coachingRelationship={coachingRelationship}
             locale={siteConfig.locale}
-            style={SessionTitleStyle.CoachFirstCoacheeFirstDate}
+            style={siteConfig.titleStyle}
             onRender={handleTitleRender}
           ></CoachingSessionTitle>
           <div className="ml-auto flex w-full space-x-2 sm:justify-end">
