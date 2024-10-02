@@ -60,6 +60,11 @@ export function sortCoachingSessionArray(sessions: CoachingSession[], order: Sor
   return sessions;
 }
 
+export function getCoachingSessionById(id: string, sessions: CoachingSession[]): CoachingSession {
+  const session = sessions.find(session => session.id === id);
+  return session ? session : defaultCoachingSession();
+}
+
 export function defaultCoachingSession(): CoachingSession {
     var now = DateTime.now();
     return {

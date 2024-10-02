@@ -4,7 +4,7 @@ export const siteConfig = {
     ogImage: "https://ui.shadcn.com/og.jpg",
     locale: "us",
     description:
-      "A platform for software engineers and tech leaders to level up their foundational skills.",
+      "Coaching and mentorship done right.",
     links: {
       twitter: "https://twitter.com/shadcn",
       github: "https://github.com/shadcn-ui/ui",

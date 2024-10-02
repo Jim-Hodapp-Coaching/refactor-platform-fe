@@ -60,6 +60,8 @@ import { ActionsList } from "@/components/ui/coaching-sessions/actions-list";
 import { Action } from "@/types/action";
 import { createAction, deleteAction, updateAction } from "@/lib/api/actions";
 import { DateTime } from "ts-luxon";
+import { CoachingSessionTitle } from "@/components/ui/coaching-sessions/coaching-session-title";
+import { SessionTitle, SessionTitleStyle } from "@/types/session-title";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -72,18 +74,20 @@ export default function CoachingSessionsPage() {
   const [note, setNote] = useState<string>("");
   const [syncStatus, setSyncStatus] = useState<string>("");
   const { userId } = useAuthStore((state) => state);
-  const { coachingSessionId } = useAppStateStore((state) => state);
+  const { coachingSession, coachingRelationship } = useAppStateStore(
+    (state) => state
+  );
 
   useEffect(() => {
     async function fetchNote() {
-      if (!coachingSessionId) {
+      if (!coachingSession.id) {
         console.error(
-          "Failed to fetch Note since coachingSessionId is not set."
+          "Failed to fetch Note since coachingSession.id is not set."
         );
         return;
       }
 
-      await fetchNotesByCoachingSessionId(coachingSessionId)
+      await fetchNotesByCoachingSessionId(coachingSession.id)
         .then((notes) => {
           const note = notes[0];
           if (notes.length > 0) {
@@ -91,7 +95,7 @@ export default function CoachingSessionsPage() {
             setNoteId(note.id);
             setNote(note.body);
           } else {
-            console.trace("No Notes associated with this coachingSessionId");
+            console.trace("No Notes associated with this coachingSession.id");
           }
         })
         .catch((err) => {
@@ -101,11 +105,11 @@ export default function CoachingSessionsPage() {
         });
     }
     fetchNote();
-  }, [coachingSessionId, noteId]);
+  }, [coachingSession.id, noteId]);
 
   const handleAgreementAdded = (body: string): Promise<Agreement> => {
     // Calls the backend endpoint that creates and stores a full Agreement entity
-    return createAgreement(coachingSessionId, userId, body)
+    return createAgreement(coachingSession.id, userId, body)
       .then((agreement) => {
         return agreement;
       })
@@ -116,7 +120,7 @@ export default function CoachingSessionsPage() {
   };
 
   const handleAgreementEdited = (id: Id, body: string): Promise<Agreement> => {
-    return updateAgreement(id, coachingSessionId, userId, body)
+    return updateAgreement(id, coachingSession.id, userId, body)
       .then((agreement) => {
         return agreement;
       })
@@ -143,7 +147,7 @@ export default function CoachingSessionsPage() {
     dueBy: DateTime
   ): Promise<Action> => {
     // Calls the backend endpoint that creates and stores a full Action entity
-    return createAction(coachingSessionId, body, status, dueBy)
+    return createAction(coachingSession.id, body, status, dueBy)
       .then((action) => {
         return action;
       })
@@ -159,7 +163,7 @@ export default function CoachingSessionsPage() {
     status: ActionStatus,
     dueBy: DateTime
   ): Promise<Action> => {
-    return updateAction(id, coachingSessionId, body, status, dueBy)
+    return updateAction(id, coachingSession.id, body, status, dueBy)
       .then((action) => {
         return action;
       })
@@ -183,8 +187,8 @@ export default function CoachingSessionsPage() {
   const handleInputChange = (value: string) => {
     setNote(value);
 
-    if (noteId && coachingSessionId && userId) {
-      updateNote(noteId, coachingSessionId, userId, value)
+    if (noteId && coachingSession.id && userId) {
+      updateNote(noteId, coachingSession.id, userId, value)
         .then((note) => {
           console.trace("Updated Note: " + noteToString(note));
           setSyncStatus("All changes saved");
@@ -193,8 +197,8 @@ export default function CoachingSessionsPage() {
           setSyncStatus("Failed to save changes");
           console.error("Failed to update Note: " + err);
         });
-    } else if (!noteId && coachingSessionId && userId) {
-      createNote(coachingSessionId, userId, value)
+    } else if (!noteId && coachingSession.id && userId) {
+      createNote(coachingSession.id, userId, value)
         .then((note) => {
           console.trace("Newly created Note: " + noteToString(note));
           setNoteId(note.id);
@@ -206,7 +210,7 @@ export default function CoachingSessionsPage() {
         });
     } else {
       console.error(
-        "Could not update or create a Note since coachingSessionId or userId are not set."
+        "Could not update or create a Note since coachingSession.id or userId are not set."
       );
     }
   };
@@ -215,11 +219,21 @@ export default function CoachingSessionsPage() {
     setSyncStatus("");
   };
 
+  const handleTitleRender = (sessionTitle: string) => {
+    document.title = sessionTitle;
+  };
+
   return (
     <>
-      <div className="hidden h-full flex-col md:flex">
+      <div className="h-full flex-col md:flex">
         <div className="flex flex-col items-start justify-between space-y-2 py-4 px-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
-          <h4 className="w-16 md:w-32 lg:w-48 font-semibold">Session Title</h4>
+          <CoachingSessionTitle
+            coachingSession={coachingSession}
+            coachingRelationship={coachingRelationship}
+            locale={siteConfig.locale}
+            style={SessionTitleStyle.CoachFirstCoacheeFirstDate}
+            onRender={handleTitleRender}
+          ></CoachingSessionTitle>
           <div className="ml-auto flex w-full space-x-2 sm:justify-end">
             <PresetSelector current={current} future={future} past={past} />
             <PresetActions />
@@ -289,7 +303,7 @@ export default function CoachingSessionsPage() {
                     <TabsContent value="agreements">
                       <div className="w-full">
                         <AgreementsList
-                          coachingSessionId={coachingSessionId}
+                          coachingSessionId={coachingSession.id}
                           userId={userId}
                           locale={siteConfig.locale}
                           onAgreementAdded={handleAgreementAdded}
@@ -301,7 +315,7 @@ export default function CoachingSessionsPage() {
                     <TabsContent value="actions">
                       <div className="w-full">
                         <ActionsList
-                          coachingSessionId={coachingSessionId}
+                          coachingSessionId={coachingSession.id}
                           userId={userId}
                           locale={siteConfig.locale}
                           onActionAdded={handleActionAdded}
