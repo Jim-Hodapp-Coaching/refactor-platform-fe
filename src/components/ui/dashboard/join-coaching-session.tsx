@@ -1,6 +1,6 @@
-import React, { MouseEventHandler, useState } from 'react';
+import React, { useState } from 'react';
+import { useAppStateStore } from '@/lib/providers/app-state-store-provider';
 import { Id } from "@/types/general";
-import Link from 'next/link';
 import { DynamicApiSelect } from './dynamic-api-select';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Organization } from '@/types/organization';
@@ -9,6 +9,7 @@ import { CoachingSession } from '@/types/coaching-session';
 import { DateTime } from 'ts-luxon';
 import { Label } from "@/components/ui/label";
 import { Button } from '../button';
+import Link from 'next/link';
 
 
 export interface CoachingSessionCardProps {
@@ -16,9 +17,33 @@ export interface CoachingSessionCardProps {
 }
 
 export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps) {
-  const [organizationId, setOrganizationId] = useState<string | null>(null);
-  const [relationshipId, setRelationshipId] = useState<string | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const setOrganizationId = useAppStateStore(state => state.setOrganizationId);
+  const setRelationshipId = useAppStateStore(state => state.setRelationshipId);
+  const setCoachingSessionId = useAppStateStore(state => state.setCoachingSessionId);
+  const [organizationId, setOrganization] = useState<string | null>(null);
+  const [relationshipId, setRelationship] = useState<string | null>(null);
+  const [sessionId, setSessions] = useState<string | null>(null);
+  const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
+  const TO_DATE = DateTime.now().plus({ month: 1 }).toISODate();
+
+  const handleOrganizationSelection = (value: string) => {
+    setOrganization(value);
+    setRelationship(null);
+    setSessions(null);
+    setOrganizationId(value);
+  }
+
+  const handleRelationshipSelection = (value: string) => {
+    setRelationship(value);
+    setSessions(null);
+    setRelationshipId(value);
+  }
+
+  const handleSessionSelection = (value: string) => {
+    setSessions(value);
+    setCoachingSessionId(value);
+  }
+
 
   return (
     <Card className="w-[300px]">
@@ -32,7 +57,7 @@ export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps
           <DynamicApiSelect<Organization>
             url="/organizations"
             params={{ userId }}
-            onChange={setOrganizationId}
+            onChange={handleOrganizationSelection}
             placeholder="Select an organization"
             getOptionLabel={(org) => org.name}
             getOptionValue={(org) => org.id.toString()}
@@ -46,7 +71,7 @@ export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps
             <DynamicApiSelect<CoachingRelationshipWithUserNames>
               url={`/organizations/${organizationId}/coaching_relationships`}
               params={{ organizationId }}
-              onChange={setRelationshipId}
+              onChange={handleRelationshipSelection}
               placeholder="Select coaching relationship"
               getOptionLabel={
                 (relationship) =>
@@ -65,10 +90,10 @@ export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps
               url="/coaching_sessions"
               params={{
                 coaching_relationship_id: relationshipId,
-                from_date: DateTime.now().minus({ month: 1 }).toISODate(),
-                to_Date: DateTime.now().plus({ month: 1 }).toISODate()
+                from_date: FROM_DATE,
+                to_Date: TO_DATE
               }}
-              onChange={setSessionId}
+              onChange={handleSessionSelection}
               placeholder="Select coaching session"
               getOptionLabel={(session) => session.date.toString()}
               getOptionValue={(session) => session.id.toString()}
@@ -90,6 +115,3 @@ export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps
     </Card>
   )
 }
-
-// godot
-//asesprint
