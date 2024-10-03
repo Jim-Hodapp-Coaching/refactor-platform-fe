@@ -73,6 +73,7 @@ export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps
               getOptionLabel={(session) => session.date.toString()}
               getOptionValue={(session) => session.id.toString()}
               elementId='session-selector'
+              groupByDate={true}
             />
           </div>
         )}
@@ -89,3 +90,6 @@ export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps
     </Card>
   )
 }
+
+// godot
+//asesprint
