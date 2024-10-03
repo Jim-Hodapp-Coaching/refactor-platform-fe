@@ -190,7 +190,7 @@ const AgreementsList: React.FC<{
                   Agreement <ArrowUpDown className="ml-2 h-4 w-4 inline" />
                 </TableHead>
                 <TableHead
-                  onClick={() => sortAgreements("created_at")}
+                  onClick={() => sortAgreements(AgreementSortField.CreatedAt)}
                   className={`cursor-pointer hidden sm:table-cell ${
                     sortColumn === AgreementSortField.CreatedAt
                       ? "underline"
