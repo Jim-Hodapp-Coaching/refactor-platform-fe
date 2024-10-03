@@ -1,17 +1,17 @@
 export const siteConfig = {
-    name: "Refactor Coaching & Mentoring",
-    url: "https://refactorcoach.com",
-    ogImage: "https://ui.shadcn.com/og.jpg",
-    locale: "us",
-    description:
-      "A platform for software engineers and tech leaders to level up their foundational skills.",
-    links: {
-      twitter: "https://twitter.com/shadcn",
-      github: "https://github.com/shadcn-ui/ui",
-    },
-  }
-  
-  export type SiteConfig = typeof siteConfig
+  name: "Refactor Coaching & Mentoring",
+  url: "http://localhost:4000",
+  ogImage: "https://ui.shadcn.com/og.jpg",
+  locale: "us",
+  description:
+    "A platform for software engineers and tech leaders to level up their foundational skills.",
+  links: {
+    twitter: "https://twitter.com/shadcn",
+    github: "https://github.com/shadcn-ui/ui",
+  },
+}
+
+export type SiteConfig = typeof siteConfig
 
 import { MainNavItem, SidebarNavItem } from "./types/nav"
 
