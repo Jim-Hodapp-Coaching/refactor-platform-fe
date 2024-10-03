@@ -12,7 +12,6 @@ const baseUrl = siteConfig.url;
 
 const fetcher = async ({ url, method = 'POST', params }: FetcherOptions) => {
     const fullUrl = `${baseUrl}${url}`;
-    console.log(fullUrl);
 
     const headers: HeadersInit = {
         'Content-Type': 'application/json',
@@ -24,7 +23,6 @@ const fetcher = async ({ url, method = 'POST', params }: FetcherOptions) => {
         headers,
         credentials: 'include',
     };
-    console.log(JSON.stringify(fetchOptions));
 
     const response = await fetch(fullUrl, fetchOptions);
     if (!response.ok) {
@@ -42,7 +40,7 @@ export function useApiData<T>(
         body?: Record<string, any>
     } = {}
 ) {
-    const { method = 'POST', params = {}, body = {} || undefined } = options
+    const { method = 'POST', params = {}, body = {} } = options
 
     const { data, error, isLoading, mutate } = useSWR<T, Error>(
         { url, method, params, body },
@@ -52,8 +50,6 @@ export function useApiData<T>(
             revalidateOnReconnect: false,
         }
     )
-
-    console.log(data);
 
     return {
         data,

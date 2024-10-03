@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useApiData } from '@/hooks/use-api-data';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CoachingSession, isCoachingSession } from '@/types/coaching-session';
+import { DateTime } from 'ts-luxon';
 
 interface DynamicApiSelectProps<T> {
   url: string;
@@ -24,11 +26,11 @@ export function DynamicApiSelect<T>({
   method = 'GET',
   params = {},
   onChange,
-  placeholder = "Select an organization",
+  placeholder = "Select an option",
   getOptionLabel,
   getOptionValue,
   elementId,
-  groupByDate
+  groupByDate = false
 }: DynamicApiSelectProps<T>) {
   const { data: response, isLoading, error } = useApiData<ApiResponse<T>>(url, { method, params });
   const [value, setValue] = useState<string>('');
@@ -38,26 +40,63 @@ export function DynamicApiSelect<T>({
     onChange(newValue);
   }
 
-  if (isLoading) return <p>Loading...</p>
-  if (error) return <p>Error: {error.message}</p>
-  if (!response || response.status_code !== 200) return <p>Error: Invalid response</p>
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+  if (!response || response.status_code !== 200) return <p>Error: Invalid response</p>;
 
   const items = response.data;
 
-  return (
-    <Select
-      value={value}
-      onValueChange={handleValueChange}>
-      <SelectTrigger id={elementId} className='w-auto'>
-        <SelectValue placeholder={placeholder} />
-      </SelectTrigger>
-      <SelectContent className='w-full'>
-        {items.map((item, index) => (
+  const renderSessions = (sessions: CoachingSession[], label: string, filterFn: (session: CoachingSession) => boolean) => {
+    const filteredSessions = sessions.filter(filterFn);
+    return filteredSessions.length > 0 && (
+      <SelectGroup>
+        <SelectLabel>{label}</SelectLabel>
+        {filteredSessions.map(session => (
+          <SelectItem value={session.id} key={session.id}>
+            {DateTime.fromISO(session.date.toString()).toLocaleString(DateTime.DATETIME_FULL)}
+          </SelectItem>
+        ))}
+      </SelectGroup>
+    );
+  };
+
+  const renderCoachingSessions = (sessions: CoachingSession[]) => (
+    <SelectContent>
+      {sessions.length === 0 ? (
+        <SelectItem disabled value="none">None found</SelectItem>
+      ) : (
+        <>
+          {renderSessions(sessions, 'Previous Sessions', session => DateTime.fromISO(session.date.toString()) < DateTime.now())}
+          {renderSessions(sessions, 'Upcoming Sessions', session => DateTime.fromISO(session.date.toString()) >= DateTime.now())}
+        </>
+      )}
+    </SelectContent>
+  );
+
+  const renderOtherItems = (items: T[]) => (
+    <SelectContent>
+      {items.length === 0 ? (
+        <SelectItem disabled value="none">None found</SelectItem>
+      ) : (
+        items.map((item, index) => (
           <SelectItem key={index} value={getOptionValue(item)}>
             {getOptionLabel(item)}
           </SelectItem>
-        ))}
-      </SelectContent>
+        ))
+      )}
+    </SelectContent>
+  );
+
+  const coachingSessions = groupByDate ? items.filter(isCoachingSession) as CoachingSession[] : [];
+
+  return (
+    <Select value={value} onValueChange={handleValueChange}>
+      <SelectTrigger id={elementId}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      {groupByDate && coachingSessions.length > 0
+        ? renderCoachingSessions(coachingSessions)
+        : renderOtherItems(items)}
     </Select>
   );
 }
