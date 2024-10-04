@@ -61,7 +61,6 @@ import { Action } from "@/types/action";
 import { createAction, deleteAction, updateAction } from "@/lib/api/actions";
 import { DateTime } from "ts-luxon";
 import { CoachingSessionTitle } from "@/components/ui/coaching-sessions/coaching-session-title";
-import { SessionTitle, SessionTitleStyle } from "@/types/session-title";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -228,8 +227,6 @@ export default function CoachingSessionsPage() {
       <div className="h-full flex-col md:flex">
         <div className="flex flex-col items-start justify-between space-y-2 py-4 px-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
           <CoachingSessionTitle
-            coachingSession={coachingSession}
-            coachingRelationship={coachingRelationship}
             locale={siteConfig.locale}
             style={siteConfig.titleStyle}
             onRender={handleTitleRender}

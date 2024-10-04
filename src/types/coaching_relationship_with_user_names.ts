@@ -18,9 +18,11 @@ export interface CoachingRelationshipWithUserNames {
 // The main purpose of having this parsing function is to be able to parse the
 // returned DateTimeWithTimeZone (Rust type) string into something that ts-luxon
 // will agree to work with internally.
-export function parseCoachingRelationshipWithUserNames(data: any): CoachingRelationshipWithUserNames {
+export function parseCoachingRelationshipWithUserNames(
+  data: any
+): CoachingRelationshipWithUserNames {
   if (!isCoachingRelationshipWithUserNames(data)) {
-    throw new Error('Invalid CoachingRelationshipWithUserNames object data');
+    throw new Error("Invalid CoachingRelationshipWithUserNames object data");
   }
   return {
     id: data.id,
@@ -35,8 +37,10 @@ export function parseCoachingRelationshipWithUserNames(data: any): CoachingRelat
   };
 }
 
-export function isCoachingRelationshipWithUserNames(value: unknown): value is CoachingRelationshipWithUserNames {
-    if (!value || typeof value !== "object") {
+export function isCoachingRelationshipWithUserNames(
+  value: unknown
+): value is CoachingRelationshipWithUserNames {
+  if (!value || typeof value !== "object") {
     return false;
   }
   const object = value as Record<string, unknown>;
@@ -54,38 +58,53 @@ export function isCoachingRelationshipWithUserNames(value: unknown): value is Co
   );
 }
 
-export function isCoachingRelationshipWithUserNamesArray(value: unknown): value is CoachingRelationshipWithUserNames[] {
-  return Array.isArray(value) && value.every(isCoachingRelationshipWithUserNames);
+export function isCoachingRelationshipWithUserNamesArray(
+  value: unknown
+): value is CoachingRelationshipWithUserNames[] {
+  return (
+    Array.isArray(value) && value.every(isCoachingRelationshipWithUserNames)
+  );
 }
 
-export function getCoachingRelationshipById(id: string, relationships: CoachingRelationshipWithUserNames[]): CoachingRelationshipWithUserNames {
-  const relationship = relationships.find(relationship => relationship.id === id);
-  return relationship ? relationship : defaultCoachingRelationshipWithUserNames();
+export function getCoachingRelationshipById(
+  id: string,
+  relationships: CoachingRelationshipWithUserNames[]
+): CoachingRelationshipWithUserNames {
+  const relationship = relationships.find(
+    (relationship) => relationship.id === id
+  );
+  return relationship
+    ? relationship
+    : defaultCoachingRelationshipWithUserNames();
 }
 
 export function defaultCoachingRelationshipWithUserNames(): CoachingRelationshipWithUserNames {
-    var now = DateTime.now();
-    return {
-      id: "",
-      coach_id: "",
-      coachee_id: "",
-      coach_first_name: "",
-      coach_last_name: "",
-      coachee_first_name: "",
-      coachee_last_name: "",
-      created_at: now,
-      updated_at: now,
-    };
-  }
-  
-  export function defaultCoachingRelationshipsWithUserNames(): CoachingRelationshipWithUserNames[] {
-    return [defaultCoachingRelationshipWithUserNames()];
-  }
-  
-  export function coachingRelationshipWithUserNamesToString(relationship: CoachingRelationshipWithUserNames): string {
-    return JSON.stringify(relationship);
-  }
-  
-  export function coachingRelationshipsWithUserNamesToString(relationships: CoachingRelationshipWithUserNames[]): string {
-    return JSON.stringify(relationships);
-  }
+  var now = DateTime.now();
+  return {
+    id: "",
+    coach_id: "",
+    coachee_id: "",
+    coach_first_name: "",
+    coach_last_name: "",
+    coachee_first_name: "",
+    coachee_last_name: "",
+    created_at: now,
+    updated_at: now,
+  };
+}
+
+export function defaultCoachingRelationshipsWithUserNames(): CoachingRelationshipWithUserNames[] {
+  return [defaultCoachingRelationshipWithUserNames()];
+}
+
+export function coachingRelationshipWithUserNamesToString(
+  relationship: CoachingRelationshipWithUserNames | undefined
+): string {
+  return JSON.stringify(relationship);
+}
+
+export function coachingRelationshipsWithUserNamesToString(
+  relationships: CoachingRelationshipWithUserNames[] | undefined
+): string {
+  return JSON.stringify(relationships);
+}

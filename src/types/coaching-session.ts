@@ -5,9 +5,9 @@ import { Id, SortOrder } from "@/types/general";
 // entity::coaching_sessions::Model
 export interface CoachingSession {
   id: Id;
-  coaching_relationship_id: Id,
-  date: DateTime,
-  timezone: String,
+  coaching_relationship_id: Id;
+  date: string;
+  timezone: string;
   created_at: DateTime;
   updated_at: DateTime;
 }
@@ -17,12 +17,12 @@ export interface CoachingSession {
 // will agree to work with internally.
 export function parseCoachingSession(data: any): CoachingSession {
   if (!isCoachingSession(data)) {
-    throw new Error('Invalid CoachingSession data');
+    throw new Error("Invalid CoachingSession data");
   }
   return {
     id: data.id,
     coaching_relationship_id: data.coaching_relationship_id,
-    date: DateTime.fromISO(data.date.toString()),
+    date: data.date,
     timezone: data.timezone,
     created_at: DateTime.fromISO(data.created_at.toString()),
     updated_at: DateTime.fromISO(data.updated_at.toString()),
@@ -30,61 +30,79 @@ export function parseCoachingSession(data: any): CoachingSession {
 }
 
 export function isCoachingSession(value: unknown): value is CoachingSession {
-    if (!value || typeof value !== "object") {
-      return false;
-    }
-    const object = value as Record<string, unknown>;
-  
-    return (
-      typeof object.id === "string" &&
-      typeof object.coaching_relationship_id === "string" &&
-      typeof object.date === "string" &&
-      typeof object.timezone === "string" &&
-      typeof object.created_at === "string" &&
-      typeof object.updated_at === "string"
-    );
+  if (!value || typeof value !== "object") {
+    return false;
   }
+  const object = value as Record<string, unknown>;
 
-export function isCoachingSessionArray(value: unknown): value is CoachingSession[] {
+  return (
+    typeof object.id === "string" &&
+    typeof object.coaching_relationship_id === "string" &&
+    typeof object.date === "string" &&
+    typeof object.timezone === "string" &&
+    typeof object.created_at === "string" &&
+    typeof object.updated_at === "string"
+  );
+}
+
+export function isCoachingSessionArray(
+  value: unknown
+): value is CoachingSession[] {
   return Array.isArray(value) && value.every(isCoachingSession);
 }
 
-export function sortCoachingSessionArray(sessions: CoachingSession[], order: SortOrder): CoachingSession[] {
+export function sortCoachingSessionArray(
+  sessions: CoachingSession[],
+  order: SortOrder
+): CoachingSession[] {
   if (order == SortOrder.Ascending) {
-    sessions.sort((a, b) => 
-      new Date(a.date.toString()).getTime() - new Date(b.date.toString()).getTime());
+    sessions.sort(
+      (a, b) =>
+        new Date(a.date.toString()).getTime() -
+        new Date(b.date.toString()).getTime()
+    );
   } else if (order == SortOrder.Descending) {
-    sessions.sort((a, b) => 
-      new Date(b.date.toString()).getTime() - new Date(a.date.toString()).getTime());
+    sessions.sort(
+      (a, b) =>
+        new Date(b.date.toString()).getTime() -
+        new Date(a.date.toString()).getTime()
+    );
   }
   return sessions;
 }
 
-export function getCoachingSessionById(id: string, sessions: CoachingSession[]): CoachingSession {
-  const session = sessions.find(session => session.id === id);
+export function getCoachingSessionById(
+  id: string,
+  sessions: CoachingSession[]
+): CoachingSession {
+  const session = sessions.find((session) => session.id === id);
   return session ? session : defaultCoachingSession();
 }
 
 export function defaultCoachingSession(): CoachingSession {
-    var now = DateTime.now();
-    return {
-      id: "",
-      coaching_relationship_id: "",
-      date: now,
-      timezone: "",
-      created_at: now,
-      updated_at: now,
-    };
-  }
-  
-  export function defaultCoachingSessions(): CoachingSession[] {
-    return [defaultCoachingSession()];
-  }
-  
-  export function coachingSessionToString(coaching_session: CoachingSession): string {
-    return JSON.stringify(coaching_session);
-  }
-  
-  export function coachingSessionsToString(coaching_sessions: CoachingSession[]): string {
-    return JSON.stringify(coaching_sessions);
-  }
+  var now = DateTime.now();
+  return {
+    id: "",
+    coaching_relationship_id: "",
+    date: "",
+    timezone: "",
+    created_at: now,
+    updated_at: now,
+  };
+}
+
+export function defaultCoachingSessions(): CoachingSession[] {
+  return [defaultCoachingSession()];
+}
+
+export function coachingSessionToString(
+  coaching_session: CoachingSession | undefined
+): string {
+  return JSON.stringify(coaching_session);
+}
+
+export function coachingSessionsToString(
+  coaching_sessions: CoachingSession[] | undefined
+): string {
+  return JSON.stringify(coaching_sessions);
+}

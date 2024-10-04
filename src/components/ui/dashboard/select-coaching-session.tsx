@@ -33,7 +33,7 @@ import {
   coachingRelationshipWithUserNamesToString,
   getCoachingRelationshipById,
 } from "@/types/coaching_relationship_with_user_names";
-import { Id } from "@/types/general";
+import { getDateTimeFromString, Id } from "@/types/general";
 import { Organization } from "@/types/organization";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -220,7 +220,6 @@ export function SelectCoachingSession({
             defaultValue="today"
             disabled={!relationshipId}
             value={coachingSessionId}
-            // TODO: set CoachingSession in the app state!!
             onValueChange={handleSetCoachingSession}
           >
             <SelectTrigger id="session">
@@ -228,29 +227,41 @@ export function SelectCoachingSession({
             </SelectTrigger>
             <SelectContent>
               {coachingSessions.some(
-                (session) => session.date < DateTime.now()
+                (session) =>
+                  getDateTimeFromString(session.date) < DateTime.now()
               ) && (
                 <SelectGroup>
                   <SelectLabel>Previous Sessions</SelectLabel>
                   {coachingSessions
-                    .filter((session) => session.date < DateTime.now())
+                    .filter(
+                      (session) =>
+                        getDateTimeFromString(session.date) < DateTime.now()
+                    )
                     .map((session) => (
                       <SelectItem value={session.id} key={session.id}>
-                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                        {getDateTimeFromString(session.date).toLocaleString(
+                          DateTime.DATETIME_FULL
+                        )}
                       </SelectItem>
                     ))}
                 </SelectGroup>
               )}
               {coachingSessions.some(
-                (session) => session.date >= DateTime.now()
+                (session) =>
+                  getDateTimeFromString(session.date) >= DateTime.now()
               ) && (
                 <SelectGroup>
                   <SelectLabel>Upcoming Sessions</SelectLabel>
                   {coachingSessions
-                    .filter((session) => session.date >= DateTime.now())
+                    .filter(
+                      (session) =>
+                        getDateTimeFromString(session.date) >= DateTime.now()
+                    )
                     .map((session) => (
                       <SelectItem value={session.id} key={session.id}>
-                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                        {getDateTimeFromString(session.date).toLocaleString(
+                          DateTime.DATETIME_FULL
+                        )}
                       </SelectItem>
                     ))}
                 </SelectGroup>

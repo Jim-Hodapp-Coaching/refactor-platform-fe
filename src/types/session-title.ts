@@ -1,6 +1,8 @@
 import { DateTime } from "ts-luxon";
 import { CoachingRelationshipWithUserNames } from "./coaching_relationship_with_user_names";
 import { CoachingSession } from "./coaching-session";
+import { siteConfig } from "@/site.config";
+import { getDateTimeFromString } from "./general";
 
 // This is a frontend type only, it does not reflect any literal entity model
 // from the backend.
@@ -44,29 +46,33 @@ function constructCoachFirstLastCoacheeFirstLastTitle(
 function constructCoachFirstCoacheeFirstDate(
   coach_first_name: string,
   coachee_first_name: string,
-  date: DateTime,
+  date: string,
   locale: string
 ): string {
-  const formattedDateTime = date
-    .setLocale(locale)
-    .toLocaleString(DateTime.DATE_MED);
-  return (
-    coach_first_name + " <> " + coachee_first_name + " @ " + formattedDateTime
-  );
+  var title = coach_first_name + " <> " + coachee_first_name;
+  var formattedDateTime =
+    " @ " +
+    getDateTimeFromString(date)
+      .setLocale(locale)
+      .toLocaleString(DateTime.DATE_MED);
+
+  return coach_first_name + " <> " + coachee_first_name + formattedDateTime;
 }
 
 function constructCoachFirstCoacheeFirstDateTime(
   coach_first_name: string,
   coachee_first_name: string,
-  date: DateTime,
+  date: string,
   locale: string
 ): string {
-  const formattedDateTime = date
-    .setLocale(locale)
-    .toLocaleString(DateTime.DATETIME_MED);
-  return (
-    coach_first_name + " <> " + coachee_first_name + " @ " + formattedDateTime
-  );
+  var title = coach_first_name + " <> " + coachee_first_name;
+  var formattedDateTime =
+    " @ " +
+    getDateTimeFromString(date)
+      .setLocale(locale)
+      .toLocaleString(DateTime.DATETIME_MED);
+
+  return coach_first_name + " <> " + coachee_first_name + formattedDateTime;
 }
 
 export function generateSessionTitle(
@@ -77,13 +83,6 @@ export function generateSessionTitle(
 ): SessionTitle {
   var sessionTitleStr = "";
 
-  console.debug(
-    "relationship.coach_first_name: " + relationship.coach_first_name
-  );
-  console.debug(
-    "relationship.coachee_first_name: " + relationship.coachee_first_name
-  );
-  console.debug("session.date: " + session.date);
   if (style == SessionTitleStyle.CoachFirstCoacheeFirst) {
     sessionTitleStr = constructCoachFirstCoacheeFirstTitle(
       relationship.coach_first_name,
@@ -120,8 +119,8 @@ export function generateSessionTitle(
 
 export function defaultSessionTitle(): SessionTitle {
   return {
-    title: "",
-    style: SessionTitleStyle.CoachFirstCoacheeFirst,
+    title: "Untitled Session",
+    style: siteConfig.titleStyle,
   };
 }
 

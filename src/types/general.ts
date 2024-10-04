@@ -1,21 +1,23 @@
+import { DateTime } from "ts-luxon";
+
 // A type alias for each entity's Id field
 export type Id = string;
 
 // A sorting type that can be used by any of our custom types when stored
 // as arrays
 export enum SortOrder {
-    Ascending = "ascending",
-    Descending = "descending"
-  }
+  Ascending = "ascending",
+  Descending = "descending",
+}
 
 export enum ActionStatus {
   NotStarted = "NotStarted",
   InProgress = "InProgress",
   Completed = "Completed",
-  WontDo = "WontDo"
+  WontDo = "WontDo",
 }
 
-export function stringToActionStatus(statusString: string): (ActionStatus) {
+export function stringToActionStatus(statusString: string): ActionStatus {
   const status = statusString.trim();
 
   if (status == "InProgress") {
@@ -29,7 +31,7 @@ export function stringToActionStatus(statusString: string): (ActionStatus) {
   }
 }
 
-export function actionStatusToString(actionStatus: ActionStatus): (string) {
+export function actionStatusToString(actionStatus: ActionStatus): string {
   if (actionStatus == "InProgress") {
     return "In Progress";
   } else if (actionStatus == "Completed") {
@@ -39,4 +41,18 @@ export function actionStatusToString(actionStatus: ActionStatus): (string) {
   } else {
     return "Not Started";
   }
+}
+
+/// Given a valid ISO formatted date time string (timestampz in Postgresql types),
+/// return a valid DateTime object instance.
+export function getDateTimeFromString(dateTime: string): DateTime {
+  const dt = dateTime.trim();
+  if (dt.length == 0) {
+    console.warn(
+      "Return DateTime.now() since input dateTime string was empty."
+    );
+    return DateTime.now();
+  }
+
+  return DateTime.fromISO(dt);
 }
