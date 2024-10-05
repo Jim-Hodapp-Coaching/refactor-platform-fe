@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Refactor Coaching & Mentoring",
-  url: "https://localhost:4000",
+  url: "http://localhost:4000",
   ogImage: "https://ui.shadcn.com/og.jpg",
   locale: "us",
   titleStyle: SessionTitleStyle.CoachFirstCoacheeFirstDate,
