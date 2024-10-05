@@ -201,7 +201,12 @@ const ActionsList: React.FC<{
 
   useEffect(() => {
     async function loadActions() {
-      if (!coachingSessionId) return;
+      if (!coachingSessionId) {
+        console.error(
+          "Failed to fetch Actions since coachingSession.id is not set."
+        );
+        return;
+      }
 
       await fetchActionsByCoachingSessionId(coachingSessionId)
         .then((actions) => {

@@ -4,7 +4,7 @@ import {
   CoachingSession,
   isCoachingSessionArray,
   parseCoachingSession,
-  sortCoachingSessionArray
+  sortCoachingSessionArray,
 } from "@/types/coaching-session";
 import { Id, SortOrder } from "@/types/general";
 import { AxiosError, AxiosResponse } from "axios";
@@ -21,8 +21,8 @@ export const fetchCoachingSessions = async (
   // TODO: for now we hardcode a 2 month window centered around now,
   // eventually we want to make this be configurable somewhere
   // (either on the page or elsewhere)
-  const fromDate = DateTime.now().minus({month: 1}).toISODate();
-  const toDate = DateTime.now().plus({month: 1}).toISODate();
+  const fromDate = DateTime.now().minus({ month: 1 }).toISODate();
+  const toDate = DateTime.now().plus({ month: 1 }).toISODate();
 
   console.debug("fromDate: " + fromDate);
   console.debug("toDate: " + toDate);
@@ -32,7 +32,7 @@ export const fetchCoachingSessions = async (
       params: {
         coaching_relationship_id: coachingRelationshipId,
         from_date: fromDate,
-        to_date: toDate
+        to_date: toDate,
       },
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
@@ -45,10 +45,13 @@ export const fetchCoachingSessions = async (
       var sessions_data = response.data.data;
       if (isCoachingSessionArray(sessions_data)) {
         // Sort returned sessions in ascending order by their date field
-        sessions_data = sortCoachingSessionArray(sessions_data, SortOrder.Ascending);
+        sessions_data = sortCoachingSessionArray(
+          sessions_data,
+          SortOrder.Ascending
+        );
 
         sessions_data.forEach((session_data: any) => {
-          coaching_sessions.push(parseCoachingSession(session_data))
+          coaching_sessions.push(parseCoachingSession(session_data));
         });
       }
     })
@@ -61,10 +64,14 @@ export const fetchCoachingSessions = async (
       } else {
         console.log(error);
         console.error(
-          `Retrieval of CoachingSessions by coaching relationship Id (` + coachingRelationshipId + `) failed.`
+          `Retrieval of CoachingSessions by coaching relationship Id (` +
+            coachingRelationshipId +
+            `) failed.`
         );
         err =
-          `Retrieval of CoachingSessions by coaching relationship Id (` + coachingRelationshipId + `) failed.`;
+          `Retrieval of CoachingSessions by coaching relationship Id (` +
+          coachingRelationshipId +
+          `) failed.`;
       }
     });
 

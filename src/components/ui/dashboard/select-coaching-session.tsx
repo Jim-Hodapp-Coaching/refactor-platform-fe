@@ -23,9 +23,17 @@ import { fetchCoachingRelationshipsWithUserNames } from "@/lib/api/coaching-rela
 import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
-import { CoachingSession } from "@/types/coaching-session";
-import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
-import { Id } from "@/types/general";
+import {
+  CoachingSession,
+  coachingSessionToString,
+  getCoachingSessionById,
+} from "@/types/coaching-session";
+import {
+  CoachingRelationshipWithUserNames,
+  coachingRelationshipWithUserNamesToString,
+  getCoachingRelationshipById,
+} from "@/types/coaching_relationship_with_user_names";
+import { getDateTimeFromString, Id } from "@/types/general";
 import { Organization } from "@/types/organization";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -46,7 +54,13 @@ export function SelectCoachingSession({
   const { relationshipId, setRelationshipId } = useAppStateStore(
     (state) => state
   );
+  const { coachingRelationship, setCoachingRelationship } = useAppStateStore(
+    (state) => state
+  );
   const { coachingSessionId, setCoachingSessionId } = useAppStateStore(
+    (state) => state
+  );
+  const { coachingSession, setCoachingSession } = useAppStateStore(
     (state) => state
   );
 
@@ -115,6 +129,31 @@ export function SelectCoachingSession({
     loadCoachingSessions();
   }, [relationshipId]);
 
+  const handleSetCoachingRelationship = (coachingRelationshipId: string) => {
+    setRelationshipId(coachingRelationshipId);
+    const coachingRelationship = getCoachingRelationshipById(
+      coachingRelationshipId,
+      coachingRelationships
+    );
+    console.debug(
+      "coachingRelationship: " +
+        coachingRelationshipWithUserNamesToString(coachingRelationship)
+    );
+    setCoachingRelationship(coachingRelationship);
+  };
+
+  const handleSetCoachingSession = (coachingSessionId: string) => {
+    setCoachingSessionId(coachingSessionId);
+    const coachingSession = getCoachingSessionById(
+      coachingSessionId,
+      coachingSessions
+    );
+    console.debug(
+      "coachingSession: " + coachingSessionToString(coachingSession)
+    );
+    setCoachingSession(coachingSession);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -154,7 +193,7 @@ export function SelectCoachingSession({
             defaultValue="caleb"
             disabled={!organizationId}
             value={relationshipId}
-            onValueChange={setRelationshipId}
+            onValueChange={handleSetCoachingRelationship}
           >
             <SelectTrigger id="relationship">
               <SelectValue placeholder="Select coaching relationship" />
@@ -181,36 +220,48 @@ export function SelectCoachingSession({
             defaultValue="today"
             disabled={!relationshipId}
             value={coachingSessionId}
-            onValueChange={setCoachingSessionId}
+            onValueChange={handleSetCoachingSession}
           >
             <SelectTrigger id="session">
               <SelectValue placeholder="Select coaching session" />
             </SelectTrigger>
             <SelectContent>
               {coachingSessions.some(
-                (session) => session.date < DateTime.now()
+                (session) =>
+                  getDateTimeFromString(session.date) < DateTime.now()
               ) && (
                 <SelectGroup>
                   <SelectLabel>Previous Sessions</SelectLabel>
                   {coachingSessions
-                    .filter((session) => session.date < DateTime.now())
+                    .filter(
+                      (session) =>
+                        getDateTimeFromString(session.date) < DateTime.now()
+                    )
                     .map((session) => (
                       <SelectItem value={session.id} key={session.id}>
-                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                        {getDateTimeFromString(session.date).toLocaleString(
+                          DateTime.DATETIME_FULL
+                        )}
                       </SelectItem>
                     ))}
                 </SelectGroup>
               )}
               {coachingSessions.some(
-                (session) => session.date >= DateTime.now()
+                (session) =>
+                  getDateTimeFromString(session.date) >= DateTime.now()
               ) && (
                 <SelectGroup>
                   <SelectLabel>Upcoming Sessions</SelectLabel>
                   {coachingSessions
-                    .filter((session) => session.date >= DateTime.now())
+                    .filter(
+                      (session) =>
+                        getDateTimeFromString(session.date) >= DateTime.now()
+                    )
                     .map((session) => (
                       <SelectItem value={session.id} key={session.id}>
-                        {session.date.toLocaleString(DateTime.DATETIME_FULL)}
+                        {getDateTimeFromString(session.date).toLocaleString(
+                          DateTime.DATETIME_FULL
+                        )}
                       </SelectItem>
                     ))}
                 </SelectGroup>
