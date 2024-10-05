@@ -1,58 +1,100 @@
-import React, { useState } from 'react';
-import { useAppStateStore } from '@/lib/providers/app-state-store-provider';
+import React, { useState } from "react";
+import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { Id } from "@/types/general";
-import { DynamicApiSelect } from './dynamic-api-select';
+import { DynamicApiSelect } from "./dynamic-api-select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Organization } from '@/types/organization';
-import { CoachingRelationshipWithUserNames } from '@/types/coaching_relationship_with_user_names';
-import { CoachingSession } from '@/types/coaching-session';
-import { DateTime } from 'ts-luxon';
+import { Organization } from "@/types/organization";
+import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
+import {
+  CoachingSession,
+  getCoachingSessionById,
+} from "@/types/coaching-session";
+import { DateTime } from "ts-luxon";
 import { Label } from "@/components/ui/label";
-import { Button } from '../button';
-import Link from 'next/link';
-
+import { Button } from "../button";
+import Link from "next/link";
+import { fetchOrganization } from "@/lib/api/organizations";
+import { fetchCoachingRelationshipWithUserNames } from "@/lib/api/coaching-relationships";
+import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 
 export interface CoachingSessionCardProps {
   userId: Id;
 }
 
-export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps) {
-  const setOrganizationId = useAppStateStore(state => state.setOrganizationId);
-  const setRelationshipId = useAppStateStore(state => state.setRelationshipId);
-  const setCoachingSessionId = useAppStateStore(state => state.setCoachingSessionId);
-  const [organizationId, setOrganization] = useState<string | null>(null);
-  const [relationshipId, setRelationship] = useState<string | null>(null);
-  const [sessionId, setSessions] = useState<string | null>(null);
+export function JoinCoachingSession({
+  userId: userId,
+}: CoachingSessionCardProps) {
+  const { organizationId, setOrganizationId } = useAppStateStore((state) => ({
+    organizationId: state.organizationId,
+    setOrganizationId: state.setOrganizationId,
+  }));
+  const { relationshipId, setRelationshipId } = useAppStateStore((state) => ({
+    relationshipId: state.setRelationshipId,
+    setRelationshipId: state.setRelationshipId,
+  }));
+  const { coachingSessionId, setCoachingSessionId } = useAppStateStore(
+    (state) => ({
+      coachingSessionId: state.coachingSessionId,
+      setCoachingSessionId: state.setCoachingSessionId,
+    })
+  );
+  const { organization, setOrganization } = useAppStateStore((state) => ({
+    organization: state.organization,
+    setOrganization: state.setOrganization,
+  }));
+  const { relationship, setRelationship } = useAppStateStore((state) => ({
+    relationship: state.coachingRelationship,
+    setRelationship: state.setCoachingRelationship,
+  }));
+  const { coachingSession, setCoachingSession } = useAppStateStore((state) => ({
+    coachingSession: state.coachingSession,
+    setCoachingSession: state.setCoachingSession,
+  }));
   const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
   const TO_DATE = DateTime.now().plus({ month: 1 }).toISODate();
 
-  const handleOrganizationSelection = (value: string) => {
-    setOrganization(value);
-    setRelationship(null);
-    setSessions(null);
-    setOrganizationId(value);
-  }
+  const handleOrganizationSelection = (id: Id) => {
+    fetchOrganization(id)
+      .then((organization) => {
+        setOrganizationId(organization.id);
+        setOrganization(organization);
+      })
+      .catch((err) => {
+        console.error("Failed to retrieve and set organization: " + err);
+      });
+  };
 
-  const handleRelationshipSelection = (value: string) => {
-    setRelationship(value);
-    setSessions(null);
-    setRelationshipId(value);
-  }
+  const handleRelationshipSelection = (id: Id) => {
+    fetchCoachingRelationshipWithUserNames(organization.id, id)
+      .then((relationship) => {
+        setRelationshipId(relationship.id);
+        setRelationship(relationship);
+      })
+      .catch((err) => {
+        console.error("Failed to retrieve and set relationship: " + err);
+      });
+  };
 
-  const handleSessionSelection = (value: string) => {
-    setSessions(value);
-    setCoachingSessionId(value);
-  }
-
+  const handleSessionSelection = (id: Id) => {
+    fetchCoachingSessions(relationship.id)
+      .then((sessions) => {
+        const session = getCoachingSessionById(id, sessions);
+        setCoachingSessionId(session.id);
+        setCoachingSession(session);
+      })
+      .catch((err) => {
+        console.error("Failed to retrieve and set relationship: " + err);
+      });
+  };
 
   return (
     <Card className="w-[300px]">
       <CardHeader>
         <CardTitle>Join a Coaching Session</CardTitle>
       </CardHeader>
-      <CardContent className='grid gap-6'>
+      <CardContent className="grid gap-6">
         <div className="grid gap-2">
-          <Label htmlFor='organization-selector'>Organization</Label>
+          <Label htmlFor="organization-selector">Organization</Label>
 
           <DynamicApiSelect<Organization>
             url="/organizations"
@@ -60,52 +102,51 @@ export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps
             onChange={handleOrganizationSelection}
             placeholder="Select an organization"
             getOptionLabel={(org) => org.name}
-            getOptionValue={(org) => org.id.toString()}
-            elementId='organization-selector'
+            getOptionValue={(org) => org.id} // FIXME: this doesn't seem to display the currently selected organization when the page loads and the org.id is set
+            elementId="organization-selector"
           />
         </div>
-        {organizationId && (
+        {organization.id.length > 0 && (
           <div className="grid gap-2">
-            <Label htmlFor='relationship-selector'>Relationship</Label>
+            <Label htmlFor="relationship-selector">Relationship</Label>
 
             <DynamicApiSelect<CoachingRelationshipWithUserNames>
               url={`/organizations/${organizationId}/coaching_relationships`}
               params={{ organizationId }}
               onChange={handleRelationshipSelection}
               placeholder="Select coaching relationship"
-              getOptionLabel={
-                (relationship) =>
-                  `${relationship.coach_first_name} ${relationship.coach_last_name} -> ${relationship.coachee_first_name} ${relationship.coach_last_name}`
+              getOptionLabel={(relationship) =>
+                `${relationship.coach_first_name} ${relationship.coach_last_name} -> ${relationship.coachee_first_name} ${relationship.coach_last_name}`
               }
-              getOptionValue={(relationship) => relationship.id.toString()}
-              elementId='relationship-selector'
+              getOptionValue={(relationship) => relationship.id}
+              elementId="relationship-selector"
             />
           </div>
         )}
-        {relationshipId && (
+        {relationship.id.length > 0 && (
           <div className="grid gap-2">
-            <Label htmlFor='session-selector'>Coaching Session</Label>
+            <Label htmlFor="session-selector">Coaching Session</Label>
 
             <DynamicApiSelect<CoachingSession>
               url="/coaching_sessions"
               params={{
-                coaching_relationship_id: relationshipId,
+                coaching_relationship_id: relationship.id,
                 from_date: FROM_DATE,
-                to_Date: TO_DATE
+                to_Date: TO_DATE,
               }}
               onChange={handleSessionSelection}
               placeholder="Select coaching session"
-              getOptionLabel={(session) => session.date.toString()}
-              getOptionValue={(session) => session.id.toString()}
-              elementId='session-selector'
+              getOptionLabel={(session) => session.date}
+              getOptionValue={(session) => session.id}
+              elementId="session-selector"
               groupByDate={true}
             />
           </div>
         )}
-        {sessionId && (
-          <div className='grid gap-2'>
-            <Button variant='outline' className='w-full'>
-              <Link href={`/coaching-sessions/${sessionId}`}>
+        {coachingSession.id.length > 0 && (
+          <div className="grid gap-2">
+            <Button variant="outline" className="w-full">
+              <Link href={`/coaching-sessions/${coachingSessionId}`}>
                 Join Session
               </Link>
             </Button>
@@ -113,5 +154,5 @@ export function JoinCoachingSession({ userId: userId }: CoachingSessionCardProps
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
