@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { Id } from "@/types/general";
 import { DynamicApiSelect } from "./dynamic-api-select";
@@ -24,20 +24,15 @@ export interface CoachingSessionCardProps {
 export function JoinCoachingSession({
   userId: userId,
 }: CoachingSessionCardProps) {
-  const { organizationId, setOrganizationId } = useAppStateStore((state) => ({
-    organizationId: state.organizationId,
+  const { setOrganizationId } = useAppStateStore((state) => ({
     setOrganizationId: state.setOrganizationId,
   }));
-  const { relationshipId, setRelationshipId } = useAppStateStore((state) => ({
-    relationshipId: state.setRelationshipId,
+  const { setRelationshipId } = useAppStateStore((state) => ({
     setRelationshipId: state.setRelationshipId,
   }));
-  const { coachingSessionId, setCoachingSessionId } = useAppStateStore(
-    (state) => ({
-      coachingSessionId: state.coachingSessionId,
-      setCoachingSessionId: state.setCoachingSessionId,
-    })
-  );
+  const { setCoachingSessionId } = useAppStateStore((state) => ({
+    setCoachingSessionId: state.setCoachingSessionId,
+  }));
   const { organization, setOrganization } = useAppStateStore((state) => ({
     organization: state.organization,
     setOrganization: state.setOrganization,
@@ -111,8 +106,8 @@ export function JoinCoachingSession({
             <Label htmlFor="relationship-selector">Relationship</Label>
 
             <DynamicApiSelect<CoachingRelationshipWithUserNames>
-              url={`/organizations/${organizationId}/coaching_relationships`}
-              params={{ organizationId }}
+              url={`/organizations/${organization.id}/coaching_relationships`}
+              params={{ organizationId: organization.id }}
               onChange={handleRelationshipSelection}
               placeholder="Select coaching relationship"
               getOptionLabel={(relationship) =>
@@ -146,7 +141,7 @@ export function JoinCoachingSession({
         {coachingSession.id.length > 0 && (
           <div className="grid gap-2">
             <Button variant="outline" className="w-full">
-              <Link href={`/coaching-sessions/${coachingSessionId}`}>
+              <Link href={`/coaching-sessions/${coachingSession.id}`}>
                 Join Session
               </Link>
             </Button>
