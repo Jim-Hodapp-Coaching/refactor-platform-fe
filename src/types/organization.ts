@@ -30,6 +30,16 @@ export function isOrganizationsArray(value: unknown): value is Organization[] {
   return Array.isArray(value) && value.every(isOrganization);
 }
 
+export function getOrganizationById(
+  id: string,
+  organizations: Organization[]
+): Organization {
+  const organization = organizations.find(
+    (organization) => organization.id === id
+  );
+  return organization ? organization : defaultOrganization();
+}
+
 export function defaultOrganization(): Organization {
   var now = DateTime.now();
   return {

@@ -34,7 +34,11 @@ import {
   getCoachingRelationshipById,
 } from "@/types/coaching_relationship_with_user_names";
 import { getDateTimeFromString, Id } from "@/types/general";
-import { Organization } from "@/types/organization";
+import {
+  getOrganizationById,
+  Organization,
+  organizationToString,
+} from "@/types/organization";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DateTime } from "ts-luxon";
@@ -51,6 +55,7 @@ export function SelectCoachingSession({
   const { organizationId, setOrganizationId } = useAppStateStore(
     (state) => state
   );
+  const { organization, setOrganization } = useAppStateStore((state) => state);
   const { relationshipId, setRelationshipId } = useAppStateStore(
     (state) => state
   );
@@ -129,6 +134,13 @@ export function SelectCoachingSession({
     loadCoachingSessions();
   }, [relationshipId]);
 
+  const handleSetOrganization = (organizationId: Id) => {
+    setOrganizationId(organizationId);
+    const organization = getOrganizationById(organizationId, organizations);
+    console.debug("organization: " + organizationToString(organization));
+    setOrganization(organization);
+  };
+
   const handleSetCoachingRelationship = (coachingRelationshipId: string) => {
     setRelationshipId(coachingRelationshipId);
     const coachingRelationship = getCoachingRelationshipById(
@@ -168,7 +180,7 @@ export function SelectCoachingSession({
           <Select
             defaultValue="0"
             value={organizationId}
-            onValueChange={setOrganizationId}
+            onValueChange={handleSetOrganization}
           >
             <SelectTrigger id="organization">
               <SelectValue placeholder="Select organization" />

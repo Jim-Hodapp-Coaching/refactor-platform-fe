@@ -49,9 +49,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 
 export function MainNavMenu() {
   const [open, setIsOpen] = React.useState(false);
+  const { organization } = useAppStateStore((state) => state);
 
   return (
     <>
@@ -60,8 +62,8 @@ export function MainNavMenu() {
           <NavigationMenuItem>
             <NavigationMenuTrigger>
               <span className="hidden font-bold sm:inline-block">
-                {/* TODO: Replace this with currently selected organization's name */}
-                Refactor Coaching
+                {/* FIXME: Replace "Refactor" with something from siteConfig or something else */}
+                {organization.name.length > 0 ? organization.name : "Refactor"}
               </span>
             </NavigationMenuTrigger>
             <NavigationMenuContent>
