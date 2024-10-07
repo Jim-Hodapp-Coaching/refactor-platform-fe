@@ -50,7 +50,6 @@ export function DynamicApiSelect<T>({
     isLoading,
     error,
   } = useApiData<ApiResponse<T>>(url, { method, params });
-
   const [value, setValue] = useState<string>("");
 
   const handleValueChange = (newValue: string) => {

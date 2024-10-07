@@ -46,17 +46,18 @@ export function JoinCoachingSession({
     setCoachingSessionId: state.setCoachingSessionId
   }));
 
+  // TODO: pass Organization type
   const handleOrganizationSelection = (value: string) => {
     setOrganizationId(value);
-    setRelationshipId;
-    setCoachingSessionId;
   }
 
+  // TODO: pass Relationship type
   const handleRelationshipSelection = (value: string) => {
     setRelationshipId(value);
     setCoachingSessionId;
   }
 
+  // TODO: pass CoachingSession type
   const handleSessionSelection = (value: string) => {
     setCoachingSessionId(value);
   }
@@ -76,7 +77,7 @@ export function JoinCoachingSession({
             onChange={handleOrganizationSelection}
             placeholder="Select an organization"
             getOptionLabel={(org) => org.name}
-            getOptionValue={(org) => org.id} // FIXME: this doesn't seem to display the currently selected organization when the page loads and the org.id is set
+            getOptionValue={(org) => org.id}
             elementId="organization-selector"
           />
         </div>
