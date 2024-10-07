@@ -24,7 +24,7 @@ interface DynamicApiSelectProps<T> {
   onChange: (value: string) => void;
   placeholder?: string;
   getOptionLabel: (item: T) => string;
-  getOptionValue: (item: T) => string;
+  getOptionValue: (item: T) => string; // TODO: return generic type
   elementId: string;
   groupByDate?: boolean;
 }
@@ -50,9 +50,9 @@ export function DynamicApiSelect<T>({
     isLoading,
     error,
   } = useApiData<ApiResponse<T>>(url, { method, params });
-  const [value, setValue] = useState<string>("");
+  const [value, setValue] = useState<string>(""); // use AppStateStore
 
-  const handleValueChange = (newValue: string) => {
+  const handleValueChange = (newValue: string) => { // TODO: update state store
     setValue(newValue);
     onChange(newValue);
   };
