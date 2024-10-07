@@ -12,8 +12,8 @@ import {
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
-const OverarchingGoal: React.FC<{ onClick: (open: boolean) => void }> = ({
-  onClick,
+const OverarchingGoal: React.FC<{ onOpenChange: (open: boolean) => void }> = ({
+  onOpenChange,
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [goal, setGoal] = useState<string>("");
@@ -29,7 +29,7 @@ const OverarchingGoal: React.FC<{ onClick: (open: boolean) => void }> = ({
       // When closing, reset tempGoal to match the current goal
       setTempGoal(goal);
     }
-    onClick(!isOpen);
+    onOpenChange(!isOpen);
     setIsOpen(!isOpen);
   };
 
@@ -53,7 +53,7 @@ const OverarchingGoal: React.FC<{ onClick: (open: boolean) => void }> = ({
               <Input
                 value={tempGoal}
                 onChange={(e) => setTempGoal(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSetGoal()}
+                onKeyDown={(e) => e.key === "Enter" && handleSetGoal()}
                 className={cn("w-full h-6 bg-inherit border-0 p-1")}
                 placeholder="Insert a new overarching goal"
               />
@@ -107,7 +107,6 @@ const OverarchingGoal: React.FC<{ onClick: (open: boolean) => void }> = ({
             </div>
           </div>
         </div>
-        {/* </Button> */}
       </div>
     </div>
   );

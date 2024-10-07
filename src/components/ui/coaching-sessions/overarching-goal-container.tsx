@@ -116,7 +116,7 @@ const OverarchingGoalContainer: React.FC<{
           className="w-full space-y-2"
         >
           <OverarchingGoal
-            onClick={(open: boolean) => setIsOpen(open)}
+            onOpenChange={(open: boolean) => setIsOpen(open)}
           ></OverarchingGoal>
           <CollapsibleContent className="px-4">
             <div className="flex-col space-y-4 sm:flex">
