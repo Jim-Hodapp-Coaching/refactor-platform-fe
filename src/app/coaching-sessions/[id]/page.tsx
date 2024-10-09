@@ -8,13 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
-import { MaxLengthSelector } from "@/components/ui/maxlength-selector";
-import { ModelSelector } from "@/components/ui/model-selector";
 import { PresetActions } from "@/components/ui/preset-actions";
 import { PresetSelector } from "@/components/ui/preset-selector";
-import { TemperatureSelector } from "@/components/ui/temperature-selector";
-import { TopPSelector } from "@/components/ui/top-p-selector";
-import { models, types } from "@/data/models";
 import { current, future, past } from "@/data/presets";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { useEffect, useState } from "react";
@@ -30,6 +25,14 @@ import { siteConfig } from "@/site.config";
 import { CoachingSessionTitle } from "@/components/ui/coaching-sessions/coaching-session-title";
 import { OverarchingGoalContainer } from "@/components/ui/coaching-sessions/overarching-goal-container";
 import { Id } from "@/types/general";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { LockClosedIcon, SymbolIcon } from "@radix-ui/react-icons";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -45,32 +48,34 @@ export default function CoachingSessionsPage() {
     (state) => state
   );
 
-  useEffect(() => {
-    async function fetchNote() {
-      if (!coachingSession.id) {
-        console.error(
-          "Failed to fetch Note since coachingSession.id is not set."
-        );
-        return;
-      }
-
-      await fetchNotesByCoachingSessionId(coachingSession.id)
-        .then((notes) => {
-          const note = notes[0];
-          if (notes.length > 0) {
-            console.trace("note: " + noteToString(note));
-            setNoteId(note.id);
-            setNote(note.body);
-          } else {
-            console.trace("No Notes associated with this coachingSession.id");
-          }
-        })
-        .catch((err) => {
-          console.error(
-            "Failed to fetch Note for current coaching session: " + err
-          );
-        });
+  async function fetchNote() {
+    if (!coachingSession.id) {
+      console.error(
+        "Failed to fetch Note since coachingSession.id is not set."
+      );
+      return;
     }
+
+    await fetchNotesByCoachingSessionId(coachingSession.id)
+      .then((notes) => {
+        const note = notes[0];
+        if (notes.length > 0) {
+          console.trace("note: " + noteToString(note));
+          setNoteId(note.id);
+          setNote(note.body);
+          setSyncStatus("Notes refreshed");
+        } else {
+          console.trace("No Notes associated with this coachingSession.id");
+        }
+      })
+      .catch((err) => {
+        console.error(
+          "Failed to fetch Note for current coaching session: " + err
+        );
+      });
+  }
+
+  useEffect(() => {
     fetchNote();
   }, [coachingSession.id, noteId]);
 
@@ -140,12 +145,12 @@ export default function CoachingSessionsPage() {
               <TabsList className="grid flex w-128 grid-cols-2 justify-start">
                 <TabsTrigger value="notes">Notes</TabsTrigger>
                 <TabsTrigger value="console">Console</TabsTrigger>
-                {/* <TabsTrigger value="coachs_notes">
-                    <div className="flex gap-2 items-start">
-                      <LockClosedIcon className="mt-1" />
-                      Coach&#39;s Notes
-                    </div>
-                  </TabsTrigger> */}
+                <TabsTrigger value="coachs_notes" className="hidden">
+                  <div className="flex gap-2 items-start">
+                    <LockClosedIcon className="mt-1" />
+                    Coach&#39;s Notes
+                  </div>
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="notes">
                 <div className="flex h-full flex-col space-y-4">
@@ -158,8 +163,8 @@ export default function CoachingSessionsPage() {
                 </div>
               </TabsContent>
               <TabsContent value="console">
-                <div className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px] bg-blue-500 text-white">
-                  Console
+                <div className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px] bg-gray-500 text-white">
+                  Console placeholder
                 </div>
               </TabsContent>
               <TabsContent value="coachs_notes">
@@ -173,10 +178,29 @@ export default function CoachingSessionsPage() {
             </Tabs>
           </div>
           <div className="flex-col space-y-4 sm:flex md:order-2">
-            <ModelSelector types={types} models={models} />
-            <TemperatureSelector defaultValue={[0.56]} />
-            <MaxLengthSelector defaultValue={[256]} />
-            <TopPSelector defaultValue={[0.9]} />
+            <div className="grid gap-2 pt-2">
+              <HoverCard openDelay={200}>
+                <HoverCardTrigger asChild>
+                  <div className="grid gap-4">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="refresh">Notes Actions</Label>
+                    </div>
+                    <Button id="refresh" variant="outline" onClick={fetchNote}>
+                      <SymbolIcon className="mr-2 h-4 w-4" /> Refresh Notes
+                    </Button>
+                  </div>
+                </HoverCardTrigger>
+                <HoverCardContent
+                  align="start"
+                  className="w-[260px] text-sm"
+                  side="left"
+                >
+                  Notes refreshing is currently a manual process. To view
+                  changes made by someone else in this session, before making
+                  any new Notes changes yourself, click this button.
+                </HoverCardContent>
+              </HoverCard>
+            </div>
           </div>
         </div>
       </div>
