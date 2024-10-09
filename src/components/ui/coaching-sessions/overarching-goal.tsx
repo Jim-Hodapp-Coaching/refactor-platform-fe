@@ -11,32 +11,37 @@ import {
 } from "@/components/ui/tooltip";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import {
+  defaultOverarchingGoal,
+  OverarchingGoal,
+} from "@/types/overarching-goal";
 
-const OverarchingGoal: React.FC<{ onOpenChange: (open: boolean) => void }> = ({
-  onOpenChange,
-}) => {
+const OverarchingGoalComponent: React.FC<{
+  initialValue: OverarchingGoal;
+  onOpenChange: (open: boolean) => void;
+  onGoalChange: (goal: OverarchingGoal) => void;
+}> = ({ initialValue, onOpenChange, onGoalChange }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [goal, setGoal] = useState<string>("");
-  const [tempGoal, setTempGoal] = useState(goal);
+  const [tempGoalTitle, setTempGoalTitle] = useState<string>("");
+  const [overarchingGoal, setOverarchingGoal] = useState<OverarchingGoal>(
+    defaultOverarchingGoal()
+  );
 
   useEffect(() => {
-    // Update tempGoal whenever goal changes
-    setTempGoal(goal);
-  }, [goal]);
+    setOverarchingGoal(initialValue);
+    setTempGoalTitle(initialValue.title);
+  }, [initialValue]);
 
   const toggleDrawer = () => {
-    if (isOpen) {
-      // When closing, reset tempGoal to match the current goal
-      setTempGoal(goal);
-    }
     onOpenChange(!isOpen);
     setIsOpen(!isOpen);
   };
 
   const handleSetGoal = async () => {
-    // TODO: make a new callback function for when the goal gets set so the parent can
-    // call the backend and store the new overarching goal.
-    setGoal(tempGoal); // Update the main goal state
+    var tempGoal = overarchingGoal;
+    tempGoal.title = tempGoalTitle;
+    setOverarchingGoal(tempGoal);
+    onGoalChange(tempGoal);
     toggleDrawer();
   };
 
@@ -51,8 +56,8 @@ const OverarchingGoal: React.FC<{ onOpenChange: (open: boolean) => void }> = ({
           <div id="label" className="flex w-full mr-2 min-w-0">
             {isOpen ? (
               <Input
-                value={tempGoal}
-                onChange={(e) => setTempGoal(e.target.value)}
+                value={tempGoalTitle}
+                onChange={(e) => setTempGoalTitle(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSetGoal()}
                 className={cn("w-full h-6 bg-inherit border-0 p-1")}
                 placeholder="Insert a new overarching goal"
@@ -61,9 +66,11 @@ const OverarchingGoal: React.FC<{ onOpenChange: (open: boolean) => void }> = ({
               <div>
                 <span className="hidden md:inline-flex truncate">
                   <div className="mr-1">{"Overarching goal: "}</div>
-                  <div>{goal}</div>
+                  <div>{overarchingGoal.title}</div>
                 </span>
-                <span className="inline-flex md:hidden">{goal}</span>
+                <span className="inline-flex md:hidden">
+                  {overarchingGoal.title}
+                </span>
               </div>
             )}
           </div>
@@ -112,4 +119,4 @@ const OverarchingGoal: React.FC<{ onOpenChange: (open: boolean) => void }> = ({
   );
 };
 
-export { OverarchingGoal };
+export { OverarchingGoalComponent };

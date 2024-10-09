@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, ArrowUpDown, Save, CalendarClock } from "lucide-react";
 import {
-  ActionStatus,
+  ItemStatus,
   actionStatusToString,
   Id,
   stringToActionStatus,
@@ -52,13 +52,13 @@ const ActionsList: React.FC<{
   locale: string | "us";
   onActionAdded: (
     body: string,
-    status: ActionStatus,
+    status: ItemStatus,
     dueBy: DateTime
   ) => Promise<Action>;
   onActionEdited: (
     id: Id,
     body: string,
-    status: ActionStatus,
+    status: ItemStatus,
     dueBy: DateTime
   ) => Promise<Action>;
   onActionDeleted: (id: Id) => Promise<Action>;
@@ -80,14 +80,12 @@ const ActionsList: React.FC<{
 
   const [actions, setActions] = useState<Action[]>([]);
   const [newBody, setNewBody] = useState("");
-  const [newStatus, setNewStatus] = useState<ActionStatus>(
-    ActionStatus.NotStarted
-  );
+  const [newStatus, setNewStatus] = useState<ItemStatus>(ItemStatus.NotStarted);
   const [newDueBy, setNewDueBy] = useState<DateTime>(DateTime.now());
   const [editingId, setEditingId] = useState<Id | null>(null);
   const [editBody, setEditBody] = useState("");
-  const [editStatus, setEditStatus] = useState<ActionStatus>(
-    ActionStatus.NotStarted
+  const [editStatus, setEditStatus] = useState<ItemStatus>(
+    ItemStatus.NotStarted
   );
   const [editDueBy, setEditDueBy] = useState<DateTime>(DateTime.now());
   const [sortColumn, setSortColumn] = useState<keyof Action>(
@@ -113,14 +111,14 @@ const ActionsList: React.FC<{
       });
 
     setNewBody("");
-    setNewStatus(ActionStatus.NotStarted);
+    setNewStatus(ItemStatus.NotStarted);
     setNewDueBy(DateTime.now());
   };
 
   const updateAction = async (
     id: Id,
     newBody: string,
-    newStatus: ActionStatus,
+    newStatus: ItemStatus,
     newDueBy: DateTime
   ) => {
     const body = newBody.trim();
@@ -155,7 +153,7 @@ const ActionsList: React.FC<{
       setActions(updatedActions);
       setEditingId(null);
       setEditBody("");
-      setEditStatus(ActionStatus.NotStarted);
+      setEditStatus(ItemStatus.NotStarted);
       setEditDueBy(DateTime.now());
     } catch (err) {
       console.error("Failed to update Action (id: " + id + "): ", err);
@@ -313,7 +311,7 @@ const ActionsList: React.FC<{
                             <SelectValue placeholder="Select a status" />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.values(ActionStatus).map((s) => (
+                            {Object.values(ItemStatus).map((s) => (
                               <SelectItem value={s} key={s}>
                                 {actionStatusToString(s)}
                               </SelectItem>
