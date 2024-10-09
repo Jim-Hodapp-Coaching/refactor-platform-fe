@@ -49,8 +49,9 @@ const OverarchingGoalComponent: React.FC<{
     <div className="flex items-center justify-between px-4">
       <div
         className={cn(
-          "relative h-8 w-full justify-start rounded-[0.5rem] bg-muted hover:bg-gray-200 text-sm font-semibold text-muted-foreground shadow-inner flex items-center px-3"
+          "relative h-8 w-full justify-start rounded-[0.5rem] bg-muted hover:bg-gray-200 text-sm font-semibold text-muted-foreground shadow-inner flex items-center pl-0 pr-2"
         )}
+        onClick={toggleDrawer}
       >
         <div className="flex items-center justify-between w-full">
           <div id="label" className="flex w-full mr-2 min-w-0">
@@ -59,16 +60,24 @@ const OverarchingGoalComponent: React.FC<{
                 value={tempGoalTitle}
                 onChange={(e) => setTempGoalTitle(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSetGoal()}
-                className={cn("w-full h-6 bg-inherit border-0 p-1")}
+                onClick={(e) => e.stopPropagation()} // Ensure clicking the input component does not call toggleDrawer
+                className={cn("w-full h-6 bg-inherit border-0 px-2 py-1")}
                 placeholder="Insert a new overarching goal"
               />
             ) : (
-              <div>
+              /* Ensure that clicking the overarching goal text (e.g. if the user wants to highlight the text)
+                   does not call toggleDrawer */
+              <div className="ml-2 mr-2">
                 <span className="hidden md:inline-flex truncate">
                   <div className="mr-1">{"Overarching goal: "}</div>
-                  <div>{overarchingGoal.title}</div>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    {overarchingGoal.title}
+                  </div>
                 </span>
-                <span className="inline-flex md:hidden">
+                <span
+                  className="inline-flex md:hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   {overarchingGoal.title}
                 </span>
               </div>
