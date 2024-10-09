@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useApiData } from "@/hooks/use-api-data";
 import {
   Select,
@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/select";
 import { CoachingSession, isCoachingSession } from "@/types/coaching-session";
 import { DateTime } from "ts-luxon";
+import { Organization } from "@/types/organization"; // Adjust the import path as necessary
+import { Id } from "@/types/general";
+import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 
 interface DynamicApiSelectProps<T> {
   url: string;
@@ -24,7 +27,7 @@ interface DynamicApiSelectProps<T> {
   groupByDate?: boolean;
 }
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   status_code: number;
   data: T[];
 }
@@ -45,11 +48,28 @@ export function DynamicApiSelect<T>({
     isLoading,
     error,
   } = useApiData<ApiResponse<T>>(url, { method, params });
-  const [value, setValue] = useState<string>("");
+
+  const { value, setValue, setApiResponse } = useAppStateStore((state) => ({
+    value: `${elementId}Id`,
+    setValue: (newValue: Id) => state.setElementValue(elementId, newValue),
+    setApiResponse: (response: ApiResponse<T>) =>
+      state.setApiResponse(elementId, response),
+  }));
+
+  // useEffect(() => {
+  //   if (response) {
+  //     setApiResponse(response);
+  //   }
+  // }, [response]);
+
+  useEffect(() => {
+    if (value) {
+      onChange(value);
+    }
+  }, [value, onChange]);
 
   const handleValueChange = (newValue: string) => {
     setValue(newValue);
-    onChange(newValue);
   };
 
   if (isLoading) return <p>Loading...</p>;
