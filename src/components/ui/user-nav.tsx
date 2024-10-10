@@ -16,12 +16,17 @@ import {
 import { logoutUser } from "@/lib/api/user-session";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
+import { userFirstLastLettersToString } from "@/types/user-session";
 import { useRouter } from "next/navigation";
 
 export function UserNav() {
   const router = useRouter();
 
   const { logout } = useAuthStore((action) => action);
+
+  const { userSession } = useAuthStore((state) => ({
+    userSession: state.userSession,
+  }));
 
   const { reset } = useAppStateStore((action) => action);
 
@@ -46,16 +51,21 @@ export function UserNav() {
         <Button variant="ghost" className="relative mx-2 h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
             <AvatarImage src="/avatars/03.png" alt="@jhodapp" />
-            <AvatarFallback>JH</AvatarFallback>
+            <AvatarFallback>
+              {userFirstLastLettersToString(
+                userSession.first_name,
+                userSession.last_name
+              )}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Jim Hodapp</p>
+            <p className="text-sm font-medium leading-none">{`${userSession.first_name} ${userSession.last_name}`}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              jim@refactorcoach.com
+              {userSession.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -65,19 +75,19 @@ export function UserNav() {
             Profile
             <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          {/* <DropdownMenuItem>
             Current Organization
             <DropdownMenuShortcut>⌘O</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
             Billing
             <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem>
             Settings
             <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem>New Team</DropdownMenuItem>
+          {/* <DropdownMenuItem>New Team</DropdownMenuItem> */}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout_user}>
