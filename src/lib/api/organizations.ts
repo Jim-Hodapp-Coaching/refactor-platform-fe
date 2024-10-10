@@ -55,9 +55,7 @@ export const fetchOrganizations = async (): Promise<
   return [organizations, err];
 };
 
-export const fetchOrganization = async (
-  id: Id
-): Promise<[Organization, string]> => {
+export const fetchOrganization = async (id: Id): Promise<Organization> => {
   const axios = require("axios");
 
   var organization: Organization = defaultOrganization();
@@ -81,16 +79,15 @@ export const fetchOrganization = async (
       // handle error
       console.error(error.response?.status);
       if (error.response?.status == 401) {
-        console.error("Retrieval of Organization failed: unauthorized.");
         err = "Retrieval of Organization failed: unauthorized.";
       } else {
-        console.log(error);
-        console.error(`Retrieval of Organization(` + id + `) failed.`);
         err = `Retrieval of Organization(` + id + `) failed.`;
       }
     });
 
-  return [organization, err];
+  if (err) throw err;
+
+  return organization;
 };
 
 export const fetchOrganizationsByUserId = async (

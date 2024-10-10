@@ -12,7 +12,7 @@ import { DateTime } from "ts-luxon";
 
 export const fetchCoachingSessions = async (
   coachingRelationshipId: Id
-): Promise<[CoachingSession[], string]> => {
+): Promise<CoachingSession[]> => {
   const axios = require("axios");
 
   var coaching_sessions: CoachingSession[] = [];
@@ -59,15 +59,9 @@ export const fetchCoachingSessions = async (
       // handle error
       console.error(error.response?.status);
       if (error.response?.status == 401) {
-        console.error("Retrieval of CoachingSessions failed: unauthorized.");
         err = "Retrieval of CoachingSessions failed: unauthorized.";
       } else {
         console.log(error);
-        console.error(
-          `Retrieval of CoachingSessions by coaching relationship Id (` +
-            coachingRelationshipId +
-            `) failed.`
-        );
         err =
           `Retrieval of CoachingSessions by coaching relationship Id (` +
           coachingRelationshipId +
@@ -75,5 +69,7 @@ export const fetchCoachingSessions = async (
       }
     });
 
-  return [coaching_sessions, err];
+  if (err) throw err;
+
+  return coaching_sessions;
 };

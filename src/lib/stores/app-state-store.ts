@@ -20,7 +20,7 @@ interface AppState {
   coachingRelationship: CoachingRelationshipWithUserNames;
 }
 
-interface AppStateActions {
+export interface AppStateActions {
   setOrganizationId: (organizationId: Id) => void;
   setRelationshipId: (relationshipId: Id) => void;
   setCoachingSessionId: (coachingSessionId: Id) => void;
