@@ -129,7 +129,10 @@ export default function CoachingSessionsPage() {
           ></CoachingSessionTitle>
           <div className="ml-auto flex w-full space-x-2 sm:justify-end">
             <PresetSelector current={current} future={future} past={past} />
-            <PresetActions />
+            {/* Hidden for MVP */}
+            <div className="hidden">
+              <PresetActions />
+            </div>
           </div>
         </div>
       </div>
@@ -195,9 +198,9 @@ export default function CoachingSessionsPage() {
                   className="w-[260px] text-sm"
                   side="left"
                 >
-                  Notes refreshing is currently a manual process. To view
-                  changes made by someone else in this session, before making
-                  any new Notes changes yourself, click this button.
+                  To view changes to the Notes made by someone else during this
+                  session, before making any new changes yourself, click this
+                  button.
                 </HoverCardContent>
               </HoverCard>
             </div>
