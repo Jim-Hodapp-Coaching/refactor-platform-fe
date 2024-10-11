@@ -10,8 +10,8 @@ import {
 export type Id = string;
 
 export type RefactorDataType<T> = {
-  label?: string;
-  value?: T[];
+  label: string;
+  value: T[];
 };
 
 // A sorting type that can be used by any of our custom types when stored

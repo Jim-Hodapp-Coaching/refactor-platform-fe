@@ -140,7 +140,7 @@ export function DynamicApiSelect<T>({
   );
 
   const coachingSessions = groupByDate
-    ? (items.filter(isCoachingSession) as CoachingSession[])
+    ? (items.value.filter(isCoachingSession) as CoachingSession[])
     : [];
 
   return (
@@ -150,7 +150,7 @@ export function DynamicApiSelect<T>({
       </SelectTrigger>
       {groupByDate && coachingSessions.length > 0
         ? renderCoachingSessions(coachingSessions)
-        : renderOtherItems(items)}
+        : renderOtherItems(items.value)}
     </Select>
   );
 }
