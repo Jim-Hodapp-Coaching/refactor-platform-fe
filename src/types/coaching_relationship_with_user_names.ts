@@ -15,7 +15,9 @@ export interface CoachingRelationshipWithUserNames {
   updated_at: DateTime;
 }
 
-export function isCoachingRelationshipWithUserNames(value: unknown): value is CoachingRelationshipWithUserNames {
+export function isCoachingRelationshipWithUserNames(
+  value: unknown
+): value is CoachingRelationshipWithUserNames {
   if (!value || typeof value !== "object") {
     return false;
   }
@@ -34,8 +36,24 @@ export function isCoachingRelationshipWithUserNames(value: unknown): value is Co
   );
 }
 
-export function isCoachingRelationshipWithUserNamesArray(value: unknown): value is CoachingRelationshipWithUserNames[] {
-  return Array.isArray(value) && value.every(isCoachingRelationshipWithUserNames);
+export function isCoachingRelationshipWithUserNamesArray(
+  value: unknown
+): value is CoachingRelationshipWithUserNames[] {
+  return (
+    Array.isArray(value) && value.every(isCoachingRelationshipWithUserNames)
+  );
+}
+
+export function getCoachingRelationshipById(
+  id: string,
+  relationships: CoachingRelationshipWithUserNames[]
+): CoachingRelationshipWithUserNames {
+  const relationship = relationships.find(
+    (relationship) => relationship.id === id
+  );
+  return relationship
+    ? relationship
+    : defaultCoachingRelationshipWithUserNames();
 }
 
 export function defaultCoachingRelationshipWithUserNames(): CoachingRelationshipWithUserNames {
@@ -57,10 +75,14 @@ export function defaultCoachingRelationshipsWithUserNames(): CoachingRelationshi
   return [defaultCoachingRelationshipWithUserNames()];
 }
 
-export function coachingRelationshipWithUserNamesToString(relationship: CoachingRelationshipWithUserNames): string {
+export function coachingRelationshipWithUserNamesToString(
+  relationship: CoachingRelationshipWithUserNames
+): string {
   return JSON.stringify(relationship);
 }
 
-export function coachingRelationshipsWithUserNamesToString(relationships: CoachingRelationshipWithUserNames[]): string {
+export function coachingRelationshipsWithUserNamesToString(
+  relationships: CoachingRelationshipWithUserNames[]
+): string {
   return JSON.stringify(relationships);
 }

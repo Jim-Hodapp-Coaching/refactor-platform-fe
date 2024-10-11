@@ -1,9 +1,5 @@
-import { ApiResponse } from "@/components/ui/dashboard/dynamic-api-select";
-import { CoachingSession } from "@/types/coaching-session";
-import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
-import { Id } from "@/types/general";
-import { Organization } from "@/types/organization";
-import { create, useStore } from "zustand";
+import { Id, RefactorDataType } from "@/types/general";
+import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 
 interface AppState {
@@ -11,13 +7,11 @@ interface AppState {
   relationshipId: Id;
   coachingSessionId: Id;
 }
-
 interface AppStateActions {
   setOrganizationId: (organizationId: Id) => void;
   setRelationshipId: (relationshipId: Id) => void;
   setCoachingSessionId: (coachingSessionId: Id) => void;
-  setElementValue: (elementId: string, value: any) => void;
-  setApiResponse: (elementId: string, response: ApiResponse<any>) => void;
+  setRefactorDataType: <T>(data: RefactorDataType<any>) => void;
   reset(): void;
 }
 
@@ -45,16 +39,10 @@ export const createAppStateStore = (initState: AppState = defaultInitState) => {
           setCoachingSessionId: (coachingSessionId) => {
             set({ coachingSessionId });
           },
-          setElementValue: (elementId: string, value: any) => {
-            set((state) => ({
+          setRefactorDataType: <T>(apiData: RefactorDataType<T>) => {
+            return set((state) => ({
               ...state,
-              [`${elementId}Id`]: value,
-            }));
-          },
-          setApiResponse: (elementId: string, response: ApiResponse<any>) => {
-            set((state) => ({
-              ...state,
-              [`${elementId}`]: response,
+              [`${apiData.label}`]: apiData.value,
             }));
           },
           reset(): void {

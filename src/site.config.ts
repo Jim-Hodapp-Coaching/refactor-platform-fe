@@ -1,3 +1,5 @@
+import { MainNavItem, SidebarNavItem } from "./types/nav";
+
 export const siteConfig = {
   name: "Refactor Coaching & Mentoring",
   url: "http://localhost:4000",
@@ -9,15 +11,13 @@ export const siteConfig = {
     twitter: "https://twitter.com/shadcn",
     github: "https://github.com/shadcn-ui/ui",
   },
-}
+};
 
-export type SiteConfig = typeof siteConfig
-
-import { MainNavItem, SidebarNavItem } from "./types/nav"
+export type SiteConfig = typeof siteConfig;
 
 interface DocsConfig {
-  mainNav: MainNavItem[]
-  sidebarNav: SidebarNavItem[]
+  mainNav: MainNavItem[];
+  sidebarNav: SidebarNavItem[];
 }
 
 export const docsConfig: DocsConfig = {
@@ -345,4 +345,4 @@ export const docsConfig: DocsConfig = {
       ],
     },
   ],
-}
+};
