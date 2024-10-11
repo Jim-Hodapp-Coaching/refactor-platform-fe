@@ -1,47 +1,48 @@
-import { Id } from '@/types/general';
-import { create, useStore } from 'zustand';
-import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+import { Id } from "@/types/general";
+import { defaultUserSession, UserSession } from "@/types/user-session";
+import { create, useStore } from "zustand";
+import { createJSONStorage, devtools, persist } from "zustand/middleware";
 
 interface AuthState {
-    // Holds user id UUID from the backend DB schema for a User
-    userId: Id;
-    isLoggedIn: boolean;
+  // Holds user id UUID from the backend DB schema for a User
+  userId: Id;
+  userSession: UserSession;
+  isLoggedIn: boolean;
 }
 
 interface AuthActions {
-    login: (userId: Id) => void;
-    logout: () => void;
+  login: (userId: Id, userSession: UserSession) => void;
+  logout: () => void;
 }
 
 export type AuthStore = AuthState & AuthActions;
 
 export const defaultInitState: AuthState = {
-    userId: "",
-    isLoggedIn: false,
-}
+  userId: "",
+  userSession: defaultUserSession(),
+  isLoggedIn: false,
+};
 
-export const createAuthStore = (
-    initState: AuthState = defaultInitState,
-) => {
-    const authStore = create<AuthStore>()(
-        devtools(
-            persist(
-                (set) => ({
-                    ... initState,
+export const createAuthStore = (initState: AuthState = defaultInitState) => {
+  const authStore = create<AuthStore>()(
+    devtools(
+      persist(
+        (set) => ({
+          ...initState,
 
-                    login: (userId) => {
-                        set({ isLoggedIn: true, userId });
-                    },
-                    logout: () => {
-                        set({ isLoggedIn: false, userId: undefined });
-                    },
-                }),
-                {
-                    name: 'auth-store',
-                    storage: createJSONStorage(() => sessionStorage),
-                }
-            )
-        )
+          login: (userId, userSession) => {
+            set({ isLoggedIn: true, userId, userSession });
+          },
+          logout: () => {
+            set(defaultInitState);
+          },
+        }),
+        {
+          name: "auth-store",
+          storage: createJSONStorage(() => sessionStorage),
+        }
+      )
     )
-    return authStore;
-}
+  );
+  return authStore;
+};

@@ -21,28 +21,28 @@ export enum SortOrder {
   Descending = "descending",
 }
 
-export enum ActionStatus {
+export enum ItemStatus {
   NotStarted = "NotStarted",
   InProgress = "InProgress",
   Completed = "Completed",
   WontDo = "WontDo",
 }
 
-export function stringToActionStatus(statusString: string): ActionStatus {
+export function stringToActionStatus(statusString: string): ItemStatus {
   const status = statusString.trim();
 
   if (status == "InProgress") {
-    return ActionStatus.InProgress;
+    return ItemStatus.InProgress;
   } else if (status == "Completed") {
-    return ActionStatus.Completed;
+    return ItemStatus.Completed;
   } else if (status == "WontDo") {
-    return ActionStatus.WontDo;
+    return ItemStatus.WontDo;
   } else {
-    return ActionStatus.NotStarted;
+    return ItemStatus.NotStarted;
   }
 }
 
-export function actionStatusToString(actionStatus: ActionStatus): string {
+export function actionStatusToString(actionStatus: ItemStatus): string {
   if (actionStatus == "InProgress") {
     return "In Progress";
   } else if (actionStatus == "Completed") {
