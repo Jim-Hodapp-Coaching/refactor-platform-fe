@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useApiData } from "@/hooks/use-api-data";
 import {
   Select,
@@ -59,18 +59,6 @@ export function DynamicApiSelect<T>({
     return <p>Error: Invalid response</p>;
 
   const items = getRefactorType(response.data);
-
-  useEffect(() => {
-    if (items) {
-      setRefactorDataType(items);
-    }
-  }, [response.data]);
-
-  // useEffect(() => {
-  //   if (value) {
-  //     onChange(value);
-  //   }
-  // }, [value, onChange]);
 
   const handleValueChange = (newValue: string) => {
     setValue(newValue);
