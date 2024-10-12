@@ -41,7 +41,7 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
         editorProps: {
           attributes: {
             class:
-              "shadow appearance-none min-h-[150px] border rounded w-full py-2 px-3 bg-white text-black text-sm mt-0 md:mt-3 leading-tight focus:outline-none focus:shadow-outline",
+              "shadow appearance-none lg:min-h-[600px] sm:min-h-[200px] md:min-h-[400px] border rounded w-full py-2 px-3 bg-white text-black text-sm mt-0 md:mt-3 leading-tight focus:outline-none focus:shadow-outline",
           },
         },
 
