@@ -9,8 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
 import { PresetActions } from "@/components/ui/preset-actions";
-import { PresetSelector } from "@/components/ui/preset-selector";
-import { current, future, past } from "@/data/presets";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { useEffect, useState } from "react";
 import {
@@ -33,6 +31,9 @@ import {
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { LockClosedIcon, SymbolIcon } from "@radix-ui/react-icons";
+import { DynamicApiSelect } from "@/components/ui/dashboard/dynamic-api-select";
+import { DateTime } from "ts-luxon";
+import { CoachingSession } from "@/types/coaching-session";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -44,19 +45,21 @@ export default function CoachingSessionsPage() {
   const [note, setNote] = useState<string>("");
   const [syncStatus, setSyncStatus] = useState<string>("");
   const { userId } = useAuthStore((state) => ({ userId: state.userId }));
-  const { coachingSession, coachingRelationship } = useAppStateStore(
+  const { coachingSessionId, relationshipId } = useAppStateStore(
     (state) => state
   );
 
+  //@TODO: create a shared static function for this.
+  const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
+  const TO_DATE = DateTime.now().plus({ month: 1 }).toISODate();
+
   async function fetchNote() {
-    if (!coachingSession.id) {
-      console.error(
-        "Failed to fetch Note since coachingSession.id is not set."
-      );
+    if (!coachingSessionId) {
+      console.error("Failed to fetch Note since coachingSessionId is not set.");
       return;
     }
 
-    await fetchNotesByCoachingSessionId(coachingSession.id)
+    await fetchNotesByCoachingSessionId(coachingSessionId)
       .then((notes) => {
         const note = notes[0];
         if (notes.length > 0) {
@@ -65,7 +68,7 @@ export default function CoachingSessionsPage() {
           setNote(note.body);
           setSyncStatus("Notes refreshed");
         } else {
-          console.trace("No Notes associated with this coachingSession.id");
+          console.trace("No Notes associated with this coachingSessionId");
         }
       })
       .catch((err) => {
@@ -77,13 +80,13 @@ export default function CoachingSessionsPage() {
 
   useEffect(() => {
     fetchNote();
-  }, [coachingSession.id, noteId]);
+  }, [coachingSessionId, noteId]);
 
   const handleInputChange = (value: string) => {
     setNote(value);
 
-    if (noteId && coachingSession.id && userId) {
-      updateNote(noteId, coachingSession.id, userId, value)
+    if (noteId && coachingSessionId && userId) {
+      updateNote(noteId, coachingSessionId, userId, value)
         .then((note) => {
           console.trace("Updated Note: " + noteToString(note));
           setSyncStatus("All changes saved");
@@ -92,8 +95,8 @@ export default function CoachingSessionsPage() {
           setSyncStatus("Failed to save changes");
           console.error("Failed to update Note: " + err);
         });
-    } else if (!noteId && coachingSession.id && userId) {
-      createNote(coachingSession.id, userId, value)
+    } else if (!noteId && coachingSessionId && userId) {
+      createNote(coachingSessionId, userId, value)
         .then((note) => {
           console.trace("Newly created Note: " + noteToString(note));
           setNoteId(note.id);
@@ -105,7 +108,7 @@ export default function CoachingSessionsPage() {
         });
     } else {
       console.error(
-        "Could not update or create a Note since coachingSession.id or userId are not set."
+        "Could not update or create a Note since coachingSessionId or userId are not set."
       );
     }
   };
@@ -118,6 +121,11 @@ export default function CoachingSessionsPage() {
     document.title = sessionTitle;
   };
 
+  const handleSessionSelection = (value: string) => {
+    // console.log("Selected new session: " + value);
+    fetchNote();
+  };
+
   return (
     <>
       <div className="h-full flex-col md:flex">
@@ -128,7 +136,25 @@ export default function CoachingSessionsPage() {
             onRender={handleTitleRender}
           ></CoachingSessionTitle>
           <div className="ml-auto flex w-full space-x-2 sm:justify-end">
-            <PresetSelector current={current} future={future} past={past} />
+            {/* <PresetSelector current={current} future={future} past={past} /> */}
+            {relationshipId && (
+              <div className="grid gap-2">
+                <DynamicApiSelect<CoachingSession>
+                  url="/coaching_sessions"
+                  params={{
+                    coaching_relationship_id: relationshipId,
+                    from_date: FROM_DATE,
+                    to_Date: TO_DATE,
+                  }}
+                  onChange={handleSessionSelection}
+                  placeholder="Select coaching session"
+                  getOptionLabel={(session) => session.date.toString()}
+                  getOptionValue={(session) => session.id.toString()}
+                  elementId="session-selector"
+                  groupByDate={true}
+                />
+              </div>
+            )}
             {/* Hidden for MVP */}
             <div className="hidden">
               <PresetActions />
