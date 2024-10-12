@@ -8,8 +8,8 @@ import { UserAuthForm } from "@/components/user-auth-form";
 import { siteConfig } from "@/site.config";
 
 export const metadata: Metadata = {
-  title: "Authentication",
-  description: "Authentication forms built using the components.",
+  title: "Welcome to Refactor Coaching",
+  description: siteConfig.description,
 };
 
 export default function AuthenticationPage() {
