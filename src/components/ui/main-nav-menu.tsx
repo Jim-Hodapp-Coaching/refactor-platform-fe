@@ -28,7 +28,6 @@ import { current, future, past } from "../../data/presets";
 
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
   CardContent,
@@ -49,9 +48,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
+import { siteConfig } from "@/site.config";
 
 export function MainNavMenu() {
   const [open, setIsOpen] = React.useState(false);
+  const { organization } = useAppStateStore((state) => state);
 
   return (
     <>
@@ -60,8 +62,9 @@ export function MainNavMenu() {
           <NavigationMenuItem>
             <NavigationMenuTrigger>
               <span className="hidden font-bold sm:inline-block">
-                {/* TODO: Replace this with currently selected organization's name */}
-                Refactor Coaching
+                {organization.name.length > 0
+                  ? organization.name
+                  : siteConfig.name}
               </span>
             </NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -70,20 +73,23 @@ export function MainNavMenu() {
                   <NavigationMenuLink asChild>
                     <a
                       className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                      href="/"
+                      href="/dashboard"
                     >
-                      <Icons.logo className="h-6 w-6" />
+                      <Icons.refactor_logo className="h-4 w-4" />
                       <div className="mb-2 mt-4 text-lg font-medium">
-                        Refactor Coaching
+                        {organization.name.length > 0
+                          ? organization.name
+                          : siteConfig.name}
                       </div>
                       <p className="text-sm leading-tight text-muted-foreground">
-                        Professional software engineer coaching.
+                        {siteConfig.description}
                       </p>
                     </a>
                   </NavigationMenuLink>
                 </li>
 
-                <Card>
+                {/* Hidden for MVP */}
+                <Card className="hidden">
                   <CardHeader>
                     <CardTitle>Organization & Relationship</CardTitle>
                     <CardDescription>

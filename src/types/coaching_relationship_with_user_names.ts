@@ -15,7 +15,31 @@ export interface CoachingRelationshipWithUserNames {
   updated_at: DateTime;
 }
 
-export function isCoachingRelationshipWithUserNames(value: unknown): value is CoachingRelationshipWithUserNames {
+// The main purpose of having this parsing function is to be able to parse the
+// returned DateTimeWithTimeZone (Rust type) string into something that ts-luxon
+// will agree to work with internally.
+export function parseCoachingRelationshipWithUserNames(
+  data: any
+): CoachingRelationshipWithUserNames {
+  if (!isCoachingRelationshipWithUserNames(data)) {
+    throw new Error("Invalid CoachingRelationshipWithUserNames object data");
+  }
+  return {
+    id: data.id,
+    coach_id: data.coach_id,
+    coachee_id: data.coachee_id,
+    coach_first_name: data.coach_first_name,
+    coach_last_name: data.coach_last_name,
+    coachee_first_name: data.coachee_first_name,
+    coachee_last_name: data.coachee_last_name,
+    created_at: DateTime.fromISO(data.created_at.toString()),
+    updated_at: DateTime.fromISO(data.updated_at.toString()),
+  };
+}
+
+export function isCoachingRelationshipWithUserNames(
+  value: unknown
+): value is CoachingRelationshipWithUserNames {
   if (!value || typeof value !== "object") {
     return false;
   }
@@ -34,8 +58,24 @@ export function isCoachingRelationshipWithUserNames(value: unknown): value is Co
   );
 }
 
-export function isCoachingRelationshipWithUserNamesArray(value: unknown): value is CoachingRelationshipWithUserNames[] {
-  return Array.isArray(value) && value.every(isCoachingRelationshipWithUserNames);
+export function isCoachingRelationshipWithUserNamesArray(
+  value: unknown
+): value is CoachingRelationshipWithUserNames[] {
+  return (
+    Array.isArray(value) && value.every(isCoachingRelationshipWithUserNames)
+  );
+}
+
+export function getCoachingRelationshipById(
+  id: string,
+  relationships: CoachingRelationshipWithUserNames[]
+): CoachingRelationshipWithUserNames {
+  const relationship = relationships.find(
+    (relationship) => relationship.id === id
+  );
+  return relationship
+    ? relationship
+    : defaultCoachingRelationshipWithUserNames();
 }
 
 export function defaultCoachingRelationshipWithUserNames(): CoachingRelationshipWithUserNames {
@@ -57,10 +97,14 @@ export function defaultCoachingRelationshipsWithUserNames(): CoachingRelationshi
   return [defaultCoachingRelationshipWithUserNames()];
 }
 
-export function coachingRelationshipWithUserNamesToString(relationship: CoachingRelationshipWithUserNames): string {
+export function coachingRelationshipWithUserNamesToString(
+  relationship: CoachingRelationshipWithUserNames | undefined
+): string {
   return JSON.stringify(relationship);
 }
 
-export function coachingRelationshipsWithUserNamesToString(relationships: CoachingRelationshipWithUserNames[]): string {
+export function coachingRelationshipsWithUserNamesToString(
+  relationships: CoachingRelationshipWithUserNames[] | undefined
+): string {
   return JSON.stringify(relationships);
 }

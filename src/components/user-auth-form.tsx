@@ -10,12 +10,12 @@ import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { userSessionToString } from "@/types/user-session";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const router = useRouter();
-  const { userId } = useAuthStore((state) => state);
   const { login } = useAuthStore((action) => action);
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -27,16 +27,18 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     event.preventDefault();
     setIsLoading(true);
 
-    const [userId, err] = await loginUser(email, password);
-    if (userId.length > 0 && err.length == 0) {
-      login(userId);
-      router.push("/dashboard");
-    } else {
-      console.error("err: " + err);
-      setError(err);
-    }
-
-    setIsLoading(false);
+    await loginUser(email, password)
+      .then((userSession) => {
+        console.debug("userSession: " + userSessionToString(userSession));
+        login(userSession.id, userSession);
+        setIsLoading(false);
+        router.push("/dashboard");
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        console.error("Login failed, err: " + err);
+        setError(err);
+      });
   }
 
   const updateEmail = (value: string) => {

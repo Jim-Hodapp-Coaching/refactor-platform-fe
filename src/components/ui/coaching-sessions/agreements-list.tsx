@@ -19,12 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, ArrowUpDown, Save } from "lucide-react";
 import { Id } from "@/types/general";
-import {
-  createAgreement,
-  deleteAgreement as deleteAgreementApi,
-  updateAgreement as updateAgreementApi,
-  fetchAgreementsByCoachingSessionId,
-} from "@/lib/api/agreements";
+import { fetchAgreementsByCoachingSessionId } from "@/lib/api/agreements";
 import { Agreement, agreementToString } from "@/types/agreement";
 import { DateTime } from "ts-luxon";
 import { siteConfig } from "@/site.config";
@@ -158,7 +153,12 @@ const AgreementsList: React.FC<{
 
   useEffect(() => {
     async function loadAgreements() {
-      if (!coachingSessionId) return;
+      if (!coachingSessionId) {
+        console.error(
+          "Failed to fetch Agreements since coachingSession.id is not set."
+        );
+        return;
+      }
 
       await fetchAgreementsByCoachingSessionId(coachingSessionId)
         .then((agreements) => {
