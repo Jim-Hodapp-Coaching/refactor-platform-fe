@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 
 import StarterKit from "@tiptap/starter-kit";
 import BulletList from "@tiptap/extension-bullet-list";
+import Highlight from "@tiptap/extension-highlight";
 import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Underline from "@tiptap/extension-underline";
@@ -12,11 +13,13 @@ import {
   Heading1,
   Heading2,
   Heading3,
+  Highlighter,
   Italic,
   Underline as UnderlineIcon,
   List,
   ListOrdered,
   Strikethrough,
+  Braces,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { forwardRef, useImperativeHandle } from "react";
@@ -33,7 +36,14 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
   ({ editorContent, onChange }, ref) => {
     const editor = useEditor(
       {
-        extensions: [StarterKit, ListItem, Underline],
+        extensions: [
+          StarterKit,
+          ListItem,
+          Underline,
+          Highlight,
+          BulletList,
+          OrderedList,
+        ],
 
         autofocus: false,
         immediatelyRender: false,
@@ -41,7 +51,9 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
         editorProps: {
           attributes: {
             class:
-              "shadow appearance-none lg:min-h-[600px] sm:min-h-[200px] md:min-h-[400px] rounded w-full py-2 px-3 bg-white text-black text-sm mt-0 md:mt-3 leading-tight focus:outline-none focus:shadow-outline",
+              // Make this responsive to light/dark mode
+              // Also is the background what's preventing the codeblock background color from working?
+              "shadow appearance-none lg:min-h-[440px] sm:min-h-[200px] md:min-h-[350px] rounded w-full py-2 px-3 bg-inherit text-black text-sm mt-0 md:mt-3 leading-tight focus:outline-none focus:shadow-outline",
           },
         },
 
@@ -114,9 +126,21 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             className={`p-2 rounded ${
               editor.isActive("strike") ? "bg-gray-200" : ""
             }`}
-            title="Strike Through (Ctrl+Shift+X)"
+            title="Strike Through"
           >
             <Strikethrough className="h-4 w-4" />
+          </Button>
+
+          {/* Highlight Button */}
+          <Button
+            variant="ghost"
+            onClick={() => editor.chain().focus().toggleHighlight().run()}
+            className={`p-2 rounded ${
+              editor.isActive("highlight") ? "bg-gray-200" : ""
+            }`}
+            title="Highlight Text"
+          >
+            <Highlighter className="h-4 w-4" />
           </Button>
 
           {/* Heading 1 */}
@@ -128,6 +152,7 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             className={`p-2 rounded ${
               editor.isActive("heading", { level: 1 }) ? "bg-gray-200" : ""
             }`}
+            title="Heading1"
           >
             <Heading1 className="h-4 w-4" />
           </Button>
@@ -141,6 +166,7 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             className={`p-2 rounded ${
               editor.isActive("heading", { level: 2 }) ? "bg-gray-200" : ""
             }`}
+            title="Heading2"
           >
             <Heading2 className="h-4 w-4" />
           </Button>
@@ -154,6 +180,7 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             className={`p-2 rounded ${
               editor.isActive("heading", { level: 3 }) ? "bg-gray-200" : ""
             }`}
+            title="Heading3"
           >
             <Heading3 className="h-4 w-4" />
           </Button>
@@ -180,6 +207,16 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             title="Ordered List"
           >
             <ListOrdered className="h-4 w-4" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            className={`p-2 rounded ${
+              editor.isActive("codeBlock") ? "is-active" : ""
+            }`}
+          >
+            <Braces className="h-4 w-4" />
           </Button>
         </div>
         {/* Editor Content */}

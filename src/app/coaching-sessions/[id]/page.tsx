@@ -95,7 +95,7 @@ export default function CoachingSessionsPage() {
 
   useEffect(() => {
     fetchNote();
-  }, []);
+  }, [coachingSession.id]);
 
   const setEditorContent = (content: string) => {
     editorRef.current?.setContent(`${content}`);

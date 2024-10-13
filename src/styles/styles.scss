@@ -8,7 +8,7 @@
     ul, 
     ol {
       padding: 0 1rem;
-      margin: 1.0rem 1rem 1.25rem 0.4rem;
+      margin: 0.5rem 1.0rem 0.5rem 0.4rem;
       
       li p {
         margin-top: 0.25em;
@@ -66,20 +66,20 @@
     }
   
     pre {
-      background: var(--black);
-      border-radius: 0.5rem;
-      color: var(--white);
-      font-family: 'JetBrainsMono', monospace;
-      margin: 1.5rem 0;
-      padding: 0.75rem 1rem;
-  
-      code {
-        background: none;
-        color: inherit;
-        font-size: 0.8rem;
-        padding: 0;
+        background: var(--black);
+        border-radius: 0.5rem;
+        color: var(--white);
+        font-family: 'JetBrainsMono', monospace;
+        margin: 1.5rem 0;
+        padding: 0.75rem 1rem;
+    
+        code {
+          background: none;
+          color: inherit;
+          font-size: 0.8rem;
+          padding: 0;
+        }
       }
-    }
   
     blockquote {
       border-left: 3px solid var(--gray-3);
