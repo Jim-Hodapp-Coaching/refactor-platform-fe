@@ -251,4 +251,6 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
   }
 );
 
+TipTapEditor.displayName = "TipTapEditor";
+
 export { TipTapEditor };

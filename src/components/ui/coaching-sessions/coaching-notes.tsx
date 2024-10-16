@@ -61,4 +61,6 @@ const CoachingNotes = forwardRef<EditorRef, CoachingNotesProps>(
   }
 );
 
+CoachingNotes.displayName = "CoachingNotes";
+
 export { CoachingNotes };
