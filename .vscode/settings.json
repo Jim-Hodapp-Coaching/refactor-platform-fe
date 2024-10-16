@@ -14,4 +14,7 @@
     "[html]": {
         "editor.formatOnSave": true
     },
+    "tailwindCSS.experimental.classRegex": [
+        "class:\\s*?[\"'`]([^\"'`]*).*?,"
+    ]
 }
