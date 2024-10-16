@@ -32,6 +32,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "@tiptap/extension-bubble-menu": "^2.8.0",
     "@tiptap/extension-bullet-list": "^2.8.0",
+    "@tiptap/extension-code-block-lowlight": "^2.8.0",
     "@tiptap/extension-heading": "^2.8.0",
     "@tiptap/extension-highlight": "^2.8.0",
     "@tiptap/extension-list-item": "^2.8.0",

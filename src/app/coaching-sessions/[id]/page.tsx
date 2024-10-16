@@ -153,7 +153,7 @@ export default function CoachingSessionsPage() {
 
   return (
     <>
-      <div className="h-full flex-col md:flex">
+      <div className="flex-col h-full md:flex">
         <div className="flex flex-col items-start justify-between space-y-2 py-4 px-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
           <CoachingSessionTitle
             locale={siteConfig.locale}
@@ -177,7 +177,7 @@ export default function CoachingSessionsPage() {
       <div className="row-span-1 h-full py-4 px-4">
         <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_200px]">
           <div className="flex-col space-y-4 sm:flex md:order-1">
-            <Tabs defaultValue="notes" className="flex-1">
+            <Tabs defaultValue="notes">
               <TabsList className="flex w-128 grid-cols-2 justify-start">
                 <TabsTrigger value="notes">Notes</TabsTrigger>
                 <TabsTrigger value="console">Console</TabsTrigger>
@@ -189,7 +189,7 @@ export default function CoachingSessionsPage() {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="notes">
-                <div className="flex h-full flex-col space-y-4">
+                <div className="flex-col h-full space-y-4">
                   <CoachingNotes
                     ref={editorRef}
                     value={note.body}

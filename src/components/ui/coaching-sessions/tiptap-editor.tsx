@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 
 import StarterKit from "@tiptap/starter-kit";
 import BulletList from "@tiptap/extension-bullet-list";
@@ -8,6 +8,7 @@ import Highlight from "@tiptap/extension-highlight";
 import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
 import Underline from "@tiptap/extension-underline";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import {
   Bold,
   Heading1,
@@ -24,8 +25,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { forwardRef, useImperativeHandle } from "react";
 
-import "@/styles/styles.scss";
 import { EditorRef } from "./coaching-notes";
+
+import css from "highlight.js/lib/languages/css";
+import js from "highlight.js/lib/languages/javascript";
+import ts from "highlight.js/lib/languages/typescript";
+import html from "highlight.js/lib/languages/xml";
+// Load all languages with "all" or common languages with "common"
+import { all, createLowlight } from "lowlight";
+
+// eslint-disable-next-line
+import CodeBlock from "@/components/ui/coaching-sessions/code-block";
+
+import "@/styles/styles.scss";
+
+const lowlight = createLowlight(all);
+
+lowlight.register("html", html);
+lowlight.register("css", css);
+lowlight.register("js", js);
+lowlight.register("ts", ts);
 
 interface TipTapProps {
   editorContent: string;
@@ -43,6 +62,11 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
           Highlight,
           BulletList,
           OrderedList,
+          CodeBlockLowlight.extend({
+            addNodeView() {
+              return ReactNodeViewRenderer(CodeBlock);
+            },
+          }).configure({ lowlight }),
         ],
 
         autofocus: false,
@@ -53,7 +77,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             class:
               // Make this responsive to light/dark mode
               // Also is the background what's preventing the codeblock background color from working?
-              "shadow appearance-none lg:min-h-[440px] sm:min-h-[200px] md:min-h-[350px] rounded w-full py-2 px-3 bg-inherit text-black text-sm mt-0 md:mt-3 leading-tight focus:outline-none focus:shadow-outline",
+              // "tiptap ProseMirror",
+              "tiptap ProseMirror shadow appearance-none lg:min-h-[440px] sm:min-h-[200px] md:min-h-[350px] rounded w-full py-2 px-3 bg-inherit text-black text-sm mt-0 md:mt-3 leading-tight focus:outline-none focus:shadow-outline",
           },
         },
 
@@ -80,7 +105,7 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
     }
 
     return (
-      <div className="flex flex-col justify-stretch border rounded border-b-0">
+      <div className="border rounded">
         {/* Toolbar style */}
         <div className="flex items-center gap-0 mt-1 mx-1 mb-0">
           {/* Bold Button */}
