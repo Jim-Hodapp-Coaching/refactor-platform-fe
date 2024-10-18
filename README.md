@@ -1,7 +1,7 @@
 # Refactor Coaching & Mentoring Platform
 ### Frontend (currently web browser-only)
 
-![Jim __ Caleb _ Oct 7_ 2024](https://github.com/user-attachments/assets/6d1751d4-fda2-488d-b2dc-a207bacfc4fb)
+![377960688-0b5292b0-6ec7-4774-984e-8e99e503d26c](https://github.com/user-attachments/assets/5dcdee09-802e-4b25-aa58-757d607ce7bc)
 A preview of the main coaching session page (rapidly evolving)
 
 ## Intro
