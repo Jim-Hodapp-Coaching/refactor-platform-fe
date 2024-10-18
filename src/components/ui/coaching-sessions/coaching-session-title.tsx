@@ -7,14 +7,7 @@ import {
   SessionTitle,
   SessionTitleStyle,
 } from "@/types/session-title";
-import {
-  CoachingRelationshipWithUserNames,
-  coachingRelationshipWithUserNamesToString,
-} from "@/types/coaching_relationship_with_user_names";
-import {
-  CoachingSession,
-  coachingSessionToString,
-} from "@/types/coaching-session";
+import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 
 const CoachingSessionTitle: React.FC<{
