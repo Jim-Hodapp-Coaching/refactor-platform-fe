@@ -180,7 +180,9 @@ export default function CoachingSessionsPage() {
             <Tabs defaultValue="notes">
               <TabsList className="flex w-128 grid-cols-2 justify-start">
                 <TabsTrigger value="notes">Notes</TabsTrigger>
-                <TabsTrigger value="console">Console</TabsTrigger>
+                <TabsTrigger value="console" className="hidden">
+                  Console
+                </TabsTrigger>
                 <TabsTrigger value="coachs_notes" className="hidden">
                   <div className="flex gap-2 items-start">
                     <LockClosedIcon className="mt-1" />
