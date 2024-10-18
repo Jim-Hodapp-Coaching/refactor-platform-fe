@@ -47,12 +47,5 @@ export function actionStatusToString(actionStatus: ItemStatus): string {
 /// return a valid DateTime object instance.
 export function getDateTimeFromString(dateTime: string): DateTime {
   const dt = dateTime.trim();
-  if (dt.length == 0) {
-    console.warn(
-      "Return DateTime.now() since input dateTime string was empty."
-    );
-    return DateTime.now();
-  }
-
-  return DateTime.fromISO(dt);
+  return dt.trim().length > 0 ? DateTime.fromISO(dt) : DateTime.now();
 }

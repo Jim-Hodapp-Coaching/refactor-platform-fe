@@ -12,19 +12,18 @@ import { PresetActions } from "@/components/ui/preset-actions";
 import { PresetSelector } from "@/components/ui/preset-selector";
 import { current, future, past } from "@/data/presets";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createNote,
   fetchNotesByCoachingSessionId,
   updateNote,
 } from "@/lib/api/notes";
-import { noteToString } from "@/types/note";
+import { defaultNote, Note, noteToString } from "@/types/note";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
 
 import { siteConfig } from "@/site.config";
 import { CoachingSessionTitle } from "@/components/ui/coaching-sessions/coaching-session-title";
 import { OverarchingGoalContainer } from "@/components/ui/coaching-sessions/overarching-goal-container";
-import { Id } from "@/types/general";
 import {
   HoverCard,
   HoverCardContent,
@@ -33,6 +32,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { LockClosedIcon, SymbolIcon } from "@radix-ui/react-icons";
+import {
+  CoachingNotes,
+  EditorRef,
+} from "@/components/ui/coaching-sessions/coaching-notes";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -40,13 +43,12 @@ import { LockClosedIcon, SymbolIcon } from "@radix-ui/react-icons";
 // };
 
 export default function CoachingSessionsPage() {
-  const [noteId, setNoteId] = useState<Id>("");
-  const [note, setNote] = useState<string>("");
+  const [note, setNote] = useState<Note>(defaultNote());
   const [syncStatus, setSyncStatus] = useState<string>("");
   const { userId } = useAuthStore((state) => ({ userId: state.userId }));
-  const { coachingSession, coachingRelationship } = useAppStateStore(
-    (state) => state
-  );
+  const { coachingSession } = useAppStateStore((state) => state);
+  const [isLoading, setIsLoading] = useState(false);
+  const editorRef = useRef<EditorRef>(null);
 
   async function fetchNote() {
     if (!coachingSession.id) {
@@ -55,48 +57,79 @@ export default function CoachingSessionsPage() {
       );
       return;
     }
+    if (isLoading) {
+      console.debug(
+        "Not issuing a new Note fetch because a previous fetch is still in progress."
+      );
+    }
+
+    setIsLoading(true);
 
     await fetchNotesByCoachingSessionId(coachingSession.id)
       .then((notes) => {
         const note = notes[0];
         if (notes.length > 0) {
-          console.trace("note: " + noteToString(note));
-          setNoteId(note.id);
-          setNote(note.body);
+          console.trace("Fetched note: " + noteToString(note));
+          setEditorContent(note.body);
+          setNote(note);
           setSyncStatus("Notes refreshed");
+          setEditorFocussed();
         } else {
-          console.trace("No Notes associated with this coachingSession.id");
+          console.trace(
+            "No Notes associated with this coachingSession.id: " +
+              coachingSession.id
+          );
         }
       })
       .catch((err) => {
         console.error(
-          "Failed to fetch Note for current coaching session: " + err
+          "Failed to fetch Note for current coaching session id: " +
+            coachingSession.id +
+            ". Error: " +
+            err
         );
       });
+
+    setIsLoading(false);
   }
 
   useEffect(() => {
     fetchNote();
-  }, [coachingSession.id, noteId]);
+  }, [coachingSession.id, isLoading]);
 
-  const handleInputChange = (value: string) => {
-    setNote(value);
+  const setEditorContent = (content: string) => {
+    editorRef.current?.setContent(`${content}`);
+  };
 
-    if (noteId && coachingSession.id && userId) {
-      updateNote(noteId, coachingSession.id, userId, value)
-        .then((note) => {
-          console.trace("Updated Note: " + noteToString(note));
+  const setEditorFocussed = () => {
+    editorRef.current?.setFocussed();
+  };
+
+  const handleOnChange = (value: string) => {
+    console.debug("isLoading (before update/create): " + isLoading);
+    console.debug(
+      "coachingSession.id (before update/create): " + coachingSession.id
+    );
+    console.debug("userId (before update/create): " + userId);
+    console.debug("value (before update/create): " + value);
+    console.debug("--------------------------------");
+
+    if (!isLoading && note.id && coachingSession.id && userId) {
+      updateNote(note.id, coachingSession.id, userId, value)
+        .then((updatedNote) => {
+          setNote(updatedNote);
+          console.trace("Updated Note: " + noteToString(updatedNote));
           setSyncStatus("All changes saved");
         })
         .catch((err) => {
           setSyncStatus("Failed to save changes");
           console.error("Failed to update Note: " + err);
         });
-    } else if (!noteId && coachingSession.id && userId) {
+    } else if (!isLoading && !note.id && coachingSession.id && userId) {
       createNote(coachingSession.id, userId, value)
-        .then((note) => {
-          console.trace("Newly created Note: " + noteToString(note));
-          setNoteId(note.id);
+        .then((createdNote) => {
+          setNote(createdNote);
+          console.trace("Newly created Note: " + noteToString(createdNote));
           setSyncStatus("All changes saved");
         })
         .catch((err) => {
@@ -120,7 +153,7 @@ export default function CoachingSessionsPage() {
 
   return (
     <>
-      <div className="h-full flex-col md:flex">
+      <div className="flex-col h-full md:flex">
         <div className="flex flex-col items-start justify-between space-y-2 py-4 px-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
           <CoachingSessionTitle
             locale={siteConfig.locale}
@@ -144,10 +177,12 @@ export default function CoachingSessionsPage() {
       <div className="row-span-1 h-full py-4 px-4">
         <div className="grid h-full items-stretch gap-6 md:grid-cols-[1fr_200px]">
           <div className="flex-col space-y-4 sm:flex md:order-1">
-            <Tabs defaultValue="notes" className="flex-1">
-              <TabsList className="grid flex w-128 grid-cols-2 justify-start">
+            <Tabs defaultValue="notes">
+              <TabsList className="flex w-128 grid-cols-2 justify-start">
                 <TabsTrigger value="notes">Notes</TabsTrigger>
-                <TabsTrigger value="console">Console</TabsTrigger>
+                <TabsTrigger value="console" className="hidden">
+                  Console
+                </TabsTrigger>
                 <TabsTrigger value="coachs_notes" className="hidden">
                   <div className="flex gap-2 items-start">
                     <LockClosedIcon className="mt-1" />
@@ -156,10 +191,11 @@ export default function CoachingSessionsPage() {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="notes">
-                <div className="flex h-full flex-col space-y-4">
+                <div className="flex-col h-full space-y-4">
                   <CoachingNotes
-                    value={note}
-                    onChange={handleInputChange}
+                    ref={editorRef}
+                    value={note.body}
+                    onChange={handleOnChange}
                     onKeyDown={handleKeyDown}
                   ></CoachingNotes>
                   <p className="text-sm text-muted-foreground">{syncStatus}</p>
@@ -210,60 +246,3 @@ export default function CoachingSessionsPage() {
     </>
   );
 }
-
-// A debounced input CoachingNotes textarea component
-// TODO: move this into the components dir
-const CoachingNotes: React.FC<{
-  value: string;
-  onChange: (value: string) => void;
-  onKeyDown: () => void;
-}> = ({ value, onChange, onKeyDown }) => {
-  const WAIT_INTERVAL = 1000;
-  const [timer, setTimer] = useState<number | undefined>(undefined);
-  const [note, setNote] = useState<string>(value);
-
-  // Make sure the internal value prop updates when the component interface's
-  // value prop changes.
-  useEffect(() => {
-    setNote(value);
-  }, [value]);
-
-  const handleSessionNoteChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const newValue = e.target.value;
-    setNote(newValue);
-
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    const newTimer = window.setTimeout(() => {
-      onChange(newValue);
-    }, WAIT_INTERVAL);
-
-    setTimer(newTimer);
-  };
-
-  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    onKeyDown();
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, [timer]);
-
-  return (
-    <Textarea
-      placeholder="Session notes"
-      value={note}
-      className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px]"
-      onChange={handleSessionNoteChange}
-      onKeyDown={handleOnKeyDown}
-    />
-  );
-};

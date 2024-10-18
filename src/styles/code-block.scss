@@ -1,0 +1,28 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+.tiptap {
+  .code-block {
+    position: relative;
+
+    button {
+      // Only show on code-block hover
+      @apply invisible;
+      position: absolute;
+      @apply text-black dark:text-white;
+      @apply bg-white dark:bg-black;
+      height: 1.3rem;
+      width: 8rem;
+      right: 0.5rem;
+      top: 0.5rem;
+    }
+
+    &:hover {
+      button {
+        // Show the button on code-block hover
+        @apply visible;
+      }
+    }
+  }
+}
