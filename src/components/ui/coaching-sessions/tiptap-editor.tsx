@@ -23,7 +23,7 @@ import {
   Braces,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { forwardRef, useImperativeHandle } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
 
 import { EditorRef } from "./coaching-notes";
 
@@ -75,10 +75,7 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
         editorProps: {
           attributes: {
             class:
-              // Make this responsive to light/dark mode
-              // Also is the background what's preventing the codeblock background color from working?
-              // "tiptap ProseMirror",
-              "tiptap ProseMirror shadow appearance-none lg:min-h-[440px] sm:min-h-[200px] md:min-h-[350px] rounded w-full py-2 px-3 bg-inherit text-black text-sm mt-0 md:mt-3 leading-tight focus:outline-none focus:shadow-outline",
+              "tiptap ProseMirror shadow appearance-none lg:min-h-[440px] sm:min-h-[200px] md:min-h-[350px] rounded w-full py-2 px-3 bg-inherit text-black dark:text-white text-sm mt-0 md:mt-3 leading-tight focus:outline-none focus:shadow-outline",
           },
         },
 

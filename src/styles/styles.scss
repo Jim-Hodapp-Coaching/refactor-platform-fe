@@ -1,3 +1,9 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+// Your custom SCSS styles here
+
 /* Basic TipTap editor styles */
 .tiptap {
   :first-child {
@@ -32,7 +38,6 @@
   h5,
   h6 {
     line-height: 1.1;
-    //margin-top: 2.5rem;
     text-wrap: pretty;
   }
 
@@ -51,7 +56,7 @@
   }
 
   h3 {
-    font-size: 1.0rem;
+    font-size: 1rem;
   }
 
   h4,
@@ -61,11 +66,11 @@
   }
 
   pre {
-    background: black;
+    background: rgb(46, 43, 41);
     border-radius: 0.5rem;
     color: white;
     font-family: "JetBrainsMono", monospace;
-    margin: 1.5rem 0;
+    margin: 1.0rem 0;
     padding: 0.75rem 1rem;
 
     code {
@@ -129,36 +134,11 @@
     }
   }
 
-  /* Code and preformatted text styles */
-  // code {
-  //   background-color: var(--purple-light);
-  //   border-radius: 0.4rem;
-  //   color: var(--black);
-  //   font-size: 0.85rem;
-  //   padding: 0.25em 0.3em;
-  // }
-
-  // pre {
-  //     background: var(--black);
-  //     border-radius: 0.5rem;
-  //     color: var(--white);
-  //     font-family: 'JetBrainsMono', monospace;
-  //     margin: 1.5rem 0;
-  //     padding: 0.75rem 1rem;
-
-  //     code {
-  //       background: none;
-  //       color: inherit;
-  //       font-size: 0.8rem;
-  //       padding: 0;
-  //     }
-  //   }
-
-  // blockquote {
-  //   border-left: 3px solid var(--gray-3);
-  //   margin: 1.5rem 0;
-  //   padding-left: 1rem;
-  // }
+  blockquote {
+    border-left: 3px solid var(--gray-3);
+    margin: 1.5rem 0;
+    padding-left: 1rem;
+  }
 
   hr {
     border: none;
