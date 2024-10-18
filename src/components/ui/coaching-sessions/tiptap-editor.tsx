@@ -2,20 +2,26 @@
 
 import { useEditor, EditorContent, ReactNodeViewRenderer } from "@tiptap/react";
 
-import StarterKit from "@tiptap/starter-kit";
+import Bold from "@tiptap/extension-bold";
 import BulletList from "@tiptap/extension-bullet-list";
+import Document from "@tiptap/extension-document";
+import Heading from "@tiptap/extension-heading";
 import Highlight from "@tiptap/extension-highlight";
+import Italic from "@tiptap/extension-italic";
 import ListItem from "@tiptap/extension-list-item";
 import OrderedList from "@tiptap/extension-ordered-list";
+import Paragraph from "@tiptap/extension-paragraph";
+import Strike from "@tiptap/extension-strike";
+import Text from "@tiptap/extension-text";
 import Underline from "@tiptap/extension-underline";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import {
-  Bold,
+  Bold as BoldIcon,
   Heading1,
   Heading2,
   Heading3,
   Highlighter,
-  Italic,
+  Italic as ItalicIcon,
   Underline as UnderlineIcon,
   List,
   ListOrdered,
@@ -23,7 +29,7 @@ import {
   Braces,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { forwardRef, useCallback, useEffect, useImperativeHandle } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 
 import { EditorRef } from "./coaching-notes";
 
@@ -56,17 +62,23 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
     const editor = useEditor(
       {
         extensions: [
-          StarterKit,
-          ListItem,
-          Underline,
-          Highlight,
           BulletList,
-          OrderedList,
           CodeBlockLowlight.extend({
             addNodeView() {
               return ReactNodeViewRenderer(CodeBlock);
             },
           }).configure({ lowlight }),
+          Bold,
+          Document,
+          Heading,
+          Highlight,
+          Italic,
+          ListItem,
+          OrderedList,
+          Paragraph,
+          Strike,
+          Text,
+          Underline,
         ],
 
         autofocus: false,
@@ -114,7 +126,7 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             }`}
             title="Bold (Ctrl+B)"
           >
-            <Bold className="h-4 w-4" />
+            <BoldIcon className="h-4 w-4" />
           </Button>
 
           {/* Italic Button */}
@@ -126,7 +138,7 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             }`}
             title="Italic (Ctrl+I)"
           >
-            <Italic className="h-4 w-4" />
+            <ItalicIcon className="h-4 w-4" />
           </Button>
 
           {/* Underline Button */}
@@ -136,7 +148,7 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             className={`p-2 rounded ${
               editor.isActive("underline") ? "bg-gray-200" : ""
             }`}
-            title="Italic (Ctrl+I)"
+            title="Underline (Ctrl+U)"
           >
             <UnderlineIcon className="h-4 w-4" />
           </Button>

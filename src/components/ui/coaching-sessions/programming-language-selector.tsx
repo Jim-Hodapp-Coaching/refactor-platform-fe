@@ -43,8 +43,10 @@ export function ProgrammingLanguageSelector({
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        {languages.map((language) => (
-          <SelectItem value={language}>{language}</SelectItem>
+        {languages.map((language, index) => (
+          <SelectItem key={index.toString()} value={language}>
+            {language}
+          </SelectItem>
         ))}
       </SelectContent>
     </Select>
