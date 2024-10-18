@@ -81,7 +81,6 @@ export const createNote = async (
   var createdNote: Note = defaultNote();
   var err: string = "";
 
-  //var strNote: string = noteToString(note);
   const data = await axios
     .post(`http://localhost:4000/notes`, newNoteJson, {
       withCredentials: true,
