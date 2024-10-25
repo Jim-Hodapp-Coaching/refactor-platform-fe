@@ -215,10 +215,12 @@ const OverarchingGoalContainer: React.FC<{
               <div className="grid flex-1 items-start gap-4 sm:py-0 md:gap-8">
                 <Tabs defaultValue="agreements">
                   <div className="flex items-center">
-                    <TabsList className="grid grid-cols-3">
+                    <TabsList className="grid grid-cols-2">
                       <TabsTrigger value="agreements">Agreements</TabsTrigger>
                       <TabsTrigger value="actions">Actions</TabsTrigger>
-                      <TabsTrigger value="program">Program</TabsTrigger>
+                      <TabsTrigger value="program" className="hidden">
+                        Program
+                      </TabsTrigger>
                     </TabsList>
                   </div>
                   <TabsContent value="agreements">

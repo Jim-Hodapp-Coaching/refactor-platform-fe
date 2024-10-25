@@ -50,7 +50,7 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative mx-2 h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src="/avatars/03.png" alt="@jhodapp" />
+            {/* <AvatarImage src="/avatars/03.png" alt="@jhodapp" /> */}
             <AvatarFallback>
               {userFirstLastLettersToString(
                 userSession.first_name,

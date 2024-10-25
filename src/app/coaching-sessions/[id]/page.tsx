@@ -10,19 +10,18 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { PresetActions } from "@/components/ui/preset-actions";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createNote,
   fetchNotesByCoachingSessionId,
   updateNote,
 } from "@/lib/api/notes";
-import { noteToString } from "@/types/note";
+import { defaultNote, Note, noteToString } from "@/types/note";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
 
 import { siteConfig } from "@/site.config";
 import { CoachingSessionTitle } from "@/components/ui/coaching-sessions/coaching-session-title";
 import { OverarchingGoalContainer } from "@/components/ui/coaching-sessions/overarching-goal-container";
-import { Id } from "@/types/general";
 import {
   HoverCard,
   HoverCardContent,
@@ -41,8 +40,7 @@ import { CoachingSession } from "@/types/coaching-session";
 // };
 
 export default function CoachingSessionsPage() {
-  const [noteId, setNoteId] = useState<Id>("");
-  const [note, setNote] = useState<string>("");
+  const [note, setNote] = useState<Note>(defaultNote());
   const [syncStatus, setSyncStatus] = useState<string>("");
   const { userId } = useAuthStore((state) => ({ userId: state.userId }));
   const { coachingSessionId, relationshipId } = useAppStateStore(
@@ -58,32 +56,46 @@ export default function CoachingSessionsPage() {
       console.error("Failed to fetch Note since coachingSessionId is not set.");
       return;
     }
+    if (isLoading) {
+      console.debug(
+        "Not issuing a new Note fetch because a previous fetch is still in progress."
+      );
+    }
+
+    setIsLoading(true);
 
     await fetchNotesByCoachingSessionId(coachingSessionId)
       .then((notes) => {
         const note = notes[0];
         if (notes.length > 0) {
-          console.trace("note: " + noteToString(note));
-          setNoteId(note.id);
-          setNote(note.body);
+          console.trace("Fetched note: " + noteToString(note));
+          setEditorContent(note.body);
+          setNote(note);
           setSyncStatus("Notes refreshed");
+          setEditorFocussed();
         } else {
           console.trace("No Notes associated with this coachingSessionId");
         }
       })
       .catch((err) => {
         console.error(
-          "Failed to fetch Note for current coaching session: " + err
+          "Failed to fetch Note for current coaching session id: " +
+            coachingSession.id +
+            ". Error: " +
+            err
         );
       });
+
+    setIsLoading(false);
   }
 
   useEffect(() => {
     fetchNote();
   }, [coachingSessionId, noteId]);
 
-  const handleInputChange = (value: string) => {
-    setNote(value);
+  const setEditorFocussed = () => {
+    editorRef.current?.setFocussed();
+  };
 
     if (noteId && coachingSessionId && userId) {
       updateNote(noteId, coachingSessionId, userId, value)
@@ -127,8 +139,8 @@ export default function CoachingSessionsPage() {
   };
 
   return (
-    <>
-      <div className="h-full flex-col md:flex">
+    <div className="max-w-screen-2xl">
+      <div className="flex-col h-full md:flex ">
         <div className="flex flex-col items-start justify-between space-y-2 py-4 px-4 sm:flex-row sm:items-center sm:space-y-0 md:h-16">
           <CoachingSessionTitle
             locale={siteConfig.locale}
@@ -173,7 +185,9 @@ export default function CoachingSessionsPage() {
             <Tabs defaultValue="notes" className="flex-1">
               <TabsList className="grid w-128 grid-cols-2 justify-start">
                 <TabsTrigger value="notes">Notes</TabsTrigger>
-                <TabsTrigger value="console">Console</TabsTrigger>
+                <TabsTrigger value="console" className="hidden">
+                  Console
+                </TabsTrigger>
                 <TabsTrigger value="coachs_notes" className="hidden">
                   <div className="flex gap-2 items-start">
                     <LockClosedIcon className="mt-1" />
@@ -182,10 +196,11 @@ export default function CoachingSessionsPage() {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="notes">
-                <div className="flex h-full flex-col space-y-4">
+                <div className="flex-col h-full space-y-4">
                   <CoachingNotes
-                    value={note}
-                    onChange={handleInputChange}
+                    ref={editorRef}
+                    value={note.body}
+                    onChange={handleOnChange}
                     onKeyDown={handleKeyDown}
                   ></CoachingNotes>
                   <p className="text-sm text-muted-foreground">{syncStatus}</p>
@@ -233,63 +248,6 @@ export default function CoachingSessionsPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
-
-// A debounced input CoachingNotes textarea component
-// TODO: move this into the components dir
-const CoachingNotes: React.FC<{
-  value: string;
-  onChange: (value: string) => void;
-  onKeyDown: () => void;
-}> = ({ value, onChange, onKeyDown }) => {
-  const WAIT_INTERVAL = 1000;
-  const [timer, setTimer] = useState<number | undefined>(undefined);
-  const [note, setNote] = useState<string>(value);
-
-  // Make sure the internal value prop updates when the component interface's
-  // value prop changes.
-  useEffect(() => {
-    setNote(value);
-  }, [value]);
-
-  const handleSessionNoteChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const newValue = e.target.value;
-    setNote(newValue);
-
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    const newTimer = window.setTimeout(() => {
-      onChange(newValue);
-    }, WAIT_INTERVAL);
-
-    setTimer(newTimer);
-  };
-
-  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    onKeyDown();
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, [timer]);
-
-  return (
-    <Textarea
-      placeholder="Session notes"
-      value={note}
-      className="p-4 min-h-[400px] md:min-h-[630px] lg:min-h-[630px]"
-      onChange={handleSessionNoteChange}
-      onKeyDown={handleOnKeyDown}
-    />
-  );
-};
