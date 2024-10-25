@@ -21,14 +21,14 @@ interface AppState {
 }
 
 interface AppStateActions {
-  setOrganizationId: (organizationId: Id) => void;
+  setOrganizationId: (organizationId: Id) => [string];
   setRelationshipId: (relationshipId: Id) => void;
   setCoachingSessionId: (coachingSessionId: Id) => void;
-  setOrganization: (organization: Organization) => void;
-  setCoachingSession: (coachingSession: CoachingSession) => void;
+  setOrganization: (organization: Organization) => Id;
+  setCoachingSession: (coachingSession: CoachingSession) => Id;
   setCoachingRelationship: (
     coachingRelationship: CoachingRelationshipWithUserNames
-  ) => void;
+  ) => Id;
   reset(): void;
 }
 
@@ -52,6 +52,7 @@ export const createAppStateStore = (initState: AppState = defaultInitState) => {
 
           setOrganizationId: (organizationId) => {
             set({ organizationId });
+            return [organizationId];
           },
           setRelationshipId: (relationshipId) => {
             set({ relationshipId });
@@ -61,12 +62,15 @@ export const createAppStateStore = (initState: AppState = defaultInitState) => {
           },
           setOrganization: (organization) => {
             set({ organization });
+            return organization.id;
           },
           setCoachingSession: (coachingSession) => {
             set({ coachingSession });
+            return coachingSession.id;
           },
           setCoachingRelationship: (coachingRelationship) => {
             set({ coachingRelationship });
+            return coachingRelationship.id;
           },
           reset(): void {
             set(defaultInitState);

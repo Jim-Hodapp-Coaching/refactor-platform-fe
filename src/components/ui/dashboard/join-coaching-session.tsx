@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "../button";
 import Link from "next/link";
 import { fetchCoachingRelationshipWithUserNames } from "@/lib/api/coaching-relationships";
+import { fetchOrganization } from "@/lib/api/organizations";
+import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 
 export interface CoachingSessionCardProps {
   userId: Id;
@@ -19,37 +21,41 @@ export interface CoachingSessionCardProps {
 export function JoinCoachingSession({
   userId: userId,
 }: CoachingSessionCardProps) {
+  const setOrganization = useAppStateStore((state) => state.setOrganization);
   const setOrganizationId = useAppStateStore(
     (state) => state.setOrganizationId
   );
-  const setRelationshipId = useAppStateStore(
-    (state) => state.setRelationshipId
-  );
-  const setCoachingSessionId = useAppStateStore(
-    (state) => state.setCoachingSessionId
-  );
+  let organizationId = useAppStateStore((state) => state.organizationId);
 
   const setCoachingRelationship = useAppStateStore(
     (state) => state.setCoachingRelationship
   );
-  const [organizationId, setOrganization] = useState<string | null>(null);
-  const [relationshipId, setRelationship] = useState<string | null>(null);
-  const [sessionId, setSessions] = useState<string | null>(null);
+  const setRelationshipId = useAppStateStore(
+    (state) => state.setRelationshipId
+  );
+  let relationshipId = useAppStateStore((state) => state.relationshipId);
+
+  const setSession = useAppStateStore((state) => state.setCoachingSession);
+  const setSessionId = useAppStateStore((state) => state.setCoachingSessionId);
+  let sessionId = useAppStateStore((state) => state.setCoachingSessionId);
+
   const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
   const TO_DATE = DateTime.now().plus({ month: 1 }).toISODate();
 
-  const handleOrganizationSelection = (value: string) => {
-    setOrganization(value);
-    setRelationship(null);
-    setSessions(null);
+  //@TODO: pass selected organization from organization array
+  const handleOrganizationSelection = (value: Id) => {
     setOrganizationId(value);
+    if (value) {
+      fetchOrganization(value).then(([organization]) => {
+        organizationId = setOrganization(organization);
+      });
+    }
   };
 
+  //@TODO: pass selected relationship from relationship array
   const handleRelationshipSelection = (value: Id) => {
-    setRelationship(value);
-    setSessions(null);
     setRelationshipId(value);
-    if (organizationId) {
+    if (value && organizationId) {
       fetchCoachingRelationshipWithUserNames(organizationId, value).then(
         (relationship) => {
           setRelationshipId(relationship.id);
@@ -59,9 +65,18 @@ export function JoinCoachingSession({
     }
   };
 
-  const handleSessionSelection = (value: string) => {
-    setSessions(value);
-    setCoachingSessionId(value);
+  const handleSessionSelection = (selectedSession: Id) => {
+    if (selectedSession && relationshipId) {
+      fetchCoachingSessions(relationshipId).then(([sessions]) => {
+        const theSession = sessions.find(
+          (session) => session.id === selectedSession
+        );
+        if (theSession) {
+          setSession(theSession);
+          setSessionId(theSession.id);
+        }
+      });
+    }
   };
 
   return (
