@@ -35,9 +35,11 @@ export function JoinCoachingSession({
   );
   let relationshipId = useAppStateStore((state) => state.relationshipId);
 
-  const setSession = useAppStateStore((state) => state.setCoachingSession);
+  const { coachingSession, setCoachingSession } = useAppStateStore((state) => ({
+    coachingSession: state.coachingSession,
+    setCoachingSession: state.setCoachingSession,
+  }));
   const setSessionId = useAppStateStore((state) => state.setCoachingSessionId);
-  let sessionId = useAppStateStore((state) => state.setCoachingSessionId);
 
   //@TODO: abstract to state or utility function (apply to preset component)
   const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
@@ -73,7 +75,7 @@ export function JoinCoachingSession({
           (session) => session.id === selectedSession
         );
         if (theSession) {
-          setSession(theSession);
+          setCoachingSession(theSession);
           setSessionId(theSession.id);
         }
       });
@@ -136,10 +138,12 @@ export function JoinCoachingSession({
             />
           </div>
         )}
-        {sessionId && (
+        {coachingSession.id && (
           <div className="grid gap-2">
             <Button variant="outline" className="w-full">
-              <Link href={`/coaching-sessions/${sessionId}`}>Join Session</Link>
+              <Link href={`/coaching-sessions/${coachingSession.id}`}>
+                Join Session
+              </Link>
             </Button>
           </div>
         )}
