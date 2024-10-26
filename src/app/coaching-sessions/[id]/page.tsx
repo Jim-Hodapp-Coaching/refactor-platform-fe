@@ -8,9 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
-import { PresetActions } from "@/components/ui/preset-actions";
-import { PresetSelector } from "@/components/ui/preset-selector";
-import { current, future, past } from "@/data/presets";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -36,6 +33,11 @@ import {
   CoachingNotes,
   EditorRef,
 } from "@/components/ui/coaching-sessions/coaching-notes";
+import { DynamicApiSelect } from "@/components/ui/dashboard/dynamic-api-select";
+import { CoachingSession } from "@/types/coaching-session";
+import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
+import { Id } from "@/types/general";
+import { DateTime } from "ts-luxon";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -151,6 +153,27 @@ export default function CoachingSessionsPage() {
     document.title = sessionTitle;
   };
 
+  const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
+  const TO_DATE = DateTime.now().plus({ month: 1 }).toISODate();
+
+  const setSession = useAppStateStore((state) => state.setCoachingSession);
+  const setSessionId = useAppStateStore((state) => state.setCoachingSessionId);
+  const relationshipId = useAppStateStore((state) => state.relationshipId);
+
+  const handleSessionSelection = (selectedSession: Id) => {
+    if (selectedSession && relationshipId) {
+      fetchCoachingSessions(relationshipId).then(([sessions]) => {
+        const theSession = sessions.find(
+          (session) => session.id === selectedSession
+        );
+        if (theSession) {
+          setSession(theSession);
+          setSessionId(theSession.id);
+        }
+      });
+    }
+  };
+
   return (
     <div className="max-w-screen-2xl">
       <div className="flex-col h-full md:flex ">
@@ -160,12 +183,21 @@ export default function CoachingSessionsPage() {
             style={siteConfig.titleStyle}
             onRender={handleTitleRender}
           ></CoachingSessionTitle>
-          <div className="ml-auto flex w-full space-x-2 sm:justify-end">
-            <PresetSelector current={current} future={future} past={past} />
-            {/* Hidden for MVP */}
-            <div className="hidden">
-              <PresetActions />
-            </div>
+          <div className="ml-auto flex w-64 space-x-2 sm:justify-end">
+            <DynamicApiSelect<CoachingSession>
+              url="/coaching_sessions"
+              params={{
+                coaching_relationship_id: relationshipId,
+                from_date: FROM_DATE,
+                to_Date: TO_DATE,
+              }}
+              onChange={handleSessionSelection}
+              placeholder="Select coaching session"
+              getOptionLabel={(session) => session.date.toString()}
+              getOptionValue={(session) => session.id.toString()}
+              elementId="session-selector"
+              groupByDate={true}
+            />
           </div>
         </div>
       </div>

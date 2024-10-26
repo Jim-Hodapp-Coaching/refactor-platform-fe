@@ -39,6 +39,7 @@ export function JoinCoachingSession({
   const setSessionId = useAppStateStore((state) => state.setCoachingSessionId);
   let sessionId = useAppStateStore((state) => state.setCoachingSessionId);
 
+  //@TODO: abstract to state or utility function (apply to preset component)
   const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
   const TO_DATE = DateTime.now().plus({ month: 1 }).toISODate();
 
