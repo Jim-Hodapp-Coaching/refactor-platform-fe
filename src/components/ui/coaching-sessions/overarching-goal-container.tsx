@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ActionsList } from "@/components/ui/coaching-sessions/actions-list";
 import { ItemStatus, Id } from "@/types/general";
 import { Action } from "@/types/action";
@@ -119,36 +119,40 @@ const OverarchingGoalContainer: React.FC<{
       });
   };
 
-  useEffect(() => {
-    async function fetchOverarchingGoal() {
-      if (!coachingSession.id) {
-        console.error(
-          "Failed to fetch Overarching Goal since coachingSession.id is not set."
-        );
-        return;
-      }
-
-      await fetchOverarchingGoalsByCoachingSessionId(coachingSession.id)
-        .then((goals) => {
-          const goal = goals[0];
-          if (goals.length > 0) {
-            console.trace("Overarching Goal: " + overarchingGoalToString(goal));
-            setGoalId(goal.id);
-            setGoal(goal);
-          } else {
-            console.trace(
-              "No Overarching Goals associated with this coachingSession.id"
-            );
-          }
-        })
-        .catch((err) => {
-          console.error(
-            "Failed to fetch Overarching Goal for current coaching session: " +
-              err
-          );
-        });
+  const fetchOverarchingGoal = useCallback(async () => {
+    if (!coachingSession.id) {
+      console.error(
+        "Failed to fetch Overarching Goal since coachingSession.id is not set."
+      );
+      return;
     }
-  }, [coachingSession.id, goalId]);
+
+    try {
+      const goals = await fetchOverarchingGoalsByCoachingSessionId(
+        coachingSession.id
+      );
+      if (goals.length > 0) {
+        const goal = goals[0];
+        console.trace("Overarching Goal: " + overarchingGoalToString(goal));
+        if (goal.id !== goalId) {
+          setGoalId(goal.id);
+          setGoal(goal);
+        }
+      } else {
+        console.trace(
+          "No Overarching Goals associated with this coachingSession.id"
+        );
+      }
+    } catch (err) {
+      console.error(
+        "Failed to fetch Overarching Goal for current coaching session: " + err
+      );
+    }
+  }, [coachingSession.id, goalId, setGoalId, setGoal]);
+
+  useEffect(() => {
+    fetchOverarchingGoal();
+  }, [fetchOverarchingGoal]);
 
   const handleGoalChange = async (newGoal: OverarchingGoal) => {
     console.trace("handleGoalChange (goal to set/update): " + newGoal.title);
