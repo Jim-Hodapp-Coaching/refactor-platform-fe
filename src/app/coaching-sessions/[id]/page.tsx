@@ -3,7 +3,7 @@
 // import { Metadata } from "next";
 
 import * as React from "react";
-
+import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,26 +48,25 @@ export default function CoachingSessionsPage() {
   const [note, setNote] = useState<Note>(defaultNote());
   const [syncStatus, setSyncStatus] = useState<string>("");
   const { userId } = useAuthStore((state) => ({ userId: state.userId }));
-  const { coachingSession } = useAppStateStore((state) => state);
+  const coachingSessionId = useAppStateStore(
+    (state) => state.coachingSessionId
+  );
   const [isLoading, setIsLoading] = useState(false);
   const editorRef = useRef<EditorRef>(null);
 
   async function fetchNote() {
-    if (!coachingSession.id) {
-      console.error(
-        "Failed to fetch Note since coachingSession.id is not set."
-      );
+    if (!coachingSessionId) {
+      console.error("Failed to fetch Note since coachingSessionId is not set.");
       return;
     }
     if (isLoading) {
       console.debug(
         "Not issuing a new Note fetch because a previous fetch is still in progress."
       );
+      setIsLoading(true);
     }
 
-    setIsLoading(true);
-
-    await fetchNotesByCoachingSessionId(coachingSession.id)
+    await fetchNotesByCoachingSessionId(coachingSessionId)
       .then((notes) => {
         const note = notes[0];
         if (notes.length > 0) {
@@ -78,15 +77,15 @@ export default function CoachingSessionsPage() {
           setEditorFocussed();
         } else {
           console.trace(
-            "No Notes associated with this coachingSession.id: " +
-              coachingSession.id
+            "No Notes associated with this coachingSessionId: " +
+              coachingSessionId
           );
         }
       })
       .catch((err) => {
         console.error(
           "Failed to fetch Note for current coaching session id: " +
-            coachingSession.id +
+            coachingSessionId +
             ". Error: " +
             err
         );
@@ -97,7 +96,7 @@ export default function CoachingSessionsPage() {
 
   useEffect(() => {
     fetchNote();
-  }, [coachingSession.id, isLoading]);
+  }, [coachingSessionId, isLoading]);
 
   const setEditorContent = (content: string) => {
     editorRef.current?.setContent(`${content}`);
@@ -110,14 +109,14 @@ export default function CoachingSessionsPage() {
   const handleOnChange = (value: string) => {
     console.debug("isLoading (before update/create): " + isLoading);
     console.debug(
-      "coachingSession.id (before update/create): " + coachingSession.id
+      "coachingSessionId (before update/create): " + coachingSessionId
     );
     console.debug("userId (before update/create): " + userId);
     console.debug("value (before update/create): " + value);
     console.debug("--------------------------------");
 
-    if (!isLoading && note.id && coachingSession.id && userId) {
-      updateNote(note.id, coachingSession.id, userId, value)
+    if (!isLoading && note.id && coachingSessionId && userId) {
+      updateNote(note.id, coachingSessionId, userId, value)
         .then((updatedNote) => {
           setNote(updatedNote);
           console.trace("Updated Note: " + noteToString(updatedNote));
@@ -127,8 +126,8 @@ export default function CoachingSessionsPage() {
           setSyncStatus("Failed to save changes");
           console.error("Failed to update Note: " + err);
         });
-    } else if (!isLoading && !note.id && coachingSession.id && userId) {
-      createNote(coachingSession.id, userId, value)
+    } else if (!isLoading && !note.id && coachingSessionId && userId) {
+      createNote(coachingSessionId, userId, value)
         .then((createdNote) => {
           setNote(createdNote);
           console.trace("Newly created Note: " + noteToString(createdNote));
@@ -140,7 +139,7 @@ export default function CoachingSessionsPage() {
         });
     } else {
       console.error(
-        "Could not update or create a Note since coachingSession.id or userId are not set."
+        "Could not update or create a Note since coachingSessionId or userId are not set."
       );
     }
   };
@@ -159,6 +158,7 @@ export default function CoachingSessionsPage() {
   const setSession = useAppStateStore((state) => state.setCoachingSession);
   const setSessionId = useAppStateStore((state) => state.setCoachingSessionId);
   const relationshipId = useAppStateStore((state) => state.relationshipId);
+  const router = useRouter();
 
   const handleSessionSelection = (selectedSession: Id) => {
     if (selectedSession && relationshipId) {
@@ -169,6 +169,7 @@ export default function CoachingSessionsPage() {
         if (theSession) {
           setSession(theSession);
           setSessionId(theSession.id);
+          router.push(`/coaching-sessions/${theSession.id}`);
         }
       });
     }

@@ -148,7 +148,6 @@ const OverarchingGoalContainer: React.FC<{
           );
         });
     }
-    fetchOverarchingGoal();
   }, [coachingSession.id, goalId]);
 
   const handleGoalChange = async (newGoal: OverarchingGoal) => {
