@@ -65,11 +65,18 @@ export function DynamicApiSelect<T>({
     filterFn: (session: CoachingSession) => boolean
   ) => {
     const filteredSessions = sessions.filter(filterFn);
+
+    const sortedSessions = filteredSessions.sort(
+      (a, b) =>
+        DateTime.fromISO(a.date.toString()).toMillis() -
+        DateTime.fromISO(b.date.toString()).toMillis()
+    );
+
     return (
-      filteredSessions.length > 0 && (
+      sortedSessions.length > 0 && (
         <SelectGroup>
           <SelectLabel>{label}</SelectLabel>
-          {filteredSessions.map((session) => (
+          {sortedSessions.map((session) => (
             <SelectItem value={session.id} key={session.id}>
               {DateTime.fromISO(session.date.toString()).toLocaleString(
                 DateTime.DATETIME_FULL
