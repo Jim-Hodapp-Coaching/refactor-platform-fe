@@ -40,6 +40,15 @@ export function JoinCoachingSession({
   let relationshipId = useAppStateStore((state) => state.relationshipId);
   let coachingSessionId = useAppStateStore((state) => state.coachingSessionId);
 
+  const [orgPlaceholder, setOrgPlaceholder] = useState(
+    "Select an organization"
+  );
+  const [relPlaceHolder, setRelPlaceHolder] = useState(
+    "Select coaching relationship"
+  );
+  const [sessionPlaceHolder, setSessionPlaceHolder] =
+    useState("Select a session");
+
   //@TODO: abstract to state or utility function (apply to preset component)
   const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
   const TO_DATE = DateTime.now().plus({ month: 1 }).toISODate();
@@ -49,6 +58,7 @@ export function JoinCoachingSession({
     setOrganizationId(value);
     if (value) {
       fetchOrganization(value).then(([organization]) => {
+        setOrgPlaceholder(organization.name);
         organizationId = setOrganization(organization);
       });
     }
@@ -62,6 +72,9 @@ export function JoinCoachingSession({
         organizationId,
         selectedRelationship
       ).then((relationship) => {
+        setRelPlaceHolder(
+          `${relationship.coach_first_name} ${relationship.coach_last_name} -> ${relationship.coachee_first_name} ${relationship.coachee_last_name}`
+        );
         setRelationshipId(relationship.id);
         setCoachingRelationship(relationship);
       });
@@ -75,6 +88,7 @@ export function JoinCoachingSession({
           (session) => session.id === selectedSession
         );
         if (theSession) {
+          setSessionPlaceHolder(theSession.date);
           setCoachingSession(theSession);
           setCoachingSessionId(theSession.id);
         }
@@ -95,7 +109,7 @@ export function JoinCoachingSession({
             url="/organizations"
             params={{ userId }}
             onChange={handleOrganizationSelection}
-            placeholder="Select an organization"
+            placeholder={orgPlaceholder}
             getOptionLabel={(org) => org.name}
             getOptionValue={(org) => org.id.toString()}
             elementId="organization-selector"
@@ -109,7 +123,7 @@ export function JoinCoachingSession({
               url={`/organizations/${organizationId}/coaching_relationships`}
               params={{ organizationId }}
               onChange={handleRelationshipSelection}
-              placeholder="Select coaching relationship"
+              placeholder={relPlaceHolder}
               getOptionLabel={(relationship) =>
                 `${relationship.coach_first_name} ${relationship.coach_last_name} -> ${relationship.coachee_first_name} ${relationship.coach_last_name}`
               }
@@ -130,7 +144,7 @@ export function JoinCoachingSession({
                 to_Date: TO_DATE,
               }}
               onChange={handleSessionSelection}
-              placeholder="Select coaching session"
+              placeholder={sessionPlaceHolder}
               getOptionLabel={(session) => session.date.toString()}
               getOptionValue={(session) => session.id.toString()}
               elementId="session-selector"
