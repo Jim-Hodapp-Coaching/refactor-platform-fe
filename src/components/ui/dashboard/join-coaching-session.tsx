@@ -21,25 +21,24 @@ export interface CoachingSessionCardProps {
 export function JoinCoachingSession({
   userId: userId,
 }: CoachingSessionCardProps) {
-  const setOrganization = useAppStateStore((state) => state.setOrganization);
-  const setOrganizationId = useAppStateStore(
-    (state) => state.setOrganizationId
-  );
-  let organizationId = useAppStateStore((state) => state.organizationId);
-
-  const setCoachingRelationship = useAppStateStore(
-    (state) => state.setCoachingRelationship
-  );
-  const setRelationshipId = useAppStateStore(
-    (state) => state.setRelationshipId
-  );
-  let relationshipId = useAppStateStore((state) => state.relationshipId);
-
-  const { coachingSession, setCoachingSession } = useAppStateStore((state) => ({
-    coachingSession: state.coachingSession,
+  const {
+    setOrganization,
+    setOrganizationId,
+    setCoachingRelationship,
+    setRelationshipId,
+    setCoachingSession,
+    setCoachingSessionId,
+  } = useAppStateStore((state) => ({
+    setOrganization: state.setOrganization,
+    setOrganizationId: state.setOrganizationId,
+    setCoachingRelationship: state.setCoachingRelationship,
+    setRelationshipId: state.setRelationshipId,
     setCoachingSession: state.setCoachingSession,
+    setCoachingSessionId: state.setCoachingSessionId,
   }));
-  const setSessionId = useAppStateStore((state) => state.setCoachingSessionId);
+  let organizationId = useAppStateStore((state) => state.organizationId);
+  let relationshipId = useAppStateStore((state) => state.relationshipId);
+  let coachingSessionId = useAppStateStore((state) => state.coachingSessionId);
 
   //@TODO: abstract to state or utility function (apply to preset component)
   const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
@@ -56,15 +55,16 @@ export function JoinCoachingSession({
   };
 
   //@TODO: pass selected relationship from relationship array
-  const handleRelationshipSelection = (value: Id) => {
-    setRelationshipId(value);
-    if (value && organizationId) {
-      fetchCoachingRelationshipWithUserNames(organizationId, value).then(
-        (relationship) => {
-          setRelationshipId(relationship.id);
-          setCoachingRelationship(relationship);
-        }
-      );
+  const handleRelationshipSelection = (selectedRelationship: Id) => {
+    setRelationshipId(selectedRelationship);
+    if (selectedRelationship && organizationId) {
+      fetchCoachingRelationshipWithUserNames(
+        organizationId,
+        selectedRelationship
+      ).then((relationship) => {
+        setRelationshipId(relationship.id);
+        setCoachingRelationship(relationship);
+      });
     }
   };
 
@@ -76,7 +76,7 @@ export function JoinCoachingSession({
         );
         if (theSession) {
           setCoachingSession(theSession);
-          setSessionId(theSession.id);
+          setCoachingSessionId(theSession.id);
         }
       });
     }
@@ -138,10 +138,10 @@ export function JoinCoachingSession({
             />
           </div>
         )}
-        {coachingSession.id && (
+        {coachingSessionId && (
           <div className="grid gap-2">
             <Button variant="outline" className="w-full">
-              <Link href={`/coaching-sessions/${coachingSession.id}`}>
+              <Link href={`/coaching-sessions/${coachingSessionId}`}>
                 Join Session
               </Link>
             </Button>
