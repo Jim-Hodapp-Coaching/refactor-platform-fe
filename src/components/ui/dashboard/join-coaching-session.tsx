@@ -173,11 +173,11 @@ export function JoinCoachingSession({ userId }: CoachingSessionCardProps) {
         )}
         {coachingSessionId && (
           <div className="grid gap-2">
-            <Button variant="outline" className="w-full">
-              <Link href={`/coaching-sessions/${coachingSessionId}`}>
+            <Link href={`/coaching-sessions/${coachingSessionId}`}>
+              <Button variant="outline" className="w-full">
                 Join Session
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </div>
         )}
       </CardContent>
