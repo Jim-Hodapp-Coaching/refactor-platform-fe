@@ -10,6 +10,7 @@ import { Id } from "@/types/general";
 import { defaultOrganization, Organization } from "@/types/organization";
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
+import { DateTime } from "ts-luxon";
 
 interface AppState {
   organizationId: Id;
@@ -65,6 +66,9 @@ export const createAppStateStore = (initState: AppState = defaultInitState) => {
             return organization.id;
           },
           setCoachingSession: (coachingSession) => {
+            coachingSession.date = DateTime.fromISO(
+              coachingSession.date.toString()
+            ).toLocaleString(DateTime.DATETIME_FULL);
             set({ coachingSession });
             return coachingSession.id;
           },
