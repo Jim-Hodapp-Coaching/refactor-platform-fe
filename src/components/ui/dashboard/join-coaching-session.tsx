@@ -125,7 +125,7 @@ export function JoinCoachingSession({
               onChange={handleRelationshipSelection}
               placeholder={relPlaceHolder}
               getOptionLabel={(relationship) =>
-                `${relationship.coach_first_name} ${relationship.coach_last_name} -> ${relationship.coachee_first_name} ${relationship.coach_last_name}`
+                `${relationship.coach_first_name} ${relationship.coach_last_name} -> ${relationship.coachee_first_name} ${relationship.coachee_last_name}`
               }
               getOptionValue={(relationship) => relationship.id.toString()}
               elementId="relationship-selector"
