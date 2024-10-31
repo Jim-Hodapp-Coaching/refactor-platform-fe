@@ -193,7 +193,7 @@ export default function CoachingSessionsPage() {
                 to_Date: TO_DATE,
               }}
               onChange={handleSessionSelection}
-              placeholder="Select coaching session"
+              placeholder="Change coaching session"
               getOptionLabel={(session) => session.date.toString()}
               getOptionValue={(session) => session.id.toString()}
               elementId="session-selector"
