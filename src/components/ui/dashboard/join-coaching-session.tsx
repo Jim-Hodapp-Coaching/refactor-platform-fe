@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { Id } from "@/types/general";
 import { DynamicApiSelect } from "./dynamic-api-select";
@@ -18,9 +18,7 @@ export interface CoachingSessionCardProps {
   userId: Id;
 }
 
-export function JoinCoachingSession({
-  userId: userId,
-}: CoachingSessionCardProps) {
+export function JoinCoachingSession({ userId }: CoachingSessionCardProps) {
   const {
     setOrganization,
     setOrganizationId,
@@ -28,6 +26,9 @@ export function JoinCoachingSession({
     setRelationshipId,
     setCoachingSession,
     setCoachingSessionId,
+    organization,
+    coachingRelationship,
+    coachingSession,
   } = useAppStateStore((state) => ({
     setOrganization: state.setOrganization,
     setOrganizationId: state.setOrganizationId,
@@ -35,7 +36,11 @@ export function JoinCoachingSession({
     setRelationshipId: state.setRelationshipId,
     setCoachingSession: state.setCoachingSession,
     setCoachingSessionId: state.setCoachingSessionId,
+    organization: state.organization,
+    coachingRelationship: state.coachingRelationship,
+    coachingSession: state.coachingSession,
   }));
+
   let organizationId = useAppStateStore((state) => state.organizationId);
   let relationshipId = useAppStateStore((state) => state.relationshipId);
   let coachingSessionId = useAppStateStore((state) => state.coachingSessionId);
@@ -43,28 +48,50 @@ export function JoinCoachingSession({
   const [orgPlaceholder, setOrgPlaceholder] = useState(
     "Select an organization"
   );
-  const [relPlaceHolder, setRelPlaceHolder] = useState(
+  const [relPlaceholder, setRelPlaceholder] = useState(
     "Select coaching relationship"
   );
-  const [sessionPlaceHolder, setSessionPlaceHolder] =
+  const [sessionPlaceholder, setSessionPlaceholder] =
     useState("Select a session");
 
-  //@TODO: abstract to state or utility function (apply to preset component)
+  useEffect(() => {
+    if (organization && organizationId) {
+      setOrgPlaceholder(organization.name);
+    } else {
+      setOrgPlaceholder("Select an organization");
+    }
+  }, [organization, organizationId]);
+
+  useEffect(() => {
+    if (coachingRelationship && relationshipId) {
+      setRelPlaceholder(
+        `${coachingRelationship.coach_first_name} ${coachingRelationship.coach_last_name} -> ${coachingRelationship.coachee_first_name} ${coachingRelationship.coachee_last_name}`
+      );
+    } else {
+      setRelPlaceholder("Select coaching relationship");
+    }
+  }, [coachingRelationship, relationshipId]);
+
+  useEffect(() => {
+    if (coachingSession && coachingSessionId) {
+      setSessionPlaceholder(coachingSession.date);
+    } else {
+      setSessionPlaceholder("Select a session");
+    }
+  }, [coachingSession, coachingSessionId]);
+
   const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
   const TO_DATE = DateTime.now().plus({ month: 1 }).toISODate();
 
-  //@TODO: pass selected organization from organization array
   const handleOrganizationSelection = (value: Id) => {
     setOrganizationId(value);
     if (value) {
       fetchOrganization(value).then(([organization]) => {
-        setOrgPlaceholder(organization.name);
-        organizationId = setOrganization(organization);
+        setOrganization(organization);
       });
     }
   };
 
-  //@TODO: pass selected relationship from relationship array
   const handleRelationshipSelection = (selectedRelationship: Id) => {
     setRelationshipId(selectedRelationship);
     if (selectedRelationship && organizationId) {
@@ -72,10 +99,6 @@ export function JoinCoachingSession({
         organizationId,
         selectedRelationship
       ).then((relationship) => {
-        setRelPlaceHolder(
-          `${relationship.coach_first_name} ${relationship.coach_last_name} -> ${relationship.coachee_first_name} ${relationship.coachee_last_name}`
-        );
-        setRelationshipId(relationship.id);
         setCoachingRelationship(relationship);
       });
     }
@@ -88,7 +111,6 @@ export function JoinCoachingSession({
           (session) => session.id === selectedSession
         );
         if (theSession) {
-          setSessionPlaceHolder(theSession.date);
           setCoachingSession(theSession);
           setCoachingSessionId(theSession.id);
         }
@@ -104,7 +126,6 @@ export function JoinCoachingSession({
       <CardContent className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="organization-selector">Organization</Label>
-
           <DynamicApiSelect<Organization>
             url="/organizations"
             params={{ userId }}
@@ -118,12 +139,11 @@ export function JoinCoachingSession({
         {organizationId && (
           <div className="grid gap-2">
             <Label htmlFor="relationship-selector">Relationship</Label>
-
             <DynamicApiSelect<CoachingRelationshipWithUserNames>
               url={`/organizations/${organizationId}/coaching_relationships`}
               params={{ organizationId }}
               onChange={handleRelationshipSelection}
-              placeholder={relPlaceHolder}
+              placeholder={relPlaceholder}
               getOptionLabel={(relationship) =>
                 `${relationship.coach_first_name} ${relationship.coach_last_name} -> ${relationship.coachee_first_name} ${relationship.coachee_last_name}`
               }
@@ -135,7 +155,6 @@ export function JoinCoachingSession({
         {relationshipId && (
           <div className="grid gap-2">
             <Label htmlFor="session-selector">Coaching Session</Label>
-
             <DynamicApiSelect<CoachingSession>
               url="/coaching_sessions"
               params={{
@@ -144,7 +163,7 @@ export function JoinCoachingSession({
                 to_Date: TO_DATE,
               }}
               onChange={handleSessionSelection}
-              placeholder={sessionPlaceHolder}
+              placeholder={sessionPlaceholder}
               getOptionLabel={(session) => session.date.toString()}
               getOptionValue={(session) => session.id.toString()}
               elementId="session-selector"
