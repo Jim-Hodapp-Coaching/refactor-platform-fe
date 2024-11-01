@@ -121,8 +121,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`p-2 rounded ${
-              editor.isActive("bold") ? "bg-gray-200" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("bold") ? "button-active" : ""
             }`}
             title="Bold (Ctrl+B)"
           >
@@ -133,8 +133,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={`p-2 rounded ${
-              editor.isActive("italic") ? "bg-gray-200" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("italic") ? "button-active" : ""
             }`}
             title="Italic (Ctrl+I)"
           >
@@ -145,8 +145,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className={`p-2 rounded ${
-              editor.isActive("underline") ? "bg-gray-200" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("underline") ? "button-active" : ""
             }`}
             title="Underline (Ctrl+U)"
           >
@@ -157,9 +157,10 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().toggleStrike().run()}
-            className={`p-2 rounded ${
-              editor.isActive("strike") ? "bg-gray-200" : ""
-            }`}
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("strike") ? "button-active" : ""
+            }
+            `}
             title="Strike Through"
           >
             <Strikethrough className="h-4 w-4" />
@@ -169,8 +170,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().toggleHighlight().run()}
-            className={`p-2 rounded ${
-              editor.isActive("highlight") ? "bg-gray-200" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("highlight") ? "button-active" : ""
             }`}
             title="Highlight Text"
           >
@@ -183,8 +184,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 1 }).run()
             }
-            className={`p-2 rounded ${
-              editor.isActive("heading", { level: 1 }) ? "bg-gray-200" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("heading", { level: 1 }) ? "button-active" : ""
             }`}
             title="Heading1"
           >
@@ -197,8 +198,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 2 }).run()
             }
-            className={`p-2 rounded ${
-              editor.isActive("heading", { level: 2 }) ? "bg-gray-200" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("heading", { level: 2 }) ? "button-active" : ""
             }`}
             title="Heading2"
           >
@@ -211,8 +212,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 3 }).run()
             }
-            className={`p-2 rounded ${
-              editor.isActive("heading", { level: 3 }) ? "bg-gray-200" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("heading", { level: 3 }) ? "button-active" : ""
             }`}
             title="Heading3"
           >
@@ -223,8 +224,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={`p-2 rounded ${
-              editor.isActive("bulletList") ? "bg-gray-200" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("bulletList") ? "button-active" : ""
             }`}
             title="Bullet List"
           >
@@ -235,8 +236,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={`p-2 rounded ${
-              editor.isActive("orderedList") ? "bg-gray-200" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("orderedList") ? "button-active" : ""
             }`}
             title="Ordered List"
           >
@@ -246,8 +247,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
           <Button
             variant="ghost"
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            className={`p-2 rounded ${
-              editor.isActive("codeBlock") ? "is-active" : ""
+            className={`p-2 mr-0.5 rounded ${
+              editor.isActive("codeBlock") ? "button-active" : ""
             }`}
           >
             <Braces className="h-4 w-4" />

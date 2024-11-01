@@ -10,6 +10,8 @@
     margin-top: 0;
   }
 
+
+
   /* List styles */
   ul,
   ol {
@@ -145,4 +147,11 @@
     border-top: 1px solid var(--gray-2);
     margin: 2rem 0;
   }
+}
+
+// Toolbar button styling for an active (i.e. toggled on) light/dark mode
+.button-active {
+  @apply bg-gray-200;
+  @apply dark:text-black;
+  @apply hover:dark:text-white;
 }
