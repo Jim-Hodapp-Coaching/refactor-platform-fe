@@ -234,9 +234,8 @@ export default function CoachingSessionsPage() {
                   className="w-[260px] text-sm"
                   side="left"
                 >
-                  To view changes to the Notes made by someone else during this
-                  session, before making any new changes yourself, click this
-                  button.
+                  To view any changes made to Notes by another session
+                  participant before making new changes, click this button.
                 </HoverCardContent>
               </HoverCard>
             </div>
