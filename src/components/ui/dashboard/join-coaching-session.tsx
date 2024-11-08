@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { Id } from "@/types/general";
 import { DynamicApiSelect } from "./dynamic-api-select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,113 +9,44 @@ import { DateTime } from "ts-luxon";
 import { Label } from "@/components/ui/label";
 import { Button } from "../button";
 import Link from "next/link";
-import { fetchCoachingRelationshipWithUserNames } from "@/lib/api/coaching-relationships";
-import { fetchOrganization } from "@/lib/api/organizations";
-import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
+import { useAppState } from "@/hooks/use-app-state";
+import { useSelectors } from "@/hooks/use-selectors";
+import { useSelectionHandlers } from "@/hooks/use-selection-handlers";
+import {
+  AppStateStore,
+  createAppStateStore,
+} from "@/lib/stores/app-state-store";
+import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 
 export interface CoachingSessionCardProps {
   userId: Id;
 }
 
 export function JoinCoachingSession({ userId }: CoachingSessionCardProps) {
-  const {
-    setOrganization,
-    setOrganizationId,
-    setCoachingRelationship,
-    setRelationshipId,
-    setCoachingSession,
-    setCoachingSessionId,
-    organization,
-    coachingRelationship,
-    coachingSession,
-  } = useAppStateStore((state) => ({
-    setOrganization: state.setOrganization,
-    setOrganizationId: state.setOrganizationId,
-    setCoachingRelationship: state.setCoachingRelationship,
-    setRelationshipId: state.setRelationshipId,
-    setCoachingSession: state.setCoachingSession,
-    setCoachingSessionId: state.setCoachingSessionId,
-    organization: state.organization,
-    coachingRelationship: state.coachingRelationship,
-    coachingSession: state.coachingSession,
-  }));
-
-  let organizationId = useAppStateStore((state) => state.organizationId);
-  let relationshipId = useAppStateStore((state) => state.relationshipId);
-  let coachingSessionId = useAppStateStore((state) => state.coachingSessionId);
-
-  const [orgPlaceholder, setOrgPlaceholder] = useState(
-    "Select an organization"
-  );
-  const [relPlaceholder, setRelPlaceholder] = useState(
-    "Select coaching relationship"
-  );
-  const [sessionPlaceholder, setSessionPlaceholder] =
-    useState("Select a session");
-
-  useEffect(() => {
-    if (organization && organizationId) {
-      setOrgPlaceholder(organization.name);
-    } else {
-      setOrgPlaceholder("Select an organization");
-    }
-  }, [organization, organizationId]);
-
-  useEffect(() => {
-    if (coachingRelationship && relationshipId) {
-      setRelPlaceholder(
-        `${coachingRelationship.coach_first_name} ${coachingRelationship.coach_last_name} -> ${coachingRelationship.coachee_first_name} ${coachingRelationship.coachee_last_name}`
-      );
-    } else {
-      setRelPlaceholder("Select coaching relationship");
-    }
-  }, [coachingRelationship, relationshipId]);
-
-  useEffect(() => {
-    if (coachingSession && coachingSessionId) {
-      setSessionPlaceholder(coachingSession.date);
-    } else {
-      setSessionPlaceholder("Select a session");
-    }
-  }, [coachingSession, coachingSessionId]);
-
   const FROM_DATE = DateTime.now().minus({ month: 1 }).toISODate();
   const TO_DATE = DateTime.now().plus({ month: 1 }).toISODate();
 
-  const handleOrganizationSelection = (value: Id) => {
-    setOrganizationId(value);
-    if (value) {
-      fetchOrganization(value).then(([organization]) => {
-        setOrganization(organization);
-      });
-    }
-  };
+  const { organizationId, relationshipId, coachingSessionId } = useAppState();
 
-  const handleRelationshipSelection = (selectedRelationship: Id) => {
-    setRelationshipId(selectedRelationship);
-    if (selectedRelationship && organizationId) {
-      fetchCoachingRelationshipWithUserNames(
-        organizationId,
-        selectedRelationship
-      ).then((relationship) => {
-        setCoachingRelationship(relationship);
-      });
-    }
-  };
+  const selectors = useSelectors();
+  const {
+    handleOrganizationSelection,
+    handleRelationshipSelection,
+    handleSessionSelection,
+    isLoading,
+    error,
+    isClient,
+  } = useSelectionHandlers();
 
-  const handleSessionSelection = (selectedSession: Id) => {
-    if (selectedSession && relationshipId) {
-      fetchCoachingSessions(relationshipId).then(([sessions]) => {
-        const theSession = sessions.find(
-          (session) => session.id === selectedSession
-        );
-        if (theSession) {
-          setCoachingSession(theSession);
-          setCoachingSessionId(theSession.id);
-        }
-      });
-    }
-  };
+  const orgPlaceholder = selectors.selectOrgPlaceholder(
+    useAppStateStore((state) => state)
+  );
+  const relPlaceholder = selectors.selectRelPlaceholder(
+    useAppStateStore((state) => state)
+  );
+  const sessionPlaceholder = selectors.selectSessionPlaceholder(
+    useAppStateStore((state) => state)
+  );
 
   return (
     <Card className="w-[300px]">
