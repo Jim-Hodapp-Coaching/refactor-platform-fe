@@ -26,115 +26,107 @@ export const useSelectionHandlers = () => {
     setIsClient(true);
   }, []);
 
-  const resetRelationshipAndSession = useCallback(() => {
-    setCoachingRelationship(defaultCoachingRelationshipWithUserNames());
-    setRelationshipId("");
-    setCoachingSession(defaultCoachingSession());
-    setCoachingSessionId("");
-  }, [
-    setCoachingRelationship,
-    setRelationshipId,
-    setCoachingSession,
-    setCoachingSessionId,
-  ]);
-
-  const resetSession = useCallback(() => {
-    setCoachingSession(defaultCoachingSession());
-    setCoachingSessionId("");
-  }, [setCoachingSession, setCoachingSessionId]);
-
-  const handleOrganizationSelection = useCallback(
-    async (value: Id) => {
-      if (!isClient) return; // Prevent execution on server-side
-      setIsLoading(true);
-      setError(null);
-      try {
-        resetRelationshipAndSession();
-        setOrganizationId(value);
-        if (value) {
-          const [organization] = await fetchOrganization(value);
-          if (!organization) throw new Error("Organization not found");
-          setOrganization(organization);
-        } else {
-          setOrganization(null);
-        }
-      } catch (err) {
-        console.error("Error fetching organization:", err);
-        setError("Failed to fetch organization");
-      } finally {
-        setIsLoading(false);
+  const resetState = useCallback(
+    (level: "all" | "relationship" | "session") => {
+      if (level === "all" || level === "relationship") {
+        setCoachingRelationship(defaultCoachingRelationshipWithUserNames());
+        setRelationshipId("");
+      }
+      if (level === "all" || level === "relationship" || level === "session") {
+        setCoachingSession(defaultCoachingSession());
+        setCoachingSessionId("");
       }
     },
-    [isClient, setOrganizationId, setOrganization, resetRelationshipAndSession]
+    [
+      setCoachingRelationship,
+      setRelationshipId,
+      setCoachingSession,
+      setCoachingSessionId,
+    ]
   );
 
-  const handleRelationshipSelection = useCallback(
-    async (selectedRelationship: Id) => {
-      if (!isClient) return; // Prevent execution on server-side
+  const handleSelection = useCallback(
+    async (level: "organization" | "relationship" | "session", value: Id) => {
+      if (!isClient) return;
       setIsLoading(true);
       setError(null);
-      try {
-        resetSession();
-        setRelationshipId(selectedRelationship);
-        if (selectedRelationship) {
-          const organizationId = useAppStateStore(
-            (state) => state.organizationId
-          );
-          if (!organizationId) throw new Error("Organization ID is not set");
-          const relationship = await fetchCoachingRelationshipWithUserNames(
-            organizationId,
-            selectedRelationship
-          );
-          if (!relationship) throw new Error("Relationship not found");
-          setCoachingRelationship(relationship);
-        } else {
-          setCoachingRelationship(defaultCoachingRelationshipWithUserNames());
-        }
-      } catch (err) {
-        console.error("Error fetching relationship:", err);
-        setError("Failed to fetch relationship");
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [isClient, setRelationshipId, setCoachingRelationship, resetSession]
-  );
 
-  const handleSessionSelection = useCallback(
-    async (selectedSession: Id) => {
-      if (!isClient) return; // Prevent execution on server-side
-      setIsLoading(true);
-      setError(null);
       try {
-        if (selectedSession) {
-          const relationshipId = useAppStateStore(
-            (state) => state.relationshipId
-          );
-          if (!relationshipId) throw new Error("Relationship ID is not set");
-          const [sessions] = await fetchCoachingSessions(relationshipId);
-          const theSession = sessions.find(
-            (session) => session.id === selectedSession
-          );
-          if (!theSession) throw new Error("Selected session not found");
-          setCoachingSession(theSession);
-          setCoachingSessionId(theSession.id);
-        } else {
-          resetSession();
+        switch (level) {
+          case "organization":
+            resetState("all");
+            setOrganizationId(value);
+            if (value) {
+              const [organization] = await fetchOrganization(value);
+              if (!organization) throw new Error("Organization not found");
+              setOrganization(organization);
+            } else {
+              setOrganization(null);
+            }
+            break;
+
+          case "relationship":
+            resetState("relationship");
+            setRelationshipId(value);
+            if (value) {
+              const organizationId = useAppStateStore(
+                (state) => state.organizationId
+              );
+              if (!organizationId)
+                throw new Error("Organization ID is not set");
+              const relationship = await fetchCoachingRelationshipWithUserNames(
+                organizationId,
+                value
+              );
+              if (!relationship) throw new Error("Relationship not found");
+              setCoachingRelationship(relationship);
+            }
+            break;
+
+          case "session":
+            if (value) {
+              const relationshipId = useAppStateStore(
+                (state) => state.relationshipId
+              );
+              if (!relationshipId)
+                throw new Error("Relationship ID is not set");
+              const [sessions] = await fetchCoachingSessions(relationshipId);
+              const theSession = sessions.find(
+                (session) => session.id === value
+              );
+              if (!theSession) throw new Error("Selected session not found");
+              setCoachingSession(theSession);
+              setCoachingSessionId(theSession.id);
+            } else {
+              resetState("session");
+            }
+            break;
         }
       } catch (err) {
-        console.error("Error fetching session:", err);
-        setError("Failed to fetch session");
+        console.error(`Error fetching ${level}:`, err);
+        setError(`Failed to fetch ${level}`);
       } finally {
         setIsLoading(false);
       }
     },
-    [isClient, setCoachingSession, setCoachingSessionId, resetSession]
+    [
+      isClient,
+      setOrganizationId,
+      setOrganization,
+      setRelationshipId,
+      setCoachingRelationship,
+      setCoachingSession,
+      setCoachingSessionId,
+      resetState,
+    ]
   );
 
   return {
-    handleOrganizationSelection,
-    handleRelationshipSelection,
-    handleSessionSelection,
+    handleOrganizationSelection: (value: Id) =>
+      handleSelection("organization", value),
+    handleRelationshipSelection: (value: Id) =>
+      handleSelection("relationship", value),
+    handleSessionSelection: (value: Id) => handleSelection("session", value),
     isLoading,
     error,
     isClient,
