@@ -288,13 +288,20 @@ export function SelectCoachingSession({
         </div>
       </CardContent>
       <CardFooter>
-        <Button
-          variant="outline"
-          className="w-full"
-          disabled={!coachingSessionId}
-        >
-          <Link href={`/coaching-sessions/${coachingSessionId}`}>Join</Link>
-        </Button>
+        {coachingSessionId ? (
+          <Link
+            className="w-full"
+            href={`/coaching-sessions/${coachingSessionId}`}
+          >
+            <Button variant="outline" className="w-full">
+              Join Session
+            </Button>
+          </Link>
+        ) : (
+          <Button variant="outline" className="w-full" disabled>
+            Join Session
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
