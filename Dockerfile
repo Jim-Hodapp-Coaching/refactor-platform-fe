@@ -49,5 +49,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# Run the app
-CMD HOSTNAME="0.0.0.0" node server.js
+# Run the app using JSON array notation
+CMD ["node", "server.js"]
+#CMD HOSTNAME="0.0.0.0" node server.js
