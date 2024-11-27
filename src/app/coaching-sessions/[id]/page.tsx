@@ -36,6 +36,10 @@ import {
   CoachingNotes,
   EditorRef,
 } from "@/components/ui/coaching-sessions/coaching-notes";
+import { CoachingSessionSelector } from "@/components/ui/coaching-session-selector";
+import { CoachingSession } from "@/types/coaching-session";
+import { useRouter } from "next/navigation";
+import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
@@ -43,59 +47,69 @@ import {
 // };
 
 export default function CoachingSessionsPage() {
+  const router = useRouter();
   const [note, setNote] = useState<Note>(defaultNote());
   const [syncStatus, setSyncStatus] = useState<string>("");
   const { userId } = useAuthStore((state) => ({ userId: state.userId }));
   const { coachingSession } = useAppStateStore((state) => state);
+  const { coachingSessionId, setCoachingSessionId } = useAppStateStore(
+    (state) => state
+  );
+  const [coachingSessions, setCoachingSessions] = React.useState<
+    CoachingSession[]
+  >([]);
+  const { relationshipId } = useAppStateStore((state) => state);
   const [isLoading, setIsLoading] = useState(false);
   const editorRef = useRef<EditorRef>(null);
 
-  async function fetchNote() {
-    if (!coachingSession.id) {
-      console.error(
-        "Failed to fetch Note since coachingSession.id is not set."
-      );
-      return;
-    }
-    if (isLoading) {
-      console.debug(
-        "Not issuing a new Note fetch because a previous fetch is still in progress."
-      );
-    }
+  const fetchNoteData = async () => {
+    if (isLoading) return;
 
     setIsLoading(true);
-
-    await fetchNotesByCoachingSessionId(coachingSession.id)
-      .then((notes) => {
-        const note = notes[0];
-        if (notes.length > 0) {
-          console.trace("Fetched note: " + noteToString(note));
-          setEditorContent(note.body);
-          setNote(note);
-          setSyncStatus("Notes refreshed");
-          setEditorFocussed();
-        } else {
-          console.trace(
-            "No Notes associated with this coachingSession.id: " +
-              coachingSession.id
-          );
-        }
-      })
-      .catch((err) => {
-        console.error(
-          "Failed to fetch Note for current coaching session id: " +
-            coachingSession.id +
-            ". Error: " +
-            err
-        );
-      });
-
-    setIsLoading(false);
-  }
+    try {
+      const notes = await fetchNotesByCoachingSessionId(coachingSessionId);
+      if (notes.length > 0) {
+        setEditorContent(notes[0].body);
+        setNote(notes[0]);
+        setSyncStatus("Notes refreshed");
+        setEditorFocussed();
+      }
+    } catch (err) {
+      console.error(`Failed to fetch Note: ${err}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchNote();
-  }, [coachingSession.id, isLoading]);
+    if (!coachingSessionId) return;
+
+    fetchNoteData();
+  }, [coachingSessionId]); // Remove isLoading from dependencies
+
+  useEffect(() => {
+    if (!relationshipId) return;
+
+    const loadCoachingSessions = async () => {
+      if (isLoading) return;
+
+      setIsLoading(true);
+
+      try {
+        const [coachingSessions] = await fetchCoachingSessions(relationshipId);
+        console.debug(
+          "setCoachingSessions: " + JSON.stringify(coachingSessions)
+        );
+        setCoachingSessions(coachingSessions);
+      } catch (err) {
+        console.error("Failed to fetch coaching sessions: " + err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCoachingSessions();
+  }, [relationshipId]);
 
   const setEditorContent = (content: string) => {
     editorRef.current?.setContent(`${content}`);
@@ -108,14 +122,14 @@ export default function CoachingSessionsPage() {
   const handleOnChange = (value: string) => {
     console.debug("isLoading (before update/create): " + isLoading);
     console.debug(
-      "coachingSession.id (before update/create): " + coachingSession.id
+      "coachingSessionId (before update/create): " + coachingSessionId
     );
     console.debug("userId (before update/create): " + userId);
     console.debug("value (before update/create): " + value);
     console.debug("--------------------------------");
 
-    if (!isLoading && note.id && coachingSession.id && userId) {
-      updateNote(note.id, coachingSession.id, userId, value)
+    if (!isLoading && note.id && coachingSessionId && userId) {
+      updateNote(note.id, coachingSessionId, userId, value)
         .then((updatedNote) => {
           setNote(updatedNote);
           console.trace("Updated Note: " + noteToString(updatedNote));
@@ -126,7 +140,7 @@ export default function CoachingSessionsPage() {
           console.error("Failed to update Note: " + err);
         });
     } else if (!isLoading && !note.id && coachingSession.id && userId) {
-      createNote(coachingSession.id, userId, value)
+      createNote(coachingSessionId, userId, value)
         .then((createdNote) => {
           setNote(createdNote);
           console.trace("Newly created Note: " + noteToString(createdNote));
@@ -151,6 +165,12 @@ export default function CoachingSessionsPage() {
     document.title = sessionTitle;
   };
 
+  const handleCoachingSessionSelect = (coachingSessionId: string) => {
+    setCoachingSessionId(coachingSessionId);
+    console.debug("coachingSessionId selected: " + coachingSessionId);
+    router.push(`/coaching-sessions/${coachingSessionId}`);
+  };
+
   return (
     <div className="max-w-screen-2xl">
       <div className="flex-col h-full md:flex ">
@@ -160,12 +180,12 @@ export default function CoachingSessionsPage() {
             style={siteConfig.titleStyle}
             onRender={handleTitleRender}
           ></CoachingSessionTitle>
-          <div className="ml-auto flex w-full space-x-2 sm:justify-end">
-            <PresetSelector current={current} future={future} past={past} />
-            {/* Hidden for MVP */}
-            <div className="hidden">
-              <PresetActions />
-            </div>
+          <div className="ml-auto flex w-[28rem] space-x-2 sm:justify-end">
+            <CoachingSessionSelector
+              sessions={coachingSessions}
+              placeholder="Select a coaching session"
+              onSelect={handleCoachingSessionSelect}
+            ></CoachingSessionSelector>
           </div>
         </div>
       </div>
@@ -224,7 +244,11 @@ export default function CoachingSessionsPage() {
                     <div className="flex items-center justify-between">
                       <Label htmlFor="refresh">Notes Actions</Label>
                     </div>
-                    <Button id="refresh" variant="outline" onClick={fetchNote}>
+                    <Button
+                      id="refresh"
+                      variant="outline"
+                      onClick={fetchNoteData}
+                    >
                       <SymbolIcon className="mr-2 h-4 w-4" /> Refresh Notes
                     </Button>
                   </div>
