@@ -1,8 +1,8 @@
 // Interacts with the action endpoints
 
+import { siteConfig } from "@/site.config";
 import {
   Action,
-  actionToString,
   defaultAction,
   isAction,
   isActionArray,
@@ -21,14 +21,14 @@ export const fetchActionsByCoachingSessionId = async (
   var err: string = "";
 
   const data = await axios
-    .get(`http://localhost:4000/actions`, {
+    .get(`${siteConfig.env.backendServiceURL}/actions`, {
       params: {
         coaching_session_id: coachingSessionId,
       },
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
       },
     })
     .then(function (response: AxiosResponse) {
@@ -85,11 +85,11 @@ export const createAction = async (
   var err: string = "";
 
   const data = await axios
-    .post(`http://localhost:4000/actions`, newActionJson, {
+    .post(`${siteConfig.env.backendServiceURL}/actions`, newActionJson, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
         "Content-Type": "application/json",
       },
     })
@@ -141,11 +141,11 @@ export const updateAction = async (
   console.debug("newActionJson: " + JSON.stringify(newActionJson));
 
   const data = await axios
-    .put(`http://localhost:4000/actions/${id}`, newActionJson, {
+    .put(`${siteConfig.env.backendServiceURL}/actions/${id}`, newActionJson, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
         "Content-Type": "application/json",
       },
     })
@@ -183,11 +183,11 @@ export const deleteAction = async (id: Id): Promise<Action> => {
   var err: string = "";
 
   const data = await axios
-    .delete(`http://localhost:4000/actions/${id}`, {
+    .delete(`${siteConfig.env.backendServiceURL}/actions/${id}`, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
         "Content-Type": "application/json",
       },
     })

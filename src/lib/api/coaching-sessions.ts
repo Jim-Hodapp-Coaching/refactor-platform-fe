@@ -1,5 +1,6 @@
 // Interacts with the coaching_session endpoints
 
+import { siteConfig } from "@/site.config";
 import {
   CoachingSession,
   isCoachingSessionArray,
@@ -28,7 +29,7 @@ export const fetchCoachingSessions = async (
   console.debug("toDate: " + toDate);
 
   const data = await axios
-    .get(`http://localhost:4000/coaching_sessions`, {
+    .get(`${siteConfig.env.backendServiceURL}/coaching_sessions`, {
       params: {
         coaching_relationship_id: coachingRelationshipId,
         from_date: fromDate,
@@ -37,7 +38,7 @@ export const fetchCoachingSessions = async (
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
       },
     })
     .then(function (response: AxiosResponse) {

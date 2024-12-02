@@ -1,5 +1,6 @@
 // Interacts with the coaching_relationship endpoints
 
+import { siteConfig } from "@/site.config";
 import {
   CoachingRelationshipWithUserNames,
   coachingRelationshipsWithUserNamesToString,
@@ -24,12 +25,12 @@ export const fetchCoachingRelationshipWithUserNames = async (
 
   const data = await axios
     .get(
-      `http://localhost:4000/organizations/${organization_id}/coaching_relationships/${relationship_id}`,
+      `${siteConfig.env.backendServiceURL}/organizations/${organization_id}/coaching_relationships/${relationship_id}`,
       {
         withCredentials: true,
         setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
         headers: {
-          "X-Version": "0.0.1",
+          "X-Version": siteConfig.env.backendApiVersion,
         },
       }
     )
@@ -78,12 +79,12 @@ export const fetchCoachingRelationshipsWithUserNames = async (
 
   const data = await axios
     .get(
-      `http://localhost:4000/organizations/${organizationId}/coaching_relationships`,
+      `${siteConfig.env.backendServiceURL}/organizations/${organizationId}/coaching_relationships`,
       {
         withCredentials: true,
         setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
         headers: {
-          "X-Version": "0.0.1",
+          "X-Version": siteConfig.env.backendApiVersion,
         },
       }
     )
