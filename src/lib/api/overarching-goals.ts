@@ -11,6 +11,7 @@ import {
 import { ItemStatus, Id } from "@/types/general";
 import { AxiosError, AxiosResponse } from "axios";
 import { DateTime } from "ts-luxon";
+import { siteConfig } from "@/site.config";
 
 export const fetchOverarchingGoalsByCoachingSessionId = async (
   coachingSessionId: Id
@@ -21,14 +22,14 @@ export const fetchOverarchingGoalsByCoachingSessionId = async (
   var err: string = "";
 
   await axios
-    .get(`http://localhost:4000/overarching_goals`, {
+    .get(`${siteConfig.env.backendServiceURL}/overarching_goals`, {
       params: {
         coaching_session_id: coachingSessionId,
       },
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
       },
     })
     .then(function (response: AxiosResponse) {
@@ -87,14 +88,18 @@ export const createOverarchingGoal = async (
   var err: string = "";
 
   await axios
-    .post(`http://localhost:4000/overarching_goals`, newOverarchingGoalJson, {
-      withCredentials: true,
-      setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
-      headers: {
-        "X-Version": "0.0.1",
-        "Content-Type": "application/json",
-      },
-    })
+    .post(
+      `${siteConfig.env.backendServiceURL}/overarching_goals`,
+      newOverarchingGoalJson,
+      {
+        withCredentials: true,
+        setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
+        headers: {
+          "X-Version": siteConfig.env.backendApiVersion,
+          "Content-Type": "application/json",
+        },
+      }
+    )
     .then(function (response: AxiosResponse) {
       // handle success
       const goal_data = response.data.data;
@@ -148,13 +153,13 @@ export const updateOverarchingGoal = async (
 
   await axios
     .put(
-      `http://localhost:4000/overarching_goals/${id}`,
+      `${siteConfig.env.backendServiceURL}/overarching_goals/${id}`,
       toUpdateOverarchingGoalJson,
       {
         withCredentials: true,
         setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
         headers: {
-          "X-Version": "0.0.1",
+          "X-Version": siteConfig.env.backendApiVersion,
           "Content-Type": "application/json",
         },
       }
@@ -195,11 +200,11 @@ export const deleteOverarchingGoal = async (
   var err: string = "";
 
   await axios
-    .delete(`http://localhost:4000/overarching_goals/${id}`, {
+    .delete(`${siteConfig.env.backendServiceURL}/overarching_goals/${id}`, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
         "Content-Type": "application/json",
       },
     })

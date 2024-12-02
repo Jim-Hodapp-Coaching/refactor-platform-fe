@@ -1,4 +1,5 @@
 // Interacts with the user_session_controller endpoints
+import { siteConfig } from "@/site.config";
 import {
   defaultUserSession,
   isUserSession,
@@ -21,7 +22,7 @@ export const loginUser = async (
 
   const data = await axios
     .post(
-      "http://localhost:4000/login",
+      `${siteConfig.env.backendServiceURL}/login`,
       {
         email: email,
         password: password,
@@ -63,7 +64,7 @@ export const logoutUser = async (): Promise<string> => {
   const axios = require("axios");
 
   const data = await axios
-    .get("http://localhost:4000/logout", {
+    .get(`${siteConfig.env.backendServiceURL}/logout`, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
     })

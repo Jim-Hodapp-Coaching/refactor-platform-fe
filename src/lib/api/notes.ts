@@ -1,5 +1,6 @@
 // Interacts with the note endpoints
 
+import { siteConfig } from "@/site.config";
 import { Id } from "@/types/general";
 import {
   defaultNote,
@@ -18,15 +19,17 @@ export const fetchNotesByCoachingSessionId = async (
   var notes: Note[] = [];
   var err: string = "";
 
+  console.warn("*** URL: " + siteConfig.env.backendServiceURL);
+
   const data = await axios
-    .get(`http://localhost:4000/notes`, {
+    .get(`${siteConfig.env.backendServiceURL}/notes`, {
       params: {
         coaching_session_id: coachingSessionId,
       },
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
       },
     })
     .then(function (response: AxiosResponse) {
@@ -82,11 +85,11 @@ export const createNote = async (
   var err: string = "";
 
   const data = await axios
-    .post(`http://localhost:4000/notes`, newNoteJson, {
+    .post(`${siteConfig.env.backendServiceURL}/notes`, newNoteJson, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
         "Content-Type": "application/json",
       },
     })
@@ -136,11 +139,11 @@ export const updateNote = async (
   };
 
   const data = await axios
-    .put(`http://localhost:4000/notes/${id}`, newNoteJson, {
+    .put(`${siteConfig.env.backendServiceURL}/notes/${id}`, newNoteJson, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
         "Content-Type": "application/json",
       },
     })

@@ -1,5 +1,6 @@
 // Interacts with the Organizations endpoints
 
+import { siteConfig } from "@/site.config";
 import { Id } from "@/types/general";
 import {
   Organization,
@@ -8,14 +9,8 @@ import {
   isOrganization,
   isOrganizationsArray,
   organizationToString,
-  organizationsToString,
 } from "@/types/organization";
 import { AxiosError, AxiosResponse } from "axios";
-
-// TODO:
-// 1. Clean up the error handlers...can we make a new standard error handler
-//    method that shares dealing with errors in a less repetitive way?
-// 2. Create a config item for specifying the X-Version to use for requests.
 
 export const fetchOrganizations = async (): Promise<
   [Organization[], string]
@@ -26,11 +21,11 @@ export const fetchOrganizations = async (): Promise<
   var err: string = "";
 
   const data = await axios
-    .get("http://localhost:4000/organizations", {
+    .get(`${siteConfig.env.backendServiceURL}/organizations`, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
       },
     })
     .then(function (response: AxiosResponse) {
@@ -64,11 +59,11 @@ export const fetchOrganization = async (
   var err: string = "";
 
   const data = await axios
-    .get(`http://localhost:4000/organizations/${id}`, {
+    .get(`${siteConfig.env.backendServiceURL}/organizations/${id}`, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
       },
     })
     .then(function (response: AxiosResponse) {
@@ -102,14 +97,14 @@ export const fetchOrganizationsByUserId = async (
   var err: string = "";
 
   const data = await axios
-    .get(`http://localhost:4000/organizations`, {
+    .get(`${siteConfig.env.backendServiceURL}/organizations`, {
       params: {
         user_id: userId,
       },
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
       },
     })
     .then(function (response: AxiosResponse) {
@@ -147,14 +142,18 @@ export const createOrganization = async (
 
   var strOrganization: string = organizationToString(organization);
   const data = await axios
-    .post(`http://localhost:4000/organizations`, strOrganization, {
-      withCredentials: true,
-      setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
-      headers: {
-        "X-Version": "0.0.1",
-        "Content-Type": "application/json",
-      },
-    })
+    .post(
+      `${siteConfig.env.backendServiceURL}/organizations`,
+      strOrganization,
+      {
+        withCredentials: true,
+        setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
+        headers: {
+          "X-Version": siteConfig.env.backendApiVersion,
+          "Content-Type": "application/json",
+        },
+      }
+    )
     .then(function (response: AxiosResponse) {
       // handle success
       if (isOrganization(response.data.data)) {
@@ -193,14 +192,18 @@ export const updateOrganization = async (
 
   var strOrganization: string = organizationToString(organization);
   const data = await axios
-    .put(`http://localhost:4000/organizations/${id}`, strOrganization, {
-      withCredentials: true,
-      setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
-      headers: {
-        "X-Version": "0.0.1",
-        "Content-Type": "application/json",
-      },
-    })
+    .put(
+      `${siteConfig.env.backendServiceURL}/organizations/${id}`,
+      strOrganization,
+      {
+        withCredentials: true,
+        setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
+        headers: {
+          "X-Version": siteConfig.env.backendApiVersion,
+          "Content-Type": "application/json",
+        },
+      }
+    )
     .then(function (response: AxiosResponse) {
       // handle success
       if (isOrganization(response.data.data)) {
@@ -235,11 +238,11 @@ export const deleteOrganization = async (
   var err: string = "";
 
   const data = await axios
-    .delete(`http://localhost:4000/organizations/${id}`, {
+    .delete(`${siteConfig.env.backendServiceURL}/organizations/${id}`, {
       withCredentials: true,
       setTimeout: 5000, // 5 seconds before timing out trying to log in with the backend
       headers: {
-        "X-Version": "0.0.1",
+        "X-Version": siteConfig.env.backendApiVersion,
       },
     })
     .then(function (response: AxiosResponse) {
