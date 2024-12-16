@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
-import { siteConfig } from "@/site.config.ts"
+import { siteConfig } from "@/site.config.ts";
 
-import { SiteHeader } from "@/components/ui/site-header"
+import { SiteHeader } from "@/components/ui/site-header";
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -15,11 +15,9 @@ export default function CoachingSessionLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <div className="min-h-screen">
       <SiteHeader />
-      <main>
-        {children}
-      </main>
-    </>
+      <main>{children}</main>
+    </div>
   );
 }
