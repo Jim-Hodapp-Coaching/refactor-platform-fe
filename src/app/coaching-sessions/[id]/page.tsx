@@ -1,4 +1,6 @@
-import { Metadata } from "next";
+"use client";
+
+// import { Metadata } from "next";
 
 import * as React from "react";
 
@@ -36,10 +38,11 @@ import { CoachingSession } from "@/types/coaching-session";
 import { useRouter } from "next/navigation";
 import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 
-export const metadata: Metadata = {
-  title: "Coaching Session",
-  description: "Main coaching session page",
-};
+// TODO: can't make this page be server side yet until we move useRouter/useEffect out of this page
+// export const metadata: Metadata = {
+//   title: "Coaching Session",
+//   description: "Main coaching session page",
+// };
 
 export default function CoachingSessionsPage() {
   const router = useRouter();
