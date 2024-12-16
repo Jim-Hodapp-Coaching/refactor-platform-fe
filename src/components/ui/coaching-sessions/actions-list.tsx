@@ -201,7 +201,7 @@ const ActionsList: React.FC<{
     async function loadActions() {
       if (!coachingSessionId) {
         console.error(
-          "Failed to fetch Actions since coachingSession.id is not set."
+          "Failed to fetch Actions since coachingSessionId is not set."
         );
         return;
       }
