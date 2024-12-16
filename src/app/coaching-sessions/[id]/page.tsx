@@ -8,9 +8,6 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
-import { PresetActions } from "@/components/ui/preset-actions";
-import { PresetSelector } from "@/components/ui/preset-selector";
-import { current, future, past } from "@/data/presets";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -41,9 +38,10 @@ import { CoachingSession } from "@/types/coaching-session";
 import { useRouter } from "next/navigation";
 import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 
+// TODO: can't make this page be server side yet until we move useRouter/useEffect out of this page
 // export const metadata: Metadata = {
 //   title: "Coaching Session",
-//   description: "Coaching session main page, where the good stuff happens.",
+//   description: "Main coaching session page",
 // };
 
 export default function CoachingSessionsPage() {

@@ -33,8 +33,6 @@ const AgreementsList: React.FC<{
   onAgreementDeleted: (id: Id) => Promise<Agreement>;
 }> = ({
   coachingSessionId,
-  userId,
-  locale,
   onAgreementAdded,
   onAgreementEdited,
   onAgreementDeleted,
@@ -155,7 +153,7 @@ const AgreementsList: React.FC<{
     async function loadAgreements() {
       if (!coachingSessionId) {
         console.error(
-          "Failed to fetch Agreements since coachingSession.id is not set."
+          "Failed to fetch Agreements since coachingSessionId is not set."
         );
         return;
       }
