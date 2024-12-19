@@ -23,6 +23,7 @@ import { fetchCoachingRelationshipsWithUserNames } from "@/lib/api/coaching-rela
 import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
 import { fetchOrganizationsByUserId } from "@/lib/api/organizations";
 import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
+import { useAuthStore } from "@/lib/providers/auth-store-provider";
 import {
   CoachingSession,
   coachingSessionToString,
@@ -40,18 +41,11 @@ import {
   organizationToString,
 } from "@/types/organization";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { DateTime } from "ts-luxon";
 
-export interface CoachingSessionProps {
-  /** The current logged in user's Id */
-  userId: Id;
-}
-
-export function SelectCoachingSession({
-  userId: userId,
-  ...props
-}: CoachingSessionProps) {
+export default function SelectCoachingSession() {
+  const { userId } = useAuthStore((state) => state);
   const { organizationId, setOrganizationId } = useAppStateStore(
     (state) => state
   );
@@ -186,16 +180,18 @@ export function SelectCoachingSession({
               <SelectValue placeholder="Select organization" />
             </SelectTrigger>
             <SelectContent>
-              {organizations.map((organization) => (
-                <SelectItem value={organization.id} key={organization.id}>
-                  {organization.name}
-                </SelectItem>
-              ))}
-              {organizations.length == 0 && (
-                <SelectItem disabled={true} value="none">
-                  None found
-                </SelectItem>
-              )}
+              <Suspense fallback={<div>Loading...</div>}>
+                {organizations.map((organization) => (
+                  <SelectItem value={organization.id} key={organization.id}>
+                    {organization.name}
+                  </SelectItem>
+                ))}
+                {organizations.length == 0 && (
+                  <SelectItem disabled={true} value="none">
+                    None found
+                  </SelectItem>
+                )}
+              </Suspense>
             </SelectContent>
           </Select>
         </div>

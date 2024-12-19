@@ -20,7 +20,7 @@ export interface AppStateStoreProviderProps {
 export const AppStateStoreProvider = ({
   children,
 }: AppStateStoreProviderProps) => {
-  const storeRef = useRef<StoreApi<AppStateStore>>();
+  const storeRef = useRef<StoreApi<AppStateStore>>(undefined);
   if (!storeRef.current) {
     storeRef.current = createAppStateStore();
   }
