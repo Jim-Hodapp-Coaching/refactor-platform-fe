@@ -7,7 +7,11 @@ import {
   defaultCoachingRelationshipWithUserNames,
 } from "@/types/coaching_relationship_with_user_names";
 import { Id } from "@/types/general";
-import { defaultOrganization, Organization } from "@/types/organization";
+import {
+  defaultOrganization,
+  defaultOrganizations,
+  Organization,
+} from "@/types/organization";
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 
@@ -18,6 +22,7 @@ interface AppState {
   organization: Organization;
   coachingSession: CoachingSession;
   coachingRelationship: CoachingRelationshipWithUserNames;
+  organizationsArray: Organization[];
 }
 
 interface AppStateActions {
@@ -29,6 +34,7 @@ interface AppStateActions {
   setCoachingRelationship: (
     coachingRelationship: CoachingRelationshipWithUserNames
   ) => void;
+  setOrganizationsArray: (organizationsArray: Organization[]) => void;
   reset(): void;
 }
 
@@ -41,6 +47,7 @@ export const defaultInitState: AppState = {
   organization: defaultOrganization(),
   coachingSession: defaultCoachingSession(),
   coachingRelationship: defaultCoachingRelationshipWithUserNames(),
+  organizationsArray: defaultOrganizations(),
 };
 
 export const createAppStateStore = (initState: AppState = defaultInitState) => {
@@ -67,6 +74,9 @@ export const createAppStateStore = (initState: AppState = defaultInitState) => {
           },
           setCoachingRelationship: (coachingRelationship) => {
             set({ coachingRelationship });
+          },
+          setOrganizationsArray: (organizationsArray: Organization[]) => {
+            set({ organizationsArray });
           },
           reset(): void {
             set(defaultInitState);

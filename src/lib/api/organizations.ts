@@ -10,7 +10,106 @@ import {
   isOrganizationsArray,
   organizationToString,
 } from "@/types/organization";
+import axios from "axios";
 import { AxiosError, AxiosResponse } from "axios";
+import useSWR, { useSWRConfig } from "swr";
+
+interface ApiResponseOrganizations {
+  status_code: number;
+  data: Organization[];
+}
+
+// Fetch all Organizations associated with a particular User
+const fetcherOrganizations = async (
+  url: string,
+  userId: Id
+): Promise<Organization[]> =>
+  axios
+    .get<ApiResponseOrganizations>(url, {
+      params: {
+        user_id: userId,
+      },
+      withCredentials: true,
+      timeout: 5000,
+      headers: {
+        "X-Version": siteConfig.env.backendApiVersion,
+      },
+    })
+    .then((res) => res.data.data);
+
+// TODO: idea, either get caching working or at least use the appStateStore as
+// a cache. Then offer an option to this function caller to choose between doing
+// a fresh fetch or use the cached list if possible.
+export function useOrganizations(userId: Id) {
+  const { data, error, isLoading } = useSWR<Organization[]>(
+    [`${siteConfig.env.backendServiceURL}/organizations`, userId],
+    ([url, _token]) => fetcherOrganizations(url, userId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: true,
+      keepPreviousData: true,
+      focusThrottleInterval: 10000,
+      dedupingInterval: 10000,
+    }
+  );
+  const swrConfig = useSWRConfig();
+  console.debug(`swrConfig: ${JSON.stringify(swrConfig)}`);
+
+  console.debug(`data: ${JSON.stringify(data)}`);
+
+  return {
+    organizations: Array.isArray(data) ? data : [],
+    isLoading,
+    isError: error,
+  };
+}
+
+interface ApiResponseOrganization {
+  status_code: number;
+  data: Organization;
+}
+
+// Fetcher for retrieving a single Organization by its Id
+const fetcherOrganization = async (url: string): Promise<Organization> =>
+  axios
+    .get<ApiResponseOrganization>(url, {
+      withCredentials: true,
+      timeout: 5000,
+      headers: {
+        "X-Version": siteConfig.env.backendApiVersion,
+      },
+    })
+    .then((res) => res.data.data);
+
+// TODO: idea, either get caching working or at least use the appStateStore as
+// a cache. Then offer an option to this function caller to choose between doing
+// a fresh fetch or use return a full Organization instance from the cached list if possible.
+// A hook to retrieve a single Organization by its Id
+export function useOrganization(organizationId: Id) {
+  const { data, error, isLoading } = useSWR<Organization>(
+    `${siteConfig.env.backendServiceURL}/organizations/${organizationId}`,
+    fetcherOrganization,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      revalidateIfStale: true,
+      keepPreviousData: true,
+      focusThrottleInterval: 10000,
+      dedupingInterval: 10000,
+    }
+  );
+  const swrConfig = useSWRConfig();
+  console.debug(`swrConfig: ${JSON.stringify(swrConfig)}`);
+
+  console.debug(`data: ${JSON.stringify(data)}`);
+
+  return {
+    organization: data || defaultOrganization(),
+    isLoading,
+    isError: error,
+  };
+}
 
 export const fetchOrganizations = async (): Promise<
   [Organization[], string]
