@@ -118,12 +118,7 @@ const OverarchingGoalContainer: React.FC<{
 
   useEffect(() => {
     async function fetchOverarchingGoal() {
-      if (!currentCoachingSessionId) {
-        console.error(
-          "Failed to fetch Overarching Goal since coachingSessionId is not set."
-        );
-        return;
-      }
+      if (!currentCoachingSessionId) return;
 
       await fetchOverarchingGoalsByCoachingSessionId(currentCoachingSessionId)
         .then((goals) => {
