@@ -16,7 +16,6 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { DateTime } from "ts-luxon";
 import { siteConfig } from "@/site.config";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { OverarchingGoalComponent } from "./overarching-goal";
 import {
   createOverarchingGoal,
@@ -28,6 +27,7 @@ import {
   OverarchingGoal,
   overarchingGoalToString,
 } from "@/types/overarching-goal";
+import { useCoachingSessionStateStore } from "@/lib/providers/coaching-session-state-store-provider";
 
 const OverarchingGoalContainer: React.FC<{
   userId: Id;
@@ -35,11 +35,13 @@ const OverarchingGoalContainer: React.FC<{
   const [isOpen, setIsOpen] = useState(false);
   const [goal, setGoal] = useState<OverarchingGoal>(defaultOverarchingGoal());
   const [goalId, setGoalId] = useState<Id>("");
-  const { coachingSessionId } = useAppStateStore((state) => state);
+  const { currentCoachingSessionId } = useCoachingSessionStateStore(
+    (state) => state
+  );
 
   const handleAgreementAdded = (body: string): Promise<Agreement> => {
     // Calls the backend endpoint that creates and stores a full Agreement entity
-    return createAgreement(coachingSessionId, userId, body)
+    return createAgreement(currentCoachingSessionId, userId, body)
       .then((agreement) => {
         return agreement;
       })
@@ -50,7 +52,7 @@ const OverarchingGoalContainer: React.FC<{
   };
 
   const handleAgreementEdited = (id: Id, body: string): Promise<Agreement> => {
-    return updateAgreement(id, coachingSessionId, userId, body)
+    return updateAgreement(id, currentCoachingSessionId, userId, body)
       .then((agreement) => {
         return agreement;
       })
@@ -77,7 +79,7 @@ const OverarchingGoalContainer: React.FC<{
     dueBy: DateTime
   ): Promise<Action> => {
     // Calls the backend endpoint that creates and stores a full Action entity
-    return createAction(coachingSessionId, body, status, dueBy)
+    return createAction(currentCoachingSessionId, body, status, dueBy)
       .then((action) => {
         return action;
       })
@@ -93,7 +95,7 @@ const OverarchingGoalContainer: React.FC<{
     status: ItemStatus,
     dueBy: DateTime
   ): Promise<Action> => {
-    return updateAction(id, coachingSessionId, body, status, dueBy)
+    return updateAction(id, currentCoachingSessionId, body, status, dueBy)
       .then((action) => {
         return action;
       })
@@ -116,14 +118,14 @@ const OverarchingGoalContainer: React.FC<{
 
   useEffect(() => {
     async function fetchOverarchingGoal() {
-      if (!coachingSessionId) {
+      if (!currentCoachingSessionId) {
         console.error(
           "Failed to fetch Overarching Goal since coachingSessionId is not set."
         );
         return;
       }
 
-      await fetchOverarchingGoalsByCoachingSessionId(coachingSessionId)
+      await fetchOverarchingGoalsByCoachingSessionId(currentCoachingSessionId)
         .then((goals) => {
           const goal = goals[0];
           if (goals.length > 0) {
@@ -144,16 +146,16 @@ const OverarchingGoalContainer: React.FC<{
         });
     }
     fetchOverarchingGoal();
-  }, [coachingSessionId]);
+  }, [currentCoachingSessionId]);
 
   const handleGoalChange = async (newGoal: OverarchingGoal) => {
     console.trace("handleGoalChange (goal to set/update): " + newGoal.title);
 
-    if (goalId && coachingSessionId) {
+    if (goalId && currentCoachingSessionId) {
       console.debug("Update existing Overarching Goal with id: " + goalId);
       updateOverarchingGoal(
         goalId,
-        coachingSessionId,
+        currentCoachingSessionId,
         newGoal.title,
         newGoal.body,
         newGoal.status
@@ -167,9 +169,9 @@ const OverarchingGoalContainer: React.FC<{
         .catch((err) => {
           console.error("Failed to update Overarching Goal: " + err);
         });
-    } else if (!goalId && coachingSessionId) {
+    } else if (!goalId && currentCoachingSessionId) {
       createOverarchingGoal(
-        coachingSessionId,
+        currentCoachingSessionId,
         newGoal.title,
         newGoal.body,
         newGoal.status
@@ -221,7 +223,7 @@ const OverarchingGoalContainer: React.FC<{
                   <TabsContent value="agreements">
                     <div className="w-full">
                       <AgreementsList
-                        coachingSessionId={coachingSessionId}
+                        coachingSessionId={currentCoachingSessionId}
                         userId={userId}
                         locale={siteConfig.locale}
                         onAgreementAdded={handleAgreementAdded}
@@ -233,7 +235,7 @@ const OverarchingGoalContainer: React.FC<{
                   <TabsContent value="actions">
                     <div className="w-full">
                       <ActionsList
-                        coachingSessionId={coachingSessionId}
+                        coachingSessionId={currentCoachingSessionId}
                         userId={userId}
                         locale={siteConfig.locale}
                         onActionAdded={handleActionAdded}
