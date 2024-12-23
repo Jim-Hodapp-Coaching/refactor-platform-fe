@@ -33,10 +33,12 @@ import {
   CoachingNotes,
   EditorRef,
 } from "@/components/ui/coaching-sessions/coaching-notes";
-import { CoachingSessionSelector } from "@/components/ui/coaching-session-selector";
+import CoachingSessionSelector from "@/components/ui/coaching-session-selector";
 import { CoachingSession } from "@/types/coaching-session";
 import { useRouter } from "next/navigation";
 import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
+import { useCoachingRelationshipStateStore } from "@/lib/providers/coaching-relationship-state-store-provider";
+import { useCoachingSessionStateStore } from "@/lib/providers/coaching-session-state-store-provider";
 
 // TODO: can't make this page be server side yet until we move useRouter/useEffect out of this page
 // export const metadata: Metadata = {
@@ -49,6 +51,12 @@ export default function CoachingSessionsPage() {
   const [note, setNote] = useState<Note>(defaultNote());
   const [syncStatus, setSyncStatus] = useState<string>("");
   const { userId } = useAuthStore((state) => ({ userId: state.userId }));
+  const { currentCoachingRelationshipId } = useCoachingRelationshipStateStore(
+    (state) => state
+  );
+  const { currentCoachingSessionId } = useCoachingSessionStateStore(
+    (state) => state
+  );
   const { coachingSession } = useAppStateStore((state) => state);
   const { coachingSessionId, setCoachingSessionId } = useAppStateStore(
     (state) => state
@@ -164,7 +172,6 @@ export default function CoachingSessionsPage() {
   };
 
   const handleCoachingSessionSelect = (coachingSessionId: string) => {
-    setCoachingSessionId(coachingSessionId);
     console.debug("coachingSessionId selected: " + coachingSessionId);
     router.push(`/coaching-sessions/${coachingSessionId}`);
   };
@@ -180,8 +187,8 @@ export default function CoachingSessionsPage() {
           ></CoachingSessionTitle>
           <div className="ml-auto flex w-[28rem] space-x-2 sm:justify-end">
             <CoachingSessionSelector
-              sessions={coachingSessions}
-              placeholder="Select a coaching session"
+              relationshipId={currentCoachingRelationshipId}
+              disabled={!currentCoachingRelationshipId}
               onSelect={handleCoachingSessionSelect}
             ></CoachingSessionSelector>
           </div>

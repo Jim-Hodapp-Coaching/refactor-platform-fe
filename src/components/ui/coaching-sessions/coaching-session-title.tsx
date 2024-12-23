@@ -7,8 +7,8 @@ import {
   SessionTitle,
   SessionTitleStyle,
 } from "@/types/session-title";
-import { CoachingRelationshipWithUserNames } from "@/types/coaching_relationship_with_user_names";
-import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
+import { useCoachingSessionStateStore } from "@/lib/providers/coaching-session-state-store-provider";
+import { useCoachingRelationshipStateStore } from "@/lib/providers/coaching-relationship-state-store-provider";
 
 const CoachingSessionTitle: React.FC<{
   locale: string | "us";
@@ -17,23 +17,28 @@ const CoachingSessionTitle: React.FC<{
 }> = ({ locale, style, onRender }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [sessionTitle, setSessionTitle] = useState<SessionTitle>();
-  const { coachingSession, coachingRelationship } = useAppStateStore(
-    (state) => state
+  const { currentCoachingSessionId, getCurrentCoachingSession } =
+    useCoachingSessionStateStore((state) => state);
+  const { currentCoachingRelationshipId, getCurrentCoachingRelationship } =
+    useCoachingRelationshipStateStore((state) => state);
+
+  const coachingSession = getCurrentCoachingSession(currentCoachingSessionId);
+  const coachingRelationship = getCurrentCoachingRelationship(
+    currentCoachingRelationshipId
   );
-  useState<CoachingRelationshipWithUserNames>();
 
   useEffect(() => {
-    if (coachingSession && coachingRelationship) {
-      setIsLoading(false);
-      const title = generateSessionTitle(
-        coachingSession,
-        coachingRelationship,
-        style,
-        locale
-      );
-      setSessionTitle(title);
-      onRender(title.title);
-    }
+    if (!coachingSession || !coachingRelationship) return;
+
+    setIsLoading(false);
+    const title = generateSessionTitle(
+      coachingSession,
+      coachingRelationship,
+      style,
+      locale
+    );
+    setSessionTitle(title);
+    onRender(title.title);
   }, [coachingSession, coachingRelationship, style, locale, onRender]);
 
   if (isLoading) {
