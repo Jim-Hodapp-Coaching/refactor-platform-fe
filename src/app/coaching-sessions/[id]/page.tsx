@@ -2,13 +2,10 @@
 
 // import { Metadata } from "next";
 
-import * as React from "react";
-
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
-import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { useEffect, useRef, useState } from "react";
 import {
   createNote,
@@ -33,10 +30,10 @@ import {
   CoachingNotes,
   EditorRef,
 } from "@/components/ui/coaching-sessions/coaching-notes";
-import { CoachingSessionSelector } from "@/components/ui/coaching-session-selector";
-import { CoachingSession } from "@/types/coaching-session";
+import CoachingSessionSelector from "@/components/ui/coaching-session-selector";
 import { useRouter } from "next/navigation";
-import { fetchCoachingSessions } from "@/lib/api/coaching-sessions";
+import { useCoachingRelationshipStateStore } from "@/lib/providers/coaching-relationship-state-store-provider";
+import { useCoachingSessionStateStore } from "@/lib/providers/coaching-session-state-store-provider";
 
 // TODO: can't make this page be server side yet until we move useRouter/useEffect out of this page
 // export const metadata: Metadata = {
@@ -49,14 +46,12 @@ export default function CoachingSessionsPage() {
   const [note, setNote] = useState<Note>(defaultNote());
   const [syncStatus, setSyncStatus] = useState<string>("");
   const { userId } = useAuthStore((state) => ({ userId: state.userId }));
-  const { coachingSession } = useAppStateStore((state) => state);
-  const { coachingSessionId, setCoachingSessionId } = useAppStateStore(
+  const { currentCoachingRelationshipId } = useCoachingRelationshipStateStore(
     (state) => state
   );
-  const [coachingSessions, setCoachingSessions] = React.useState<
-    CoachingSession[]
-  >([]);
-  const { relationshipId } = useAppStateStore((state) => state);
+  const { currentCoachingSessionId } = useCoachingSessionStateStore(
+    (state) => state
+  );
   const [isLoading, setIsLoading] = useState(false);
   const editorRef = useRef<EditorRef>(null);
 
@@ -65,7 +60,9 @@ export default function CoachingSessionsPage() {
 
     setIsLoading(true);
     try {
-      const notes = await fetchNotesByCoachingSessionId(coachingSessionId);
+      const notes = await fetchNotesByCoachingSessionId(
+        currentCoachingSessionId
+      );
       if (notes.length > 0) {
         setEditorContent(notes[0].body);
         setNote(notes[0]);
@@ -80,34 +77,10 @@ export default function CoachingSessionsPage() {
   };
 
   useEffect(() => {
-    if (!coachingSessionId) return;
+    if (!currentCoachingSessionId) return;
 
     fetchNoteData();
-  }, [coachingSessionId]); // Remove isLoading from dependencies
-
-  useEffect(() => {
-    if (!relationshipId) return;
-
-    const loadCoachingSessions = async () => {
-      if (isLoading) return;
-
-      setIsLoading(true);
-
-      try {
-        const [coachingSessions] = await fetchCoachingSessions(relationshipId);
-        console.debug(
-          "setCoachingSessions: " + JSON.stringify(coachingSessions)
-        );
-        setCoachingSessions(coachingSessions);
-      } catch (err) {
-        console.error("Failed to fetch coaching sessions: " + err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCoachingSessions();
-  }, [relationshipId]);
+  }, [currentCoachingSessionId]);
 
   const setEditorContent = (content: string) => {
     editorRef.current?.setContent(`${content}`);
@@ -120,14 +93,15 @@ export default function CoachingSessionsPage() {
   const handleOnChange = (value: string) => {
     console.debug("isLoading (before update/create): " + isLoading);
     console.debug(
-      "coachingSessionId (before update/create): " + coachingSessionId
+      "currentCoachingSessionId (before update/create): " +
+        currentCoachingSessionId
     );
     console.debug("userId (before update/create): " + userId);
     console.debug("value (before update/create): " + value);
     console.debug("--------------------------------");
 
-    if (!isLoading && note.id && coachingSessionId && userId) {
-      updateNote(note.id, coachingSessionId, userId, value)
+    if (!isLoading && note.id && currentCoachingSessionId && userId) {
+      updateNote(note.id, currentCoachingSessionId, userId, value)
         .then((updatedNote) => {
           setNote(updatedNote);
           console.trace("Updated Note: " + noteToString(updatedNote));
@@ -137,8 +111,8 @@ export default function CoachingSessionsPage() {
           setSyncStatus("Failed to save changes");
           console.error("Failed to update Note: " + err);
         });
-    } else if (!isLoading && !note.id && coachingSession.id && userId) {
-      createNote(coachingSessionId, userId, value)
+    } else if (!isLoading && !note.id && currentCoachingSessionId && userId) {
+      createNote(currentCoachingSessionId, userId, value)
         .then((createdNote) => {
           setNote(createdNote);
           console.trace("Newly created Note: " + noteToString(createdNote));
@@ -164,7 +138,6 @@ export default function CoachingSessionsPage() {
   };
 
   const handleCoachingSessionSelect = (coachingSessionId: string) => {
-    setCoachingSessionId(coachingSessionId);
     console.debug("coachingSessionId selected: " + coachingSessionId);
     router.push(`/coaching-sessions/${coachingSessionId}`);
   };
@@ -180,8 +153,8 @@ export default function CoachingSessionsPage() {
           ></CoachingSessionTitle>
           <div className="ml-auto flex w-[28rem] space-x-2 sm:justify-end">
             <CoachingSessionSelector
-              sessions={coachingSessions}
-              placeholder="Select a coaching session"
+              relationshipId={currentCoachingRelationshipId}
+              disabled={!currentCoachingRelationshipId}
               onSelect={handleCoachingSessionSelect}
             ></CoachingSessionSelector>
           </div>

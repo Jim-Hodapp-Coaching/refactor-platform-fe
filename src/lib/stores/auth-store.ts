@@ -1,6 +1,6 @@
 import { Id } from "@/types/general";
 import { defaultUserSession, UserSession } from "@/types/user-session";
-import { create, useStore } from "zustand";
+import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 
 interface AuthState {

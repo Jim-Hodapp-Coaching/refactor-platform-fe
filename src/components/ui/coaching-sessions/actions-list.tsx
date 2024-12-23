@@ -12,9 +12,7 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -32,7 +30,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, ArrowUpDown, Save, CalendarClock } from "lucide-react";
+import { MoreHorizontal, ArrowUpDown, CalendarClock } from "lucide-react";
 import {
   ItemStatus,
   actionStatusToString,
@@ -64,8 +62,6 @@ const ActionsList: React.FC<{
   onActionDeleted: (id: Id) => Promise<Action>;
 }> = ({
   coachingSessionId,
-  userId,
-  locale,
   onActionAdded: onActionAdded,
   onActionEdited: onActionEdited,
   onActionDeleted: onActionDeleted,
@@ -338,6 +334,7 @@ const ActionsList: React.FC<{
                           <PopoverContent className="w-auto p-0">
                             <Calendar
                               mode="single"
+                              defaultMonth={action.due_by.toJSDate()}
                               selected={editDueBy.toJSDate()}
                               onSelect={(date: Date | undefined) =>
                                 setEditDueBy(
@@ -346,7 +343,12 @@ const ActionsList: React.FC<{
                                     : DateTime.now()
                                 )
                               }
-                              initialFocus
+                              footer=<div className="text-sm font-medium mt-1">
+                                {newDueBy
+                                  ? `Due by: ${newDueBy.toLocaleString()}`
+                                  : "Select a due by date."}
+                              </div>
+                              autoFocus
                             />
                           </PopoverContent>
                         </Popover>
@@ -452,7 +454,12 @@ const ActionsList: React.FC<{
                 onSelect={(date: Date | undefined) =>
                   setNewDueBy(date ? DateTime.fromJSDate(date) : DateTime.now())
                 }
-                initialFocus
+                footer=<div className="text-sm font-medium mt-1">
+                  {newDueBy
+                    ? `Due by: ${newDueBy.toLocaleString()}`
+                    : "Select a due by date."}
+                </div>
+                autoFocus
               />
             </PopoverContent>
           </Popover>

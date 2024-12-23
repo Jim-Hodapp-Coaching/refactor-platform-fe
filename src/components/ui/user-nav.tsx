@@ -14,8 +14,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { logoutUser } from "@/lib/api/user-session";
-import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { useAuthStore } from "@/lib/providers/auth-store-provider";
+import { useCoachingRelationshipStateStore } from "@/lib/providers/coaching-relationship-state-store-provider";
+import { useCoachingSessionStateStore } from "@/lib/providers/coaching-session-state-store-provider";
+import { useOrganizationStateStore } from "@/lib/providers/organization-state-store-provider";
 import { userFirstLastLettersToString } from "@/types/user-session";
 import { useRouter } from "next/navigation";
 
@@ -28,7 +30,15 @@ export function UserNav() {
     userSession: state.userSession,
   }));
 
-  const { reset } = useAppStateStore((action) => action);
+  const { resetOrganizationState } = useOrganizationStateStore(
+    (action) => action
+  );
+  const { resetCoachingRelationshipState } = useCoachingRelationshipStateStore(
+    (action) => action
+  );
+  const { resetCoachingSessionState } = useCoachingSessionStateStore(
+    (action) => action
+  );
 
   async function logout_user() {
     const err = await logoutUser();
@@ -36,10 +46,16 @@ export function UserNav() {
       console.error("Error while logging out: " + err);
     }
 
-    console.trace("Doing app-state-store property reset");
-    reset();
+    console.trace("Doing CoachingSessionStateStore property reset");
+    resetCoachingSessionState();
 
-    console.trace("Doing auth-store logout");
+    console.trace("Doing CoachingRelationshipStateStore property reset");
+    resetCoachingRelationshipState();
+
+    console.trace("Doing OrganizationStateStore property reset");
+    resetOrganizationState();
+
+    console.trace("Doing AuthStore logout");
     logout();
 
     router.push("/login");

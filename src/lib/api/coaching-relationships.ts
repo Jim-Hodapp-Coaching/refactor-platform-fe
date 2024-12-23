@@ -11,7 +11,46 @@ import {
   parseCoachingRelationshipWithUserNames,
 } from "@/types/coaching_relationship_with_user_names";
 import { Id } from "@/types/general";
-import { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import useSWR from "swr";
+
+interface ApiResponse {
+  status_code: number;
+  data: CoachingRelationshipWithUserNames[];
+}
+
+const fetcher = async (
+  url: string
+): Promise<CoachingRelationshipWithUserNames[]> =>
+  axios
+    .get<ApiResponse>(url, {
+      withCredentials: true,
+      timeout: 5000,
+      headers: {
+        "X-Version": siteConfig.env.backendApiVersion,
+      },
+    })
+    .then((res) => res.data.data);
+
+/// A hook to retrieve all CoachingRelationships associated with organizationId
+export function useCoachingRelationships(organizationId: Id) {
+  console.debug(`organizationId: ${organizationId}`);
+
+  const { data, error, isLoading } = useSWR<
+    CoachingRelationshipWithUserNames[]
+  >(
+    `${siteConfig.env.backendServiceURL}/organizations/${organizationId}/coaching_relationships`,
+    fetcher
+  );
+
+  console.debug(`data: ${JSON.stringify(data)}`);
+
+  return {
+    relationships: Array.isArray(data) ? data : [],
+    isLoading,
+    isError: error,
+  };
+}
 
 export const fetchCoachingRelationshipWithUserNames = async (
   organization_id: Id,

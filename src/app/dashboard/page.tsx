@@ -1,19 +1,15 @@
-"use client";
-
 import { Metadata } from "next";
 
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-import { SelectCoachingSession } from "@/components/ui/dashboard/select-coaching-session";
-import { useAuthStore } from "@/lib/providers/auth-store-provider";
+import SelectCoachingSession from "@/components/ui/dashboard/select-coaching-session";
 
-// TODO: can't make this page be server side yet (not sure why on this page)
-// export const metadata: Metadata = {
-//   title: "Dashboard",
-//   description: "Coaching dashboard",
-// };
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Coaching dashboard",
+};
 
 function DashboardContainer({
   className,
@@ -31,12 +27,10 @@ function DashboardContainer({
 }
 
 export default function DashboardPage() {
-  const { userId } = useAuthStore((state) => state);
-
   return (
     <div className="items-start justify-center gap-6 rounded-lg p-8 md:grid lg:grid-cols-2 xl:grid-cols-3">
       <DashboardContainer>
-        <SelectCoachingSession userId={userId} />
+        <SelectCoachingSession />
       </DashboardContainer>
     </div>
   );

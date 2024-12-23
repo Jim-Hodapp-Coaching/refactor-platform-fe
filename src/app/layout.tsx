@@ -1,10 +1,7 @@
-import { ThemeProvider } from "@/components/ui/providers";
-
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 
-import { AuthStoreProvider } from "@/lib/providers/auth-store-provider";
-import { AppStateStoreProvider } from "@/lib/providers/app-state-store-provider";
+import { RootLayoutProviders } from "@/lib/providers/root-layout-providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,19 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}>
+    // Suppress SSR hydration warnings for the initial layout to avoid the ThemeProvider
+    // setting an out-of-sync theme class between server and client sides
+    <html lang="en" className={inter.className} suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {/* Provides single AuthStore & AppStateStore instances to all child pages/components/functions */}
-          <AuthStoreProvider>
-            <AppStateStoreProvider>{children}</AppStateStoreProvider>
-          </AuthStoreProvider>
-        </ThemeProvider>
+        <RootLayoutProviders>{children}</RootLayoutProviders>
       </body>
     </html>
   );

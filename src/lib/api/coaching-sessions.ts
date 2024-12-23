@@ -8,8 +8,59 @@ import {
   sortCoachingSessionArray,
 } from "@/types/coaching-session";
 import { Id, SortOrder } from "@/types/general";
-import { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import useSWR from "swr";
 import { DateTime } from "ts-luxon";
+
+// TODO: for now we hardcode a 2 month window centered around now,
+// eventually we want to make this be configurable somewhere
+// (either on the page or elsewhere)
+const fromDate = DateTime.now().minus({ month: 1 }).toISODate();
+const toDate = DateTime.now().plus({ month: 1 }).toISODate();
+
+interface ApiResponse {
+  status_code: number;
+  data: CoachingSession[];
+}
+
+const fetcher = async (
+  url: string,
+  relationshipId: Id
+): Promise<CoachingSession[]> =>
+  axios
+    .get<ApiResponse>(url, {
+      params: {
+        coaching_relationship_id: relationshipId,
+        from_date: fromDate,
+        to_date: toDate,
+      },
+      withCredentials: true,
+      timeout: 5000,
+      headers: {
+        "X-Version": siteConfig.env.backendApiVersion,
+      },
+    })
+    .then((res) => res.data.data);
+
+/// A hook to retrieve all CoachingSessions associated with relationshipId
+export function useCoachingSessions(relationshipId: Id) {
+  console.debug(`relationshipId: ${relationshipId}`);
+  console.debug("fromDate: " + fromDate);
+  console.debug("toDate: " + toDate);
+
+  const { data, error, isLoading } = useSWR<CoachingSession[]>(
+    [`${siteConfig.env.backendServiceURL}/coaching_sessions`, relationshipId],
+    ([url, _token]) => fetcher(url, relationshipId)
+  );
+
+  console.debug(`data: ${JSON.stringify(data)}`);
+
+  return {
+    coachingSessions: Array.isArray(data) ? data : [],
+    isLoading,
+    isError: error,
+  };
+}
 
 export const fetchCoachingSessions = async (
   coachingRelationshipId: Id
@@ -18,12 +69,6 @@ export const fetchCoachingSessions = async (
 
   var coaching_sessions: CoachingSession[] = [];
   var err: string = "";
-
-  // TODO: for now we hardcode a 2 month window centered around now,
-  // eventually we want to make this be configurable somewhere
-  // (either on the page or elsewhere)
-  const fromDate = DateTime.now().minus({ month: 1 }).toISODate();
-  const toDate = DateTime.now().plus({ month: 1 }).toISODate();
 
   console.debug("fromDate: " + fromDate);
   console.debug("toDate: " + toDate);

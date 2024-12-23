@@ -10,7 +10,85 @@ import {
   isOrganizationsArray,
   organizationToString,
 } from "@/types/organization";
+import axios from "axios";
 import { AxiosError, AxiosResponse } from "axios";
+import useSWR, { useSWRConfig } from "swr";
+
+interface ApiResponseOrganizations {
+  status_code: number;
+  data: Organization[];
+}
+
+// Fetch all Organizations associated with a particular User
+const fetcherOrganizations = async (
+  url: string,
+  userId: Id
+): Promise<Organization[]> =>
+  axios
+    .get<ApiResponseOrganizations>(url, {
+      params: {
+        user_id: userId,
+      },
+      withCredentials: true,
+      timeout: 5000,
+      headers: {
+        "X-Version": siteConfig.env.backendApiVersion,
+      },
+    })
+    .then((res) => res.data.data);
+
+/// A hook to retrieve all Organizations associated with userId
+export function useOrganizations(userId: Id) {
+  const { data, error, isLoading } = useSWR<Organization[]>(
+    [`${siteConfig.env.backendServiceURL}/organizations`, userId],
+    ([url, _token]) => fetcherOrganizations(url, userId)
+  );
+  const swrConfig = useSWRConfig();
+  console.debug(`swrConfig: ${JSON.stringify(swrConfig)}`);
+
+  console.debug(`data: ${JSON.stringify(data)}`);
+
+  return {
+    organizations: Array.isArray(data) ? data : [],
+    isLoading,
+    isError: error,
+  };
+}
+
+interface ApiResponseOrganization {
+  status_code: number;
+  data: Organization;
+}
+
+// Fetcher for retrieving a single Organization by its Id
+const fetcherOrganization = async (url: string): Promise<Organization> =>
+  axios
+    .get<ApiResponseOrganization>(url, {
+      withCredentials: true,
+      timeout: 5000,
+      headers: {
+        "X-Version": siteConfig.env.backendApiVersion,
+      },
+    })
+    .then((res) => res.data.data);
+
+/// A hook to retrieve a single Organization by its Id
+export function useOrganization(organizationId: Id) {
+  const { data, error, isLoading } = useSWR<Organization>(
+    `${siteConfig.env.backendServiceURL}/organizations/${organizationId}`,
+    fetcherOrganization
+  );
+  const swrConfig = useSWRConfig();
+  console.debug(`swrConfig: ${JSON.stringify(swrConfig)}`);
+
+  console.debug(`data: ${JSON.stringify(data)}`);
+
+  return {
+    organization: data || defaultOrganization(),
+    isLoading,
+    isError: error,
+  };
+}
 
 export const fetchOrganizations = async (): Promise<
   [Organization[], string]
