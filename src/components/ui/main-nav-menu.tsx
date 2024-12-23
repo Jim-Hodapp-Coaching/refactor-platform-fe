@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { cn } from "@/lib/utils";
 
 import { Dialog } from "@radix-ui/react-dialog";
@@ -48,12 +47,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useAppStateStore } from "@/lib/providers/app-state-store-provider";
 import { siteConfig } from "@/site.config";
+import { forwardRef, useState } from "react";
+import { useOrganizationStateStore } from "@/lib/providers/organization-state-store-provider";
 
 export function MainNavMenu() {
-  const [open, setIsOpen] = React.useState(false);
-  const { organization } = useAppStateStore((state) => state);
+  const [open, setIsOpen] = useState(false);
+  const { currentOrganizationId, getCurrentOrganization } =
+    useOrganizationStateStore((state) => state);
+
+  const organization = getCurrentOrganization(currentOrganizationId);
 
   return (
     <>
@@ -201,19 +204,6 @@ export function MainNavMenu() {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* <ListItem
-                  onClick={() => setIsOpen(true)}
-                  title="Select Organization"
-                >
-                  Set your current organization and coaching relationship.
-                </ListItem>
-                <ListItem href="/docs/installation" title="Installation">
-                  How to install dependencies and structure your app.
-                </ListItem>
-                <ListItem href="/docs/primitives/typography" title="Typography">
-                  Styles for headings, paragraphs, lists...etc
-                </ListItem> */}
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
@@ -261,7 +251,7 @@ export function MainNavMenu() {
   );
 }
 
-const ListItem = React.forwardRef<
+const ListItem = forwardRef<
   React.ElementRef<"a">,
   React.ComponentPropsWithoutRef<"a">
 >(({ className, title, children, ...props }, ref) => {
