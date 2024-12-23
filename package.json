@@ -1,6 +1,6 @@
 {
   "name": "refactor-platform-fe",
-  "version": "0.1.0",
+  "version": "1.0.0-rc2",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -72,6 +72,8 @@
     "typescript": "^5.7.2"
   },
   "overrides": {
+    "react": "$react",
+	  "react-dom": "$react-dom",
     "@types/react": "19.0.2",
     "@types/react-dom": "19.0.2"
   }
