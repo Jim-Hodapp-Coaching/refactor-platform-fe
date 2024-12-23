@@ -42,6 +42,7 @@ const fetcher = async (
     })
     .then((res) => res.data.data);
 
+/// A hook to retrieve all CoachingSessions associated with relationshipId
 export function useCoachingSessions(relationshipId: Id) {
   console.debug(`relationshipId: ${relationshipId}`);
   console.debug("fromDate: " + fromDate);
@@ -49,15 +50,7 @@ export function useCoachingSessions(relationshipId: Id) {
 
   const { data, error, isLoading } = useSWR<CoachingSession[]>(
     [`${siteConfig.env.backendServiceURL}/coaching_sessions`, relationshipId],
-    ([url, _token]) => fetcher(url, relationshipId),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      revalidateIfStale: true,
-      keepPreviousData: true,
-      focusThrottleInterval: 10000,
-      dedupingInterval: 10000,
-    }
+    ([url, _token]) => fetcher(url, relationshipId)
   );
 
   console.debug(`data: ${JSON.stringify(data)}`);

@@ -32,6 +32,7 @@ const fetcher = async (
     })
     .then((res) => res.data.data);
 
+/// A hook to retrieve all CoachingRelationships associated with organizationId
 export function useCoachingRelationships(organizationId: Id) {
   console.debug(`organizationId: ${organizationId}`);
 
@@ -40,14 +41,6 @@ export function useCoachingRelationships(organizationId: Id) {
   >(
     `${siteConfig.env.backendServiceURL}/organizations/${organizationId}/coaching_relationships`,
     fetcher
-    // {
-    //   revalidateOnFocus: false,
-    //   revalidateOnReconnect: false,
-    //   revalidateIfStale: true,
-    //   keepPreviousData: true,
-    //   focusThrottleInterval: 10000,
-    //   dedupingInterval: 10000,
-    // }
   );
 
   console.debug(`data: ${JSON.stringify(data)}`);

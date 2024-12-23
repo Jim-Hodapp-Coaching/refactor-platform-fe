@@ -37,21 +37,11 @@ const fetcherOrganizations = async (
     })
     .then((res) => res.data.data);
 
-// TODO: idea, either get caching working or at least use the appStateStore as
-// a cache. Then offer an option to this function caller to choose between doing
-// a fresh fetch or use the cached list if possible.
+/// A hook to retrieve all Organizations associated with userId
 export function useOrganizations(userId: Id) {
   const { data, error, isLoading } = useSWR<Organization[]>(
     [`${siteConfig.env.backendServiceURL}/organizations`, userId],
-    ([url, _token]) => fetcherOrganizations(url, userId),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      revalidateIfStale: true,
-      keepPreviousData: true,
-      focusThrottleInterval: 10000,
-      dedupingInterval: 10000,
-    }
+    ([url, _token]) => fetcherOrganizations(url, userId)
   );
   const swrConfig = useSWRConfig();
   console.debug(`swrConfig: ${JSON.stringify(swrConfig)}`);
@@ -82,22 +72,11 @@ const fetcherOrganization = async (url: string): Promise<Organization> =>
     })
     .then((res) => res.data.data);
 
-// TODO: idea, either get caching working or at least use the appStateStore as
-// a cache. Then offer an option to this function caller to choose between doing
-// a fresh fetch or use return a full Organization instance from the cached list if possible.
-// A hook to retrieve a single Organization by its Id
+/// A hook to retrieve a single Organization by its Id
 export function useOrganization(organizationId: Id) {
   const { data, error, isLoading } = useSWR<Organization>(
     `${siteConfig.env.backendServiceURL}/organizations/${organizationId}`,
-    fetcherOrganization,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      revalidateIfStale: true,
-      keepPreviousData: true,
-      focusThrottleInterval: 10000,
-      dedupingInterval: 10000,
-    }
+    fetcherOrganization
   );
   const swrConfig = useSWRConfig();
   console.debug(`swrConfig: ${JSON.stringify(swrConfig)}`);
