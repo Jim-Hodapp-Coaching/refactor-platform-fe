@@ -1,13 +1,25 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import * as React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { type DayPicker as DayPickType } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
+import { JSX } from "react";
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>
+export type CalendarProps = React.ComponentProps<typeof DayPicker>;
+
+// Note: this is a workaround for allowing the calendar to work with React@19 and ^react-day-pick@9
+declare module "react-day-picker" {
+  export interface DayPickerCustomComponents {
+    Chevron?: (props: {
+      orientation?: "left" | "right" | "up" | "down";
+      className?: string;
+    }) => JSX.Element;
+  }
+}
 
 function Calendar({
   className,
@@ -54,17 +66,27 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
-          <ChevronLeft className={cn("h-4 w-4", className)} {...props} />
-        ),
-        IconRight: ({ className, ...props }) => (
-          <ChevronRight className={cn("h-4 w-4", className)} {...props} />
-        ),
+        Chevron: ({ orientation, ...props }) => {
+          if (orientation === "left") {
+            return (
+              <ChevronLeft
+                className={cn("h-4 w-4", props.className)}
+                {...props}
+              />
+            );
+          }
+          return (
+            <ChevronRight
+              className={cn("h-4 w-4", props.className)}
+              {...props}
+            />
+          );
+        },
       }}
       {...props}
     />
-  )
+  );
 }
-Calendar.displayName = "Calendar"
+Calendar.displayName = "Calendar";
 
-export { Calendar }
+export { Calendar };
