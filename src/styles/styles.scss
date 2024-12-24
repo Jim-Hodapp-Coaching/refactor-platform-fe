@@ -1,16 +1,12 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-
-// Your custom SCSS styles here
+@use "tailwindcss/base" as *;
+@use "tailwindcss/components" as *;
+@use "tailwindcss/utilities" as *;
 
 /* Basic TipTap editor styles */
 .tiptap {
   :first-child {
     margin-top: 0;
   }
-
-
 
   /* List styles */
   ul,
