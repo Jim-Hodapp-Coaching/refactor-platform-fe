@@ -143,7 +143,8 @@ const TipTapEditor = forwardRef<EditorRef, TipTapProps>(
     useEffect(() => {
       const provider = new TiptapCollabProvider({
         name: "refactor.test.document.name", // Unique document identifier for syncing. This is your document name.
-        appId: "", // Your Cloud Dashboard AppID or `baseURL` for on-premises
+        //appId: "", // Your Cloud Dashboard AppID or ...
+        baseUrl: "ws://127.0.0.1:8080", // ... `baseURL` for on-premises
         token: "", // Your JWT token
         document: doc,
         onOpen() {
