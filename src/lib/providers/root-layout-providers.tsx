@@ -6,6 +6,7 @@ import { SWRConfig } from "swr";
 import { OrganizationStateStoreProvider } from "./organization-state-store-provider";
 import { CoachingRelationshipStateStoreProvider } from "./coaching-relationship-state-store-provider";
 import { CoachingSessionStateStoreProvider } from "./coaching-session-state-store-provider";
+import { OverarchingGoalStateStoreProvider } from "./overarching-goal-state-store-provider";
 
 export function RootLayoutProviders({
   children,
@@ -24,15 +25,17 @@ export function RootLayoutProviders({
         <OrganizationStateStoreProvider>
           <CoachingRelationshipStateStoreProvider>
             <CoachingSessionStateStoreProvider>
-              <SWRConfig
-                value={{
-                  revalidateIfStale: true,
-                  focusThrottleInterval: 10000,
-                  provider: () => new Map(),
-                }}
-              >
-                {children}
-              </SWRConfig>
+              <OverarchingGoalStateStoreProvider>
+                <SWRConfig
+                  value={{
+                    revalidateIfStale: true,
+                    focusThrottleInterval: 10000,
+                    provider: () => new Map(),
+                  }}
+                >
+                  {children}
+                </SWRConfig>
+              </OverarchingGoalStateStoreProvider>
             </CoachingSessionStateStoreProvider>
           </CoachingRelationshipStateStoreProvider>
         </OrganizationStateStoreProvider>
