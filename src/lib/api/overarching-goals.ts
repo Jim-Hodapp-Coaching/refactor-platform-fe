@@ -8,8 +8,102 @@ import {
   parseOverarchingGoal,
 } from "@/types/overarching-goal";
 import { ItemStatus, Id } from "@/types/general";
-import { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { siteConfig } from "@/site.config";
+import useSWR, { useSWRConfig } from "swr";
+
+interface ApiResponseOverarchingGoals {
+  status_code: number;
+  data: OverarchingGoal[];
+}
+
+// Fetch all OverarchingGoals associated with a particular User
+const fetcherOverarchingGoals = async (
+  url: string,
+  coachingSessionId: Id
+): Promise<OverarchingGoal[]> =>
+  axios
+    .get<ApiResponseOverarchingGoals>(url, {
+      params: {
+        coaching_session_id: coachingSessionId,
+      },
+      withCredentials: true,
+      timeout: 5000,
+      headers: {
+        "X-Version": siteConfig.env.backendApiVersion,
+      },
+    })
+    .then((res) => res.data.data);
+
+/// A hook to retrieve all OverarchingGoals associated with coachingSessionId
+export function useOverarchingGoals(coachingSessionId: Id) {
+  const { data, error, isLoading } = useSWR<OverarchingGoal[]>(
+    [
+      `${siteConfig.env.backendServiceURL}/overarching_goals`,
+      coachingSessionId,
+    ],
+    ([url, _token]) => fetcherOverarchingGoals(url, coachingSessionId)
+  );
+  const swrConfig = useSWRConfig();
+  console.debug(`swrConfig: ${JSON.stringify(swrConfig)}`);
+
+  console.debug(`overarchingGoals data: ${JSON.stringify(data)}`);
+
+  return {
+    overarchingGoals: Array.isArray(data) ? data : [],
+    isLoading,
+    isError: error,
+  };
+}
+
+/// A hook to retrieve a single OverarchingGoal by a coachingSessionId
+export function useOverarchingGoalByCoachingSessionId(coachingSessionId: Id) {
+  const { overarchingGoals, isLoading, isError } =
+    useOverarchingGoals(coachingSessionId);
+
+  return {
+    overarchingGoal: overarchingGoals.length
+      ? overarchingGoals[0]
+      : defaultOverarchingGoal(),
+    isLoading,
+    isError: isError,
+  };
+}
+
+interface ApiResponseOverarchingGoal {
+  status_code: number;
+  data: OverarchingGoal;
+}
+
+// Fetcher for retrieving a single OverarchingGoal by its Id
+const fetcherOverarchingGoal = async (url: string): Promise<OverarchingGoal> =>
+  axios
+    .get<ApiResponseOverarchingGoal>(url, {
+      withCredentials: true,
+      timeout: 5000,
+      headers: {
+        "X-Version": siteConfig.env.backendApiVersion,
+      },
+    })
+    .then((res) => res.data.data);
+
+/// A hook to retrieve a single OverarchingGoal by its Id
+export function useOverarchingGoal(overarchingGoalId: Id) {
+  const { data, error, isLoading } = useSWR<OverarchingGoal>(
+    `${siteConfig.env.backendServiceURL}/overarching_goals/${overarchingGoalId}`,
+    fetcherOverarchingGoal
+  );
+  const swrConfig = useSWRConfig();
+  console.debug(`swrConfig: ${JSON.stringify(swrConfig)}`);
+
+  console.debug(`overarchingGoal data: ${JSON.stringify(data)}`);
+
+  return {
+    overarchingGoal: data || defaultOverarchingGoal(),
+    isLoading,
+    isError: error,
+  };
+}
 
 export const fetchOverarchingGoalsByCoachingSessionId = async (
   coachingSessionId: Id

@@ -16,6 +16,7 @@ interface CoachingSessionState {
 
 interface CoachingSessionsStateActions {
   getCurrentCoachingSession: (coachingSessionId: Id) => CoachingSession;
+  getCurrentCoachingSessionId: () => Id;
   setCurrentCoachingSessionId: (newCoachingSessionId: Id) => void;
   setCurrentCoachingSession: (newCoachingSession: CoachingSession) => void;
   setCurrentCoachingSessions: (newCoachingSessions: CoachingSession[]) => void;
@@ -51,11 +52,17 @@ export const createCoachingSessionStateStore = (
                 )
               : defaultCoachingSession();
           },
+          getCurrentCoachingSessionId: () => {
+            return get().currentCoachingSessionId;
+          },
           setCurrentCoachingSessionId: (newCoachingSessionId) => {
             set({ currentCoachingSessionId: newCoachingSessionId });
           },
           setCurrentCoachingSession: (newCoachingSession) => {
-            set({ currentCoachingSession: newCoachingSession });
+            set({
+              currentCoachingSession: newCoachingSession,
+              currentCoachingSessionId: newCoachingSession.id,
+            });
           },
           setCurrentCoachingSessions: (
             newCoachingSessions: CoachingSession[]
